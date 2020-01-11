@@ -1,0 +1,69 @@
+?start:         ("relations" "[" rels "]")? (assign? hn)+
+
+?comments:
+rels:           assign wexpr (";" assign wexpr)* ";"?
+
+hn:             hs
+              | "(" hn ")"
+
+hs:             alpha
+              | beta
+alpha:          "<" a_simplex r? where? time? mereonomy? function? ">" level?
+beta:           "{" b_simplex r? time? mereonomy? "}" level?
+seq:            "(" NAME ("," NAME)+ ")"
+
+?a_simplex:     a_vertex ("," a_vertex)*
+?a_vertex:      vertex
+              | seq
+
+?b_simplex:     vertex ("," vertex)*
+
+vertex:         (NAME | sequence | assign? hs) typed?
+
+sequence:       "(" NAME ")"
+assign:         NAME "="
+r:              ";" "R" ("_" NAME)?
+time:           ";" "t_" NUMBER
+mereonomy:      ";" "M_" NAME
+function:       ";" "f_" NAME
+level:          "^" N LEVEL*
+
+where:          "|" wexpr
+?wexpr:         typed
+              | vname+
+              | named_rel
+              | "(" wexpr ")"
+
+named_rel:      wexpr rname wexpr
+// TODO need to add ability to specify n-ary, e.g. x = above[v_1, v_2, v_3, v_4];
+//              | rname "[" vname ("," vname)* "]"
+
+//named_rel:      wexpr? rname (wexpr | "[" vname ( "," vname)* "]")
+
+typed:          ":" TYPE
+
+vname:          "v_" NUMBER
+rname:          NAME
+
+NAME:           "-" | DECIMAL | (LETTER (LETTER | DIGIT | "-" | "_" | "^" | ".")*)
+NUMBER:         DIGIT+
+DECIMAL:        DIGIT+ "." DIGIT+
+TYPE:           NAME
+N:              "N"
+LEVEL:          ("+" | "-") (NUMBER | LETTER)
+
+neg:            "-" hn      // minus == add hn neg hn
+
+lambda:         NAME
+              | "lambda" NAME "." lambda
+              | "\\" NAME "." lambda
+              | lambda lambda
+              | "(" lambda ")"
+
+COMMENT:        /#.*/
+%ignore WS
+%ignore COMMENT
+%import common.LETTER
+%import common.DIGIT
+%import common.WS
+%import common.NEWLINE
