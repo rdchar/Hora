@@ -8,7 +8,7 @@ from core.Hypernetwork import Hypernetwork
 from utils.HTGraph import to_graph
 from utils.HTSimplicalComplex import qanalysis_of_simplical_complex, gen_simplical_complex, simplical_complex_to_graph
 from utils.HTString import load_parser, from_string, load_ht
-from utils.HTJSON import save_Hn
+from utils.HTImpExp import save_Hn
 
 logger = log.StreamHandler(sys.stdout)
 log.basicConfig(level=log.DEBUG, handlers=[logger])

@@ -1,9 +1,14 @@
 import json
+import yaml
 from core.Hypernetwork import Hypernetwork, M_UNKNOWN
 from core.Hypersimplex import Hypersimplex
 
 
-def to_json(Hn):
+JSON = 1
+YAML = 2
+
+
+def to_data(Hn):
     json_out = {}
 
     for (k, v) in Hn.hypernetwork.items():
@@ -31,7 +36,7 @@ def to_json(Hn):
     return {"name": Hn.name, "hypersimplices": json_out}
 
 
-def from_json(data):
+def from_data(data):
     name = list(data.values())[0]
     data = list(data.values())[1]
     hn = Hypernetwork(name)
@@ -52,17 +57,23 @@ def from_json(data):
     return hn
 
 
-def save_Hn(Hn, fanme=""):
-    fname = (Hn.name if fanme == "" else fanme) + ".json"
+def save_Hn(Hn, fanme="", type=JSON):
+    fname = (Hn.name if fanme == "" else fanme)
 
-    with open(fname, "w") as write_file:
-        json.dump(to_json(Hn), separators=(",", ": "), indent=4, fp=write_file)
+    with open(fname, 'w', encoding='utf8') as write_file:
+        if type == JSON:
+            json.dump(to_data(Hn), separators=(",", ": "), indent=4, fp=write_file)
+        elif type == YAML:
+            yaml.dump(to_data(Hn), write_file, default_flow_style=False, allow_unicode=True)
 
 
-def load_Hn(fname=""):
-    fname = fname + ".json"
+def load_Hn(fname="", type=JSON):
+    fname = fname
 
     with open(fname, "r") as read_file:
-        data = json.load(read_file)
+        if type == JSON:
+            data = json.load(read_file)
+        elif type == YAML:
+            data = yaml.load(read_file)
 
-    return from_json(data)
+    return from_data(data)
