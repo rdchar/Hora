@@ -10,21 +10,20 @@ hs:             alpha
               | beta
 alpha:          "<" a_simplex r? where? time? mereonomy? function? ">" level?
 beta:           "{" b_simplex r? time? mereonomy? "}" level?
-seq:            "(" NAME ("," NAME)+ ")"
 
 ?a_simplex:     a_vertex ("," a_vertex)*
 ?a_vertex:      vertex
-              | seq
+              | sequence
 
 ?b_simplex:     vertex ("," vertex)*
 
-vertex:         (NAME | sequence | assign? hs) typed?
+vertex:         (NAME | assign? hs) typed?
 
 sequence:       "(" NAME ")"
 assign:         NAME "="
 r:              ";" "R" ("_" NAME)?
 time:           ";" "t_" NUMBER
-mereonomy:      ";" "M_" NAME
+mereonomy:      ";" "M(" NAME ("," NAME)* ")"
 function:       ";" "f_" NAME
 level:          "^" N LEVEL*
 

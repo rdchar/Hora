@@ -37,11 +37,15 @@ def to_data(Hn):
 
 
 def from_data(data):
-    name = list(data.values())[0]
-    data = list(data.values())[1]
+    name = ""
+    #name = list(data.values())[0]
+    #data = list(data.values())[1]
+    if "name" in data:
+        name = data["name"]
+
     hn = Hypernetwork(name)
 
-    for v, d in data:
+    for v, d in data["hypersimplices"].items():
         vertex = v
         hstype = int(d["hstype"])
         simplex = list(d["simplex"]) if "simplex" in d else []
@@ -57,13 +61,14 @@ def from_data(data):
     return hn
 
 
-def save_Hn(Hn, fanme="", type=JSON):
-    fname = (Hn.name if fanme == "" else fanme)
+def save_Hn(Hn, fname="", type=JSON):
+    fname = (Hn.name if fname == "" else fname)
 
     with open(fname, 'w', encoding='utf8') as write_file:
         if type == JSON:
             json.dump(to_data(Hn), separators=(",", ": "), indent=4, fp=write_file)
-        elif type == YAML:
+
+        if type == YAML:
             yaml.dump(to_data(Hn), write_file, default_flow_style=False, allow_unicode=True)
 
 
@@ -73,7 +78,8 @@ def load_Hn(fname="", type=JSON):
     with open(fname, "r") as read_file:
         if type == JSON:
             data = json.load(read_file)
-        elif type == YAML:
-            data = yaml.load(read_file)
+
+        if type == YAML:
+            data = yaml.load(read_file, Loader=yaml.FullLoader)
 
     return from_data(data)

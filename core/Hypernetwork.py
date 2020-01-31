@@ -45,7 +45,7 @@ class Hypernetwork:
     def load_hs(self, hs):
         self._hypernetwork.update({hs.vertex: hs})
 
-    def add(self, vertex, hstype=NONE, simplex=None, R="", t=-1, M=M_UNKNOWN, N="", f="", partOf=None):
+    def add(self, vertex, hstype=NONE, simplex=None, R="", t=-1, M=None, N="", f="", partOf=None):
         if vertex in self._hypernetwork:
             # Update an existing node
             temp = self._hypernetwork[vertex]
@@ -59,7 +59,7 @@ class Hypernetwork:
             if temp.R == "" and R != "":
                 R = temp.R
 
-            if temp.M == M_UNKNOWN and M > M_UNKNOWN:
+            if temp.M and M:
                 M = temp.M
 
             if temp.N != "" and N == "":
@@ -114,7 +114,7 @@ class Hypernetwork:
 
         return
 
-    def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, M=M_UNKNOWN, N="", f="", partOf=None):
+    def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, M=None, N="", f="", partOf=None):
         def _insert_by_matrix(_simplex):
             if R == self.hypernetwork[vertex].R \
                     or R == "" \
@@ -135,7 +135,7 @@ class Hypernetwork:
                     print("ERROR: unable to use the matrix method!")
                     # TODO log that we fall back on the standard processing
 
-                return False
+            return False
         # END _insert_by_matrix
 
         if simplex is None:
@@ -144,13 +144,16 @@ class Hypernetwork:
         if partOf is None:
             partOf = set()
 
-        if not hs_replace_same_vertex and vertex in self.hypernetwork and R == self.hypernetwork[vertex].R:
-            if _insert_by_matrix(simplex):  # TODO need to decide where this is best positioned.
-                                            #   Currently it cannot cope with, e.g.
-                                            #       face=<<eyes, smile>, round>
-                                            #       face=<<eyes, frown>, round>
-                return vertex
+        """
+        if not hs_replace_same_vertex:
+            if vertex in self.hypernetwork and R == self.hypernetwork[vertex].R:
+                if _insert_by_matrix(simplex):  # TODO need to decide where this is best positioned.
+                                                #   Currently it cannot cope with, e.g.
+                                                #       face=<<eyes, smile>, round>
+                                                #       face=<<eyes, frown>, round>
 
+                    return vertex
+        """
         # If the simplex of type hsTyoe is found then
         #   replace the new details and all references
         if simplex:
@@ -201,7 +204,7 @@ class Hypernetwork:
             hs_simplex = []
             hs_R = ""
             hs_t = -1
-            hs_M = M_UNKNOWN
+            hs_M = []
             hs_N = ""
             hs_f = ""
             hs_partOf = set()
@@ -233,11 +236,16 @@ class Hypernetwork:
                     _relation.hs_R = hs_v
                     _hypersimplex.hs_R = hs_v
 
+                elif hs_k == "SEQ":
+                    print("HELLO 2")
+                    # TODO
+                    pass
+
                 elif hs_k == "t":
                     _hypersimplex.hs_t = hs_v
 
                 elif hs_k == "M":
-                    _hypersimplex.hs_M = MERONYMY.index(hs_v)
+                    _hypersimplex.hs_M = hs_v
 
                 elif hs_k == "N":
                     _hypersimplex.hs_N = hs_v
@@ -267,7 +275,7 @@ class Hypernetwork:
             _hypersimplex.hs_simplex = []
             _hypersimplex.hs_R = ""
             _hypersimplex.hs_t = -1
-            _hypersimplex.hs_M = M_UNKNOWN
+            _hypersimplex.hs_M = []
             _hypersimplex.hs_N = ""
             _hypersimplex.hs_f = ""
 
@@ -279,15 +287,15 @@ class Hypernetwork:
 
         _clear()
         
-        print("PARSING ...")
+        #print("PARSING ...")
         for hn in hypernet:
             if isinstance(hn, dict):
                 _parse_hs(hn)
-                print("\tHN 1: " + str(hn))
+                #print("\tHN 1: " + str(hn))
             else:
-                print("\tHN 2: " + str(hn))
+                #print("\tHN 2: " + str(hn))
                 for hs in hn:
-                    print("\t\tRECURSE: " + str(hs))
+                    #print("\t\tRECURSE: " + str(hs))
                     _parse_hs(hs)
 
             if _hypersimplex.hs_type != NONE:
@@ -300,7 +308,7 @@ class Hypernetwork:
                                    N=_hypersimplex.hs_N,
                                    f=_hypersimplex.hs_f,
                                    partOf=_hypersimplex.hs_partOf)
-                print("\t\t\tADDED: " + name)
+                #print("\t\t\tADDED: " + name)
 
                 if _relation.hs_where:
                     self.relations[_relation.hs_R] = _relation.hs_where
@@ -309,9 +317,8 @@ class Hypernetwork:
 
         return name
 
-    def search(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, M=M_UNKNOWN, N="", partOf=None):
+    def search(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, M=None, N="", partOf=None):
         res = []
-        # prev_M = M_UNKNOWN
 
         for node in self._hypernetwork.values():
             fail = False
@@ -378,7 +385,7 @@ class Hypernetwork:
 
         return res
 
-    def get_subHn(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, M=M_UNKNOWN, N="", partOf=None):
+    def get_subHn(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, M=None, N="", partOf=None):
         class temp:
             Hn = None
 
@@ -464,7 +471,7 @@ class Hypernetwork:
 
                 _res += ("; R" + ("_" + simplex.R) if simplex.R != " " else "") if simplex.R else ""
                 _res += ("; t_" + str(simplex.t)) if simplex.t > -1 else ""
-                _res += ("; M_" + simplex.M) if simplex.M != M_UNKNOWN else ""
+                _res += ("; M_" + simplex.M) if not simplex.M else ""
                 if simplex.N:
                     _res += ">^" + simplex.N + ", "
                 else:

@@ -106,8 +106,8 @@ def from_string(Hn, parser, hs_string):
                     break
             return res
 
-        def sequence(self, *tokens):
-            return {"SEQ": tokens[0]}
+        def sequence(self, token):
+            return {"SEQ": str(token)}
 
         def r(self, *tokens):
             if len(tokens) == 0:
@@ -118,8 +118,8 @@ def from_string(Hn, parser, hs_string):
         def time(self, token):
             return {'t': int(token)}
 
-        def mereonomy(self, token):
-            return {'M': str(token)}
+        def mereonomy(self, *tokens):
+            return {'M': [str(t) for t in tokens]}
 
         def level(self, *tokens):
             if len(tokens) == 0:
