@@ -4,7 +4,7 @@ from core.HTConfig import hs_replace_same_vertex
 from core.HTErrors import HnInsertError, HnUnknownHsType, HnVertexNoFound
 from core.HTRelations import Relations
 from core.HTTypes import Types
-from core.Hypersimplex import Hypersimplex, NONE, VERTEX, ALPHA, BETA, str_to_node_type
+from core.Hypersimplex import Hypersimplex, NONE, VERTEX, ALPHA, BETA, str_to_node_type, node_type_to_str
 from core.HTMeronymy import *
 import logging as log
 
@@ -115,6 +115,8 @@ class Hypernetwork:
         return
 
     def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, M=None, N="", f="", partOf=None):
+        # TODO fix the matrix method
+        """
         def _insert_by_matrix(_simplex):
             if R == self.hypernetwork[vertex].R \
                     or R == "" \
@@ -122,21 +124,23 @@ class Hypernetwork:
 
                 mtrx = to_matrix(self, vertex=vertex, R=R)
 
-                if len(mtrx) > 1 and isinstance(mtrx[0], list):
-                    mtrx.append(_simplex)
-                else:
-                    mtrx = [mtrx, _simplex]
+                if len(mtrx[0]) == len(_simplex):
+                    if len(mtrx) > 1 and isinstance(mtrx[0], list):
+                        mtrx.append(_simplex)
+                    else:
+                        mtrx = [mtrx, _simplex]
 
-                try:
-                    from_matrix(self, mtrx, vertex, R)
-                    return True
+                    try:
+                        from_matrix(self, mtrx, vertex, R)
+                        return True
 
-                except:
-                    print("ERROR: unable to use the matrix method!")
-                    # TODO log that we fall back on the standard processing
+                    except:
+                        print("ERROR: unable to use the matrix method!")
+                        # TODO log that we fall back on the standard processing
 
             return False
         # END _insert_by_matrix
+        """
 
         if simplex is None:
             simplex = []
@@ -144,6 +148,7 @@ class Hypernetwork:
         if partOf is None:
             partOf = set()
 
+        # TODO fix the matrix method if needed
         """
         if not hs_replace_same_vertex:
             if vertex in self.hypernetwork and R == self.hypernetwork[vertex].R:
@@ -154,6 +159,28 @@ class Hypernetwork:
 
                     return vertex
         """
+
+        # TODO is this the right solution?  Or should it we use the matrix method.
+        if vertex in self.hypernetwork:
+            if self.hypernetwork[vertex].hstype == BETA:
+                new_vertex = vertex + "_" + str(len(self.hypernetwork[vertex].simplex)+1)
+                partOf.update(vertex)
+                self.hypernetwork[vertex].simplex.append(new_vertex)
+                vertex = new_vertex
+
+            else:
+                # Create a new BETA, move the simplex to a partOf the new BETA
+                tmpHs = self.hypernetwork[vertex]
+
+                self.add(vertex=vertex+"_1", hstype=tmpHs.hstype, simplex=tmpHs.simplex,
+                         R=tmpHs.R, t=tmpHs.t, M=tmpHs.M, N=tmpHs.N, f=tmpHs.f, partOf=set(vertex))
+                self.hypernetwork.pop(vertex, None)
+                self.add(vertex=vertex, hstype=BETA, simplex=[vertex+"_1", vertex+"_2"],
+                         R=tmpHs.R, t=tmpHs.t, M=tmpHs.M, partOf=tmpHs.partOf)
+
+                vertex += "_2"
+                partOf.update(vertex)
+
         # If the simplex of type hsTyoe is found then
         #   replace the new details and all references
         if simplex:
@@ -237,7 +264,7 @@ class Hypernetwork:
                     _hypersimplex.hs_R = hs_v
 
                 elif hs_k == "SEQ":
-                    print("HELLO 2")
+                    print("SEQ TBD")
                     # TODO
                     pass
 
@@ -287,15 +314,11 @@ class Hypernetwork:
 
         _clear()
         
-        #print("PARSING ...")
         for hn in hypernet:
             if isinstance(hn, dict):
                 _parse_hs(hn)
-                #print("\tHN 1: " + str(hn))
             else:
-                #print("\tHN 2: " + str(hn))
                 for hs in hn:
-                    #print("\t\tRECURSE: " + str(hs))
                     _parse_hs(hs)
 
             if _hypersimplex.hs_type != NONE:
@@ -308,7 +331,6 @@ class Hypernetwork:
                                    N=_hypersimplex.hs_N,
                                    f=_hypersimplex.hs_f,
                                    partOf=_hypersimplex.hs_partOf)
-                #print("\t\t\tADDED: " + name)
 
                 if _relation.hs_where:
                     self.relations[_relation.hs_R] = _relation.hs_where
