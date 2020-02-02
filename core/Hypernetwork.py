@@ -115,7 +115,7 @@ class Hypernetwork:
         return
 
     def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, M=None, N="", f="", partOf=None):
-        # TODO fix the matrix method
+        # TODO fix the matrix method if needed
         """
         def _insert_by_matrix(_simplex):
             if R == self.hypernetwork[vertex].R \
@@ -163,6 +163,7 @@ class Hypernetwork:
         # TODO is this the right solution?  Or should it we use the matrix method.
         if vertex in self.hypernetwork:
             if self.hypernetwork[vertex].hstype == BETA:
+                # Add to BETA
                 new_vertex = vertex + "_" + str(len(self.hypernetwork[vertex].simplex)+1)
                 partOf.update(vertex)
                 self.hypernetwork[vertex].simplex.append(new_vertex)
