@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x12hypernetwork.proto\"\x1f\n\rVertexMessage\x12\x0e\n\x06vertex\x18\x01 \x01(\t\"\xd5\x01\n\x13HypersimplexMessage\x12\x0e\n\x06vertex\x18\x01 \x01(\t\x12\x0f\n\x07simplex\x18\x02 \x03(\t\x12\x0e\n\x06partOf\x18\x03 \x03(\t\x12+\n\x06hsType\x18\x04 \x01(\x0e\x32\x1b.HypersimplexMessage.HsType\x12\t\n\x01R\x18\x05 \x01(\t\x12\t\n\x01t\x18\x06 \x01(\x05\x12\t\n\x01M\x18\x07 \x03(\t\x12\t\n\x01N\x18\x08 \x01(\t\x12\t\n\x01\x66\x18\t \x01(\t\")\n\x06HsType\x12\n\n\x06VERTEX\x10\x00\x12\t\n\x05\x41LPHA\x10\x01\x12\x08\n\x04\x42\x45TA\x10\x02\"\xac\x01\n\x13HypernetworkMessage\x12\x0c\n\x04name\x18\x01 \x01(\t\x12<\n\x0chypernetwork\x18\x02 \x03(\x0b\x32&.HypernetworkMessage.HypernetworkEntry\x1aI\n\x11HypernetworkEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12#\n\x05value\x18\x02 \x01(\x0b\x32\x14.HypersimplexMessage:\x02\x38\x01\"\x0e\n\x0c\x45mptyMessage2\xae\x01\n\x02HT\x12\x37\n\x0fGetHypersimplex\x12\x0e.VertexMessage\x1a\x14.HypersimplexMessage\x12\x37\n\x0f\x41\x64\x64Hypersimplex\x12\x14.HypersimplexMessage\x1a\x0e.VertexMessage\x12\x36\n\x0fGetHypernetwork\x12\r.EmptyMessage\x1a\x14.HypernetworkMessageb\x06proto3')
+  serialized_pb=_b('\n\x12hypernetwork.proto\"\x1f\n\rVertexMessage\x12\x0e\n\x06vertex\x18\x01 \x01(\t\"\xd5\x01\n\x13HypersimplexMessage\x12\x0e\n\x06vertex\x18\x01 \x01(\t\x12\x0f\n\x07simplex\x18\x02 \x03(\t\x12\x0e\n\x06partOf\x18\x03 \x03(\t\x12+\n\x06hsType\x18\x04 \x01(\x0e\x32\x1b.HypersimplexMessage.HsType\x12\t\n\x01R\x18\x05 \x01(\t\x12\t\n\x01t\x18\x06 \x01(\x05\x12\t\n\x01M\x18\x07 \x03(\t\x12\t\n\x01N\x18\x08 \x01(\t\x12\t\n\x01\x66\x18\t \x01(\t\")\n\x06HsType\x12\n\n\x06VERTEX\x10\x00\x12\t\n\x05\x41LPHA\x10\x01\x12\x08\n\x04\x42\x45TA\x10\x02\",\n\x0f\x44\x65leteHsMessage\x12\x0e\n\x06vertex\x18\x01 \x01(\t\x12\t\n\x01R\x18\x02 \x01(\t\"\xac\x01\n\x13HypernetworkMessage\x12\x0c\n\x04name\x18\x01 \x01(\t\x12<\n\x0chypernetwork\x18\x02 \x03(\x0b\x32&.HypernetworkMessage.HypernetworkEntry\x1aI\n\x11HypernetworkEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12#\n\x05value\x18\x02 \x01(\x0b\x32\x14.HypersimplexMessage:\x02\x38\x01\"\x0e\n\x0c\x45mptyMessage2\xe6\x01\n\x02HT\x12\x37\n\x0fGetHypersimplex\x12\x0e.VertexMessage\x1a\x14.HypersimplexMessage\x12\x37\n\x0f\x41\x64\x64Hypersimplex\x12\x14.HypersimplexMessage\x1a\x0e.VertexMessage\x12:\n\x12\x44\x65leteHypersimplex\x12\x14.HypersimplexMessage\x1a\x0e.VertexMessage\x12\x32\n\x0fGetHypernetwork\x12\x10.DeleteHsMessage\x1a\r.EmptyMessageb\x06proto3')
 )
 
 
@@ -171,6 +171,44 @@ _HYPERSIMPLEXMESSAGE = _descriptor.Descriptor(
 )
 
 
+_DELETEHSMESSAGE = _descriptor.Descriptor(
+  name='DeleteHsMessage',
+  full_name='DeleteHsMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='vertex', full_name='DeleteHsMessage.vertex', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='R', full_name='DeleteHsMessage.R', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=271,
+  serialized_end=315,
+)
+
+
 _HYPERNETWORKMESSAGE_HYPERNETWORKENTRY = _descriptor.Descriptor(
   name='HypernetworkEntry',
   full_name='HypernetworkMessage.HypernetworkEntry',
@@ -204,8 +242,8 @@ _HYPERNETWORKMESSAGE_HYPERNETWORKENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=371,
-  serialized_end=444,
+  serialized_start=417,
+  serialized_end=490,
 )
 
 _HYPERNETWORKMESSAGE = _descriptor.Descriptor(
@@ -241,8 +279,8 @@ _HYPERNETWORKMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=272,
-  serialized_end=444,
+  serialized_start=318,
+  serialized_end=490,
 )
 
 
@@ -265,8 +303,8 @@ _EMPTYMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=446,
-  serialized_end=460,
+  serialized_start=492,
+  serialized_end=506,
 )
 
 _HYPERSIMPLEXMESSAGE.fields_by_name['hsType'].enum_type = _HYPERSIMPLEXMESSAGE_HSTYPE
@@ -276,6 +314,7 @@ _HYPERNETWORKMESSAGE_HYPERNETWORKENTRY.containing_type = _HYPERNETWORKMESSAGE
 _HYPERNETWORKMESSAGE.fields_by_name['hypernetwork'].message_type = _HYPERNETWORKMESSAGE_HYPERNETWORKENTRY
 DESCRIPTOR.message_types_by_name['VertexMessage'] = _VERTEXMESSAGE
 DESCRIPTOR.message_types_by_name['HypersimplexMessage'] = _HYPERSIMPLEXMESSAGE
+DESCRIPTOR.message_types_by_name['DeleteHsMessage'] = _DELETEHSMESSAGE
 DESCRIPTOR.message_types_by_name['HypernetworkMessage'] = _HYPERNETWORKMESSAGE
 DESCRIPTOR.message_types_by_name['EmptyMessage'] = _EMPTYMESSAGE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -293,6 +332,13 @@ HypersimplexMessage = _reflection.GeneratedProtocolMessageType('HypersimplexMess
   # @@protoc_insertion_point(class_scope:HypersimplexMessage)
   })
 _sym_db.RegisterMessage(HypersimplexMessage)
+
+DeleteHsMessage = _reflection.GeneratedProtocolMessageType('DeleteHsMessage', (_message.Message,), {
+  'DESCRIPTOR' : _DELETEHSMESSAGE,
+  '__module__' : 'hypernetwork_pb2'
+  # @@protoc_insertion_point(class_scope:DeleteHsMessage)
+  })
+_sym_db.RegisterMessage(DeleteHsMessage)
 
 HypernetworkMessage = _reflection.GeneratedProtocolMessageType('HypernetworkMessage', (_message.Message,), {
 
@@ -325,8 +371,8 @@ _HT = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=463,
-  serialized_end=637,
+  serialized_start=509,
+  serialized_end=739,
   methods=[
   _descriptor.MethodDescriptor(
     name='GetHypersimplex',
@@ -347,12 +393,21 @@ _HT = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
-    name='GetHypernetwork',
-    full_name='HT.GetHypernetwork',
+    name='DeleteHypersimplex',
+    full_name='HT.DeleteHypersimplex',
     index=2,
     containing_service=None,
-    input_type=_EMPTYMESSAGE,
-    output_type=_HYPERNETWORKMESSAGE,
+    input_type=_HYPERSIMPLEXMESSAGE,
+    output_type=_VERTEXMESSAGE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='GetHypernetwork',
+    full_name='HT.GetHypernetwork',
+    index=3,
+    containing_service=None,
+    input_type=_DELETEHSMESSAGE,
+    output_type=_EMPTYMESSAGE,
     serialized_options=None,
   ),
 ])

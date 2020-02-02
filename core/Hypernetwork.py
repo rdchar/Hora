@@ -162,14 +162,14 @@ class Hypernetwork:
 
         # TODO is this the right solution?  Or should it we use the matrix method.
         if vertex in self.hypernetwork:
-            if self.hypernetwork[vertex].hstype == BETA:
+            if self.hypernetwork[vertex].hstype == BETA and self.hypernetwork[vertex].simplex != simplex:
                 # Add to BETA
                 new_vertex = vertex + "_" + str(len(self.hypernetwork[vertex].simplex)+1)
                 partOf.update(vertex)
                 self.hypernetwork[vertex].simplex.append(new_vertex)
                 vertex = new_vertex
 
-            else:
+            elif self.hypernetwork[vertex].hstype == ALPHA:
                 # Create a new BETA, move the simplex to a partOf the new BETA
                 tmpHs = self.hypernetwork[vertex]
 

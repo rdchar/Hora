@@ -24,10 +24,15 @@ class HTStub(object):
         request_serializer=hypernetwork__pb2.HypersimplexMessage.SerializeToString,
         response_deserializer=hypernetwork__pb2.VertexMessage.FromString,
         )
+    self.DeleteHypersimplex = channel.unary_unary(
+        '/HT/DeleteHypersimplex',
+        request_serializer=hypernetwork__pb2.HypersimplexMessage.SerializeToString,
+        response_deserializer=hypernetwork__pb2.VertexMessage.FromString,
+        )
     self.GetHypernetwork = channel.unary_unary(
         '/HT/GetHypernetwork',
-        request_serializer=hypernetwork__pb2.EmptyMessage.SerializeToString,
-        response_deserializer=hypernetwork__pb2.HypernetworkMessage.FromString,
+        request_serializer=hypernetwork__pb2.DeleteHsMessage.SerializeToString,
+        response_deserializer=hypernetwork__pb2.EmptyMessage.FromString,
         )
 
 
@@ -43,6 +48,13 @@ class HTServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def AddHypersimplex(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def DeleteHypersimplex(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -69,10 +81,15 @@ def add_HTServicer_to_server(servicer, server):
           request_deserializer=hypernetwork__pb2.HypersimplexMessage.FromString,
           response_serializer=hypernetwork__pb2.VertexMessage.SerializeToString,
       ),
+      'DeleteHypersimplex': grpc.unary_unary_rpc_method_handler(
+          servicer.DeleteHypersimplex,
+          request_deserializer=hypernetwork__pb2.HypersimplexMessage.FromString,
+          response_serializer=hypernetwork__pb2.VertexMessage.SerializeToString,
+      ),
       'GetHypernetwork': grpc.unary_unary_rpc_method_handler(
           servicer.GetHypernetwork,
-          request_deserializer=hypernetwork__pb2.EmptyMessage.FromString,
-          response_serializer=hypernetwork__pb2.HypernetworkMessage.SerializeToString,
+          request_deserializer=hypernetwork__pb2.DeleteHsMessage.FromString,
+          response_serializer=hypernetwork__pb2.EmptyMessage.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
