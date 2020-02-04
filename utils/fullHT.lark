@@ -44,7 +44,7 @@ typed:          ":" TYPE
 vname:          "v_" NUMBER
 rname:          NAME
 
-NAME:           "-" | DECIMAL | (LETTER (LETTER | DIGIT | "-" | "_" | "^" | ".")*)
+NAME:           "-" | DECIMAL | (LETTER (LETTER | DIGIT | "-" | "_" | "^" | "." | "&")*)
 NUMBER:         DIGIT+
 DECIMAL:        DIGIT+ "." DIGIT+
 TYPE:           NAME

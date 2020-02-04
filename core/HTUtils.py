@@ -10,7 +10,7 @@ def expandR(simplex, where, other_decs):
                 elif isinstance(v_v_v, int):
                     _simplex.append(simplex[v_v_v - 1])
                 else:
-                    print("WTF!!")  # TODO needs to be logged.
+                    print("WTF expanding R went wrong!!")  # TODO needs to be logged.
 
             temp = [{"ALPHA": _simplex}, {"R": r}]
             for o in other_decs:

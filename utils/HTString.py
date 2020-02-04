@@ -74,8 +74,11 @@ def from_string(Hn, parser, hs_string):
                             if not where[0]:
                                 where = None
 
+                    elif isinstance(t, str):
+                        simplex = [t]
+
                     else:
-                        print("WTF!!")  # TODO log issue!
+                        print("WTF from string Alpha", tokens, "went wrong!!!")  # TODO log issue!
 
                 if where:
                     return expandR(simplex, where, other)[0]
