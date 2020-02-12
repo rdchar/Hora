@@ -12,7 +12,7 @@ def run(vertex, hn):
     waitlist = []
 
     for v in simplex:
-        func = hn[v]['f']
+        func = hn[v]['psi']
         ID = _r.get(v)
 
         if ID:
@@ -52,7 +52,7 @@ def psi(vertex, hn):
         res = None
         pass
 
-    func = hn[vertex]['f']
+    func = hn[vertex]['psi']
     
     ID = getattr(sys.modules[__name__], func).remote(vertex, res)
     res = ray.get(ID)

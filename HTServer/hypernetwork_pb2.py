@@ -147,7 +147,7 @@ _HYPERSIMPLEXMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='f', full_name='HypersimplexMessage.f', index=8,
+      name='psi', full_name='HypersimplexMessage.psi', index=8,
       number=9, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,

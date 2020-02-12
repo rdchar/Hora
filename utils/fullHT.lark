@@ -8,7 +8,7 @@ hn:             hs
 
 hs:             alpha
               | beta
-alpha:          "<" a_simplex r? where? time? mereonomy? function? ">" level?
+alpha:          "<" a_simplex r? where? time? mereonomy? psi? ">" level?
 beta:           "{" b_simplex r? time? mereonomy? "}" level?
 
 ?a_simplex:     a_vertex ("," a_vertex)*
@@ -24,7 +24,7 @@ assign:         NAME "="
 r:              ";" "R" ("_" NAME)?
 time:           ";" "t_" NUMBER
 mereonomy:      ";" "M(" NAME ("," NAME)* ")"
-function:       ";" "f_" NAME
+psi:            ";" "psi_" NAME
 level:          "^" N LEVEL*
 
 where:          "|" wexpr

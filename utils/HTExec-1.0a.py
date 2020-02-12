@@ -13,7 +13,7 @@ def psi(vertex, hn):
     waitlist = []
 
     for v in simplex:
-        func = hn[v]['f']
+        func = hn[v]['psi']
         ID = _r.get(v)
 
         if ID:
@@ -49,7 +49,7 @@ def run(vertex, hn):
         res = None
 
     elif hs_type == VERTEX:
-        func = hn[vertex]['f']
+        func = hn[vertex]['psi']
         res = getattr(sys.modules[__name__], func)(vertex, res)
     
     return res

@@ -122,7 +122,7 @@ def from_string(Hn, parser, hs_string):
             return {'t': int(token)}
 
         def mereonomy(self, *tokens):
-            return {'M': [str(t) for t in tokens]}
+            return {'M': {str(t) for t in tokens}}
 
         def level(self, *tokens):
             if len(tokens) == 0:
@@ -130,8 +130,8 @@ def from_string(Hn, parser, hs_string):
 
             return {'N': "".join(tokens)}
 
-        def function(self, token):
-            return {'f': str(token)}
+        def psi(self, token):
+            return {'psi': str(token)}
 
         def seq(self, token):
             return [e for e in token]

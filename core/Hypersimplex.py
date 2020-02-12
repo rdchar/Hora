@@ -73,16 +73,16 @@ class HsVertex:
 
 class Hypersimplex:
     def __init__(self, vertex, hstype=VERTEX, simplex=None, R="", t=-1,
-                 M=M_UNKNOWN, N="", f="", partOf=None, content=""):
+                 M=None, N="", psi="", partOf=None, content=""):
         self._simplex = [] if simplex is None else simplex
         self._partOf = set() if partOf is None else partOf
         self._vertex = HsVertex(vertex)
         self._hstype = VERTEX if hstype == NONE else hstype
         self._R = R
         self._t = t
-        self._M = M
+        self._M = set() if M is None else M
         self._N = N
-        self._f = f
+        self._psi = psi
 
     @property
     def vertex(self):
@@ -153,14 +153,14 @@ class Hypersimplex:
         self._N = value
 
     @property
-    def f(self):
-        return self._f
+    def psi(self):
+        return self._psi
 
-    @f.setter
-    def f(self, value):
-        self._f = value
+    @psi.setter
+    def psi(self, value):
+        self._psi = value
 
-    def update(self, hstype=NONE, simplex=None, R="", t=-1, M=M_UNKNOWN, N="", f="", partOf=None):
+    def update(self, hstype=NONE, simplex=None, R="", t=-1, M=None, N="", psi="", partOf=None):
         if hstype != NONE:
             self.hstype = hstype
 
@@ -173,14 +173,14 @@ class Hypersimplex:
         if t >= 0:
             self.t = t
 
-        if M != M_UNKNOWN:
+        if M:
             self.M = M
 
         if N != "":
             self.N = N
 
-        if f != "":
-            self.f = f
+        if psi != "":
+            self.psi = psi
 
         if partOf:
             if None in self._partOf:
@@ -193,11 +193,11 @@ class Hypersimplex:
                + ", type: " + str(NODE_TYPE[self.hstype + 1]) \
                + ", simplex: " + str(self.simplex) \
                + ", partOf: " + str(self.partOf) \
-               + ((", M_" + str(self.M)) if self.M > M_UNKNOWN else "") \
+               + ((", M(" + str(self.M) + ")") if self.M > M_UNKNOWN else "") \
                + ((", R" + ("" if R == " " else "_") + str(self.R)) if self.R else "") \
                + ((", t_" + str(self.t)) if self.t >= 0 else "") \
                + ((", " + str(self.N)) if self.N != "" else "") \
-               + ((", f_" + str(self.f)) if self.f else "")
+               + ((", f_" + str(self.psi)) if self.psi else "")
 
     def __str__(self):
         bres = ""

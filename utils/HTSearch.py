@@ -39,9 +39,8 @@ def best_fit(hn, search_hn, top):
 
 
 def get_paths(Hn, simplex):
-    # Side-effects: changes temp.paths; max; new; existing
+    # Side-effects: changes temp.paths; new; existing
     paths = collections.OrderedDict()
-    max = 0
     new = []
     existing = []
 
@@ -54,8 +53,6 @@ def get_paths(Hn, simplex):
             path.path = None
 
         paths.update({tuple((idx, vtx)): path})
-
-    max = len(paths)
 
     for idx, path in paths.items():
         if path.path:

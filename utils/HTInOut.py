@@ -26,8 +26,8 @@ def to_data(Hn):
             temp["T"] = v.t
         if v.M >= 0:
             temp["M"] = v.M
-        if v.f:
-            temp["f"] = v.f
+        if v.psi:
+            temp["psi"] = v.psi
         if v.N:
             temp["N"] = v.N
 
@@ -53,10 +53,10 @@ def from_data(data):
         R = d["R"] if "R" in d else ""
         t = int(d["t"]) if "t" in d else -1
         M = int(d["M"]) if "M" in d else M_UNKNOWN
-        f = d["f"] if "f" in d else ""
+        psi = d["psi"] if "psi" in d else ""
         N = d["N"] if "N" in d else ""
 
-        hn.load_hs(Hypersimplex(vertex=vertex, hstype=hstype, simplex=simplex, partOf=partOf, R=R, t=t, M=M, f=f, N=N))
+        hn.load_hs(Hypersimplex(vertex=vertex, hstype=hstype, simplex=simplex, partOf=partOf, R=R, t=t, M=M, psi=psi, N=N))
 
     return hn
 
