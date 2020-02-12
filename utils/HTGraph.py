@@ -5,7 +5,7 @@ from graphviz import Graph
 from core.Hypersimplex import ALPHA, BETA, VERTEX
 
 
-def to_graph(Hn, direction="", R="", vertex="", N="", strict_meronymy=False,
+def to_graph(Hn, direction="", R="", vertex="", N="", M=None, strict_meronymy=False,
              show_rel=True, show_meronymy=False, show_level=False, show_time=False,
              view=True, fname="/tmp/Hn"):
 
@@ -71,8 +71,8 @@ def to_graph(Hn, direction="", R="", vertex="", N="", strict_meronymy=False,
 
     log.debug("Generating Graph ...")
 
-    if any([R, N, vertex]):
-        vertices = Hn.search(R=R, N=N, vertex=vertex)
+    if any([R, N, M, vertex]):
+        vertices = Hn.search(R=R, N=N, M=M, vertex=vertex)
     else:
         vertices = Hn.hypernetwork.keys()
 

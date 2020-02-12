@@ -403,7 +403,7 @@ class Hypernetwork:
             #     ...
 
             if M and not fail:
-                if node.M.intersect(M):
+                if node.M.intersection(M):
                     found = True
                 else:
                     fail = True
