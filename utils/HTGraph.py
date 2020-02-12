@@ -2,7 +2,6 @@ import logging as log
 
 from graphviz import Graph
 
-from core.HTMeronymy import M_UNKNOWN, meronymy_matrix, MERONYMY
 from core.Hypersimplex import ALPHA, BETA, VERTEX
 
 
@@ -14,13 +13,7 @@ def to_graph(Hn, direction="", R="", vertex="", N="", strict_meronymy=False,
         clusters = {}
         dot = Graph("Hn", strict=True)
 
-    def _add_nodes(_vertex, prev_M=M_UNKNOWN):
-        if strict_meronymy and _vertex.M > M_UNKNOWN:
-            if prev_M == M_UNKNOWN or meronymy_matrix[_vertex.M, prev_M]:
-                prev_M = _vertex.M
-            else:
-                return
-
+    def _add_nodes(_vertex):
         if _vertex.hstype in [ALPHA, BETA]:
             label = ""
             first = True
@@ -32,7 +25,7 @@ def to_graph(Hn, direction="", R="", vertex="", N="", strict_meronymy=False,
                 else:
                     label += " | <" + vtx + "> " + vtx
 
-                _add_nodes(Hn.hypernetwork[vtx], prev_M)
+                _add_nodes(Hn.hypernetwork[vtx])
 
             if _vertex.hstype == ALPHA:
                 temp.dot.attr('node', style='solid', shape='record')
@@ -43,7 +36,6 @@ def to_graph(Hn, direction="", R="", vertex="", N="", strict_meronymy=False,
                 + (("; R" + ("" if _vertex.R == " " else ("_" + _vertex.R)))
                    if show_rel and _vertex.R != "" else "")\
                 + (("; t_" + str(_vertex.t)) if show_time and _vertex.t > -1 else "")\
-                + (("; M_" + MERONYMY[_vertex.M]) if show_meronymy and _vertex.M > M_UNKNOWN else "")\
                 + (("; " + _vertex.N) if show_level and _vertex.N != "" else "")\
                 + "|{" + label + "}}"
 
@@ -67,20 +59,14 @@ def to_graph(Hn, direction="", R="", vertex="", N="", strict_meronymy=False,
                 temp.clusters.update({"Soup": [_vertex.vertex]})
     # End _add_nodes
 
-    def _add_edges(_vertex, prev_M=M_UNKNOWN):
-        if strict_meronymy and _vertex.M > M_UNKNOWN:
-            if prev_M == M_UNKNOWN or meronymy_matrix[_vertex.M, prev_M]:
-                prev_M = _vertex.M
-            else:
-                return
-
+    def _add_edges(_vertex):
         for vtx in _vertex.simplex:
             if _vertex.hstype in [ALPHA, BETA]:
                 temp.dot.edge(_vertex.vertex + ":" + vtx, vtx)
             elif _vertex.hstype == VERTEX:
                 temp.dot.edge(vtx, _vertex.vertex)
 
-            _add_edges(Hn._hypernetwork[vtx], prev_M)
+            _add_edges(Hn._hypernetwork[vtx])
     # End _add_edges
 
     log.debug("Generating Graph ...")

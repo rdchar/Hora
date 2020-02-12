@@ -1,6 +1,6 @@
 import json
 import yaml
-from core.Hypernetwork import Hypernetwork, M_UNKNOWN
+from core.Hypernetwork import Hypernetwork
 from core.Hypersimplex import Hypersimplex
 
 
@@ -52,7 +52,7 @@ def from_data(data):
         partOf = set(d["partOf"]) if "partOf" in d else set()
         R = d["R"] if "R" in d else ""
         t = int(d["t"]) if "t" in d else -1
-        M = int(d["M"]) if "M" in d else M_UNKNOWN
+        M = int(d["M"]) if "M" in d else set()
         psi = d["psi"] if "psi" in d else ""
         N = d["N"] if "N" in d else ""
 

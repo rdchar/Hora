@@ -193,8 +193,8 @@ class Hypersimplex:
                + ", type: " + str(NODE_TYPE[self.hstype + 1]) \
                + ", simplex: " + str(self.simplex) \
                + ", partOf: " + str(self.partOf) \
-               + ((", M(" + str(self.M) + ")") if self.M > M_UNKNOWN else "") \
-               + ((", R" + ("" if R == " " else "_") + str(self.R)) if self.R else "") \
+               + ((", M(" + str(self.M) + ")") if self.M != {} else "") \
+               + ((", R" + ("" if self.R == " " else "_") + str(self.R)) if self.R else "") \
                + ((", t_" + str(self.t)) if self.t >= 0 else "") \
                + ((", " + str(self.N)) if self.N != "" else "") \
                + ((", f_" + str(self.psi)) if self.psi else "")
