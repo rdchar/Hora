@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+service HT {
+    rpc GetHypersimplex(VertexMessage) returns (HypersimplexMessage);
+    rpc AddHypersimplex(HypersimplexMessage) returns (VertexMessage);
+    rpc DeleteHypersimplex(HypersimplexMessage) returns (VertexMessage);
+
+    rpc GetHypernetwork(DeleteHsMessage) returns (EmptyMessage);
+}
+
+message VertexMessage {
+    string vertex = 1;
+}
+
+message HypersimplexMessage {
+    string vertex = 1;
+    repeated string simplex = 2;
+    repeated string partOf = 3;
+    enum HsType {
+        VERTEX = 0;
+        ALPHA = 1;
+        BETA = 2;
+    }
+    HsType hsType = 4;
+    string R = 5;
+    int32 t = 6;
+    repeated string M = 7;
+    string N = 8;
+    string psi = 9;
+}
+
+message DeleteHsMessage {
+    string vertex = 1;
+    string R = 2;
+}
+
+message HypernetworkMessage {
+    string name = 1;
+    map<string, HypersimplexMessage> hypernetwork = 2;
+}
+
+message EmptyMessage {}
