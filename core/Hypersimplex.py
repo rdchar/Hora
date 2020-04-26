@@ -236,41 +236,6 @@ class Hypersimplex:
 
         return self.vertex + "=" + bres
 
-    @property
-    def latex(self):
-        bres = ""
-
-        if self.simplex:
-            if self.hstype == ALPHA:
-                bres = "\left<"
-            elif self.hstype == BETA:
-                bres = "\left\{"
-            else:
-                bres = ""
-
-            new_simplex = []
-            for v in self.simplex:
-                if v[:4] == "SEQ@":
-                    new_simplex.append("\\underline{" + v[4:len(v)] + "}")
-                else:
-                    new_simplex.append(v)
-
-            bres += ", ".join(new_simplex)
-
-            if self.hstype == ALPHA:
-                bres += "; R" + (("" if self.R == " " else "_{") + self.R + "}") if self.R else ""
-                bres += ("; t_{" + str(self.t) + "}") if self.t >= 0 else ""
-                bres += "\\right>"
-                bres += ("^{" + self.N + "}") if self.N else ""
-
-            elif self.hstype == BETA:
-                bres += "\\right\}" + (("^{" + self.N + "}") if self.N else "")
-
-            else:
-                bres = ""
-
-        return "\\textit{" + self.vertex + "}=&" + bres
-
     def test_str(self):
         bres = ""
 
@@ -284,7 +249,6 @@ class Hypersimplex:
 
             new_simplex = []
             for v in self.simplex:
-                vert = self._hypernetwork[v]
                 if v[:4] == "SEQ@":
                     new_simplex.append("(" + v[4:len(v)] + ")")
                 else:

@@ -541,22 +541,6 @@ class Hypernetwork:
 
         return res
 
-    @property
-    def latex(self):
-        res = "\\begin{align}"
-
-        for (key, hs) in self.hypernetwork.items():
-            if hs.hstype not in [NONE, VERTEX]:
-                res += hs.latex + "\\\\"
-
-        def repl(m):
-            inner_word = m.group(0)
-            return "_{" + inner_word[1:] + "}"
-
-        res = re.sub("_[0-9]+\-[0-9]+", repl, res)
-
-        return res + "\\end{align}"
-
     def test_str(self):
         def _test_str(vertex):
             simplex = self.hypernetwork[vertex]
