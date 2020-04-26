@@ -1,10 +1,11 @@
 from core.HTMeronymy import *
-
+import re
 # Relation Types
 from core.HTRelations import Relations
 
 LOGIC = 0
 ANN = 1
+LAMBDA = 2
 
 # Node type
 NONE = -1
@@ -72,15 +73,16 @@ class HsVertex:
 
 
 class Hypersimplex:
-    def __init__(self, vertex, hstype=VERTEX, simplex=None, R="", t=-1,
-                 M=None, N="", psi="", partOf=None, content=""):
-        self._simplex = [] if simplex is None else simplex
+    def __init__(self, _hn, vertex, hstype=VERTEX, simplex=None, R="", t=-1,
+                 A=None, N="", psi="", partOf=None, content=""):
+        self._hypernetwork = _hn
+        self._simplex = [] if simplex is None else [("SEQ@" + v['SEQ']) if isinstance(v, dict) else v for v in simplex]
         self._partOf = set() if partOf is None else partOf
         self._vertex = HsVertex(vertex)
         self._hstype = VERTEX if hstype == NONE else hstype
         self._R = R
         self._t = t
-        self._M = set() if M is None else M
+        self._A = set() if A is None else A
         self._N = N
         self._psi = psi
 
@@ -137,12 +139,12 @@ class Hypersimplex:
         self._t = value
 
     @property
-    def M(self):
-        return self._M
+    def A(self):
+        return self._A
 
-    @M.setter
-    def M(self, value):
-        self._M = value
+    @A.setter
+    def A(self, value):
+        self._A = value
 
     @property
     def N(self):
@@ -160,12 +162,13 @@ class Hypersimplex:
     def psi(self, value):
         self._psi = value
 
-    def update(self, hstype=NONE, simplex=None, R="", t=-1, M=None, N="", psi="", partOf=None):
+    def update(self, hstype=NONE, simplex=None, R="", t=-1, A=None, N="", psi="", partOf=None):
         if hstype != NONE:
             self.hstype = hstype
 
         if simplex:
-            self.simplex = simplex
+            new_simplex = [("SEQ@" + v['SEQ']) if isinstance(v, dict) else v for v in simplex]
+            self.simplex = new_simplex
 
         if R:
             self.R = R
@@ -173,8 +176,8 @@ class Hypersimplex:
         if t >= 0:
             self.t = t
 
-        if M:
-            self.M = M
+        if A:
+            self.A = A
 
         if N != "":
             self.N = N
@@ -193,7 +196,7 @@ class Hypersimplex:
                + ", type: " + str(NODE_TYPE[self.hstype + 1]) \
                + ", simplex: " + str(self.simplex) \
                + ", partOf: " + str(self.partOf) \
-               + ((", M(" + str(self.M) + ")") if self.M != {} else "") \
+               + ((", A(" + str(self.A) + ")") if self.A != {} else "") \
                + ((", R" + ("" if self.R == " " else "_") + str(self.R)) if self.R else "") \
                + ((", t_" + str(self.t)) if self.t >= 0 else "") \
                + ((", " + str(self.N)) if self.N != "" else "") \
@@ -201,7 +204,6 @@ class Hypersimplex:
 
     def __str__(self):
         bres = ""
-        pores = ""
 
         if self.simplex:
             if self.hstype == ALPHA:
@@ -211,27 +213,63 @@ class Hypersimplex:
             else:
                 bres = ""
 
-            bres += ", ".join(self.simplex)
+            new_simplex = []
+            for v in self.simplex:
+                if v[:4] == "SEQ@":
+                    new_simplex.append("(" + v[4:len(v)] + ")")
+                else:
+                    new_simplex.append(v)
+
+            bres += ", ".join(new_simplex)
 
             if self.hstype == ALPHA:
                 bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
                 bres += ">"
                 bres += ("^" + self.N) if self.N else ""
+
             elif self.hstype == BETA:
                 bres += "}" + (("^" + self.N) if self.N else "")
+
             else:
                 bres = ""
 
-        if self._partOf:
-            pores = " ... part of " + ", ".join(self.partOf)
-        else:
-            pores = ""
+        return self.vertex + "=" + bres
 
-        return self.vertex \
-               + (" = " if self._hstype != VERTEX else " is a vertex") \
-               + bres \
-               + pores
+    @property
+    def latex(self):
+        bres = ""
+
+        if self.simplex:
+            if self.hstype == ALPHA:
+                bres = "\left<"
+            elif self.hstype == BETA:
+                bres = "\left\{"
+            else:
+                bres = ""
+
+            new_simplex = []
+            for v in self.simplex:
+                if v[:4] == "SEQ@":
+                    new_simplex.append("\\underline{" + v[4:len(v)] + "}")
+                else:
+                    new_simplex.append(v)
+
+            bres += ", ".join(new_simplex)
+
+            if self.hstype == ALPHA:
+                bres += "; R" + (("" if self.R == " " else "_{") + self.R + "}") if self.R else ""
+                bres += ("; t_{" + str(self.t) + "}") if self.t >= 0 else ""
+                bres += "\\right>"
+                bres += ("^{" + self.N + "}") if self.N else ""
+
+            elif self.hstype == BETA:
+                bres += "\\right\}" + (("^{" + self.N + "}") if self.N else "")
+
+            else:
+                bres = ""
+
+        return "\\textit{" + self.vertex + "}=&" + bres
 
     def test_str(self):
         bres = ""
@@ -244,7 +282,15 @@ class Hypersimplex:
             else:
                 bres = ""
 
-            bres += ", ".join(self.simplex)
+            new_simplex = []
+            for v in self.simplex:
+                vert = self._hypernetwork[v]
+                if v[:4] == "SEQ@":
+                    new_simplex.append("(" + v[4:len(v)] + ")")
+                else:
+                    new_simplex.append(v)
+
+            bres += ", ".join(new_simplex)
 
             if self.hstype == ALPHA:
                 bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
@@ -257,5 +303,5 @@ class Hypersimplex:
                 bres = ""
 
         return self.vertex \
-               + (" = " if self._hstype != VERTEX else " is a vertex") \
+               + (" = " if self._hstype not in [VERTEX] else " is a vertex") \
                + bres

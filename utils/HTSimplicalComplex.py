@@ -4,10 +4,11 @@ from graphviz import Graph
 
 
 # TODO inc_parent_links may need more work
+from core.Hypersimplex import BETA
 from utils.QAnalysis import QAnalysis
 
 
-def gen_simplical_complex(hn, level=None, inc_parent_links=False):
+def gen_simplical_complex(hn, level=None, inc_parent_links=False, parent_links_only=False, exclude_beta=False):
     if level:
         hs_at_level = hn.search(N=level)
     else:
@@ -21,26 +22,56 @@ def gen_simplical_complex(hn, level=None, inc_parent_links=False):
     for hs in hs_at_level:
         parents.append(hn.hypernetwork[hs].vertex)
         children.update(set(hn.hypernetwork[hs].simplex))
-        # if inc_parent_links:
-        #    sc.add_nodes_from(hn.hypernetwork[hs].vertex)
 
-    for hs in hs_at_level:
-        edges = []
+    edges = []
 
-        if inc_parent_links:
+    if parent_links_only:
+        for hs in parents:
             for v in hn.hypernetwork[hs].simplex:
-                edges.append((hs, v))
+                if len(hn.hypernetwork[v].partOf) > 1:
+                    for p in hn.hypernetwork[v].partOf:
+                        if exclude_beta:
+                            if hn.hypernetwork[hs].hstype != BETA and hn.hypernetwork[p].hstype != BETA:
+                                edges.append((hs, p))
+                        else:
+                            edges.append((hs, p))
+                else:
+                    # TODO This seems contrived
+                    if v in parents:
+                        if exclude_beta:
+                            if hn.hypernetwork[hs].hstype != BETA:
+                                edges.append((hs, v))
+                        else:
+                            edges.append((hs, v))
 
-        for n, v1 in enumerate(hn.hypernetwork[hs].simplex):
-            for v2 in hn.hypernetwork[hs].simplex[:n]:
-                edges.append((v1, v2))
+    else:
+        for hs in hs_at_level:
+            if inc_parent_links:
+                for v in hn.hypernetwork[hs].simplex:
+                    if not exclude_beta:
+                        edges.append((hs, v))
+                    else:
+                        if hn.hypernetwork[hs].hstype != BETA and hn.hypernetwork[v].hstype != BETA:
+                            edges.append((hs, v))
 
-        sc.add_edges_from(edges)
+            for n, v1 in enumerate(hn.hypernetwork[hs].simplex):
+                for v2 in hn.hypernetwork[hs].simplex[:n]:
+                    edges.append((v1, v2))
+
+    sc.add_edges_from(edges)
+    sc.remove_edges_from(sc.selfloop_edges())
 
     return parents, list(children), sc
 
 
-def simplical_complex_to_graph(sc, location="/tmp", fname="SC", view=True):
+def simplical_complex_to_graph(sc, fname="SC", view=True):
+    if isinstance(sc, list):
+        g = []
+        for i, n in enumerate(sc):
+            if i > 0:
+                g.append((n, sc[i - 1]))
+        sc = nx.Graph(g)
+
     dot = Graph("N", strict=True, engine="neato", node_attr={'shape': 'point'})
 
     if not isinstance(sc, nx.classes.graph.Graph):
@@ -54,7 +85,7 @@ def simplical_complex_to_graph(sc, location="/tmp", fname="SC", view=True):
         dot.edge(s, e)
 
     dot.format = "png"
-    dot.render(location + "/" + fname, view=view)
+    dot.render(fname, view=view)
 
 
 def _get_incidence_matrix(sc, children):
@@ -71,9 +102,9 @@ def _get_incidence_matrix(sc, children):
 
 def qanalysis_of_simplical_complex(sc, titles):
     im = _get_incidence_matrix(sc, titles)
-
     qa = QAnalysis(im, titles)
     return qa
+
 
 def get_faces(sc):
     faces = []

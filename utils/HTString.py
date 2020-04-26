@@ -107,7 +107,14 @@ def from_string(Hn, parser, hs_string):
                 else:
                     res = str(tk)  # TODO need to add functionality for typed
                     break
+
             return res
+
+        def empty_alpha(self):
+            return {"EMPTY_ALPHA": []}
+
+        def empty_beta(self):
+            return {"EMPTY_BETA": set()}
 
         def sequence(self, token):
             return {"SEQ": str(token)}
@@ -121,8 +128,8 @@ def from_string(Hn, parser, hs_string):
         def time(self, token):
             return {'t': int(token)}
 
-        def mereonomy(self, *tokens):
-            return {'M': {str(t) for t in tokens}}
+        def atomicity(self, *tokens):
+            return {'A': {str(t) for t in tokens}}
 
         def level(self, *tokens):
             if len(tokens) == 0:
@@ -133,8 +140,10 @@ def from_string(Hn, parser, hs_string):
         def psi(self, token):
             return {'psi': str(token)}
 
-        def seq(self, token):
-            return [e for e in token]
+        """
+        def seq(self, *tokens):
+            return [e for e in tokens]
+        """
 
         # TODO doesn't currently do anything
         def typed(self, *tokens):
@@ -177,6 +186,13 @@ def from_string(Hn, parser, hs_string):
         # TODO
         def derived(self, *tokens):
             return {"DERIVED": [tokens]}
+
+        def rel_def(self, token):
+            return {}
+
+        def lambda_expr(self, *tokens):
+            print(tokens)
+            return {}
 
     # tot_start = timer()
     # start = timer()

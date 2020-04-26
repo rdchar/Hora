@@ -5,7 +5,7 @@ from graphviz import Graph
 from core.Hypersimplex import ALPHA, BETA, VERTEX
 
 
-def to_graph(Hn, direction="", R="", vertex="", N="", M=None, strict_meronymy=False,
+def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=False,
              show_rel=True, show_meronymy=False, show_level=False, show_time=False,
              view=True, fname="/tmp/Hn"):
 
@@ -19,24 +19,27 @@ def to_graph(Hn, direction="", R="", vertex="", N="", M=None, strict_meronymy=Fa
             first = True
 
             for vtx in _vertex.simplex:
+                vtx_lbl = ("(" + vtx[4:len(vtx)] + ")") if vtx[:4] == "SEQ@" else vtx
+                vtx_port = vtx[4:len(vtx)] if vtx[:4] == "SEQ@" else vtx
+
                 if first:
-                    label += "<" + vtx + "> " + vtx
+                    label += "<" + vtx_port + "> " + vtx_lbl
                     first = False
                 else:
-                    label += " | <" + vtx + "> " + vtx
+                    label += " | <" + vtx_port + "> " + vtx_lbl
 
-                _add_nodes(Hn.hypernetwork[vtx])
+                _add_nodes(Hn.hypernetwork[vtx_port])
 
             if _vertex.hstype == ALPHA:
                 temp.dot.attr('node', style='solid', shape='record')
             elif _vertex.hstype == BETA:
                 temp.dot.attr('node', style='rounded', shape='record')
 
-            v = "{" + _vertex.vertex\
+            v = "{" + _vertex.vertex \
                 + (("; R" + ("" if _vertex.R == " " else ("_" + _vertex.R)))
-                   if show_rel and _vertex.R != "" else "")\
-                + (("; t_" + str(_vertex.t)) if show_time and _vertex.t > -1 else "")\
-                + (("; " + _vertex.N) if show_level and _vertex.N != "" else "")\
+                   if show_rel and _vertex.R != "" else "") \
+                + (("; t_" + str(_vertex.t)) if show_time and _vertex.t > -1 else "") \
+                + (("; " + _vertex.N) if show_level and _vertex.N != "" else "") \
                 + "|{" + label + "}}"
 
             if _vertex.N:
@@ -57,22 +60,25 @@ def to_graph(Hn, direction="", R="", vertex="", N="", M=None, strict_meronymy=Fa
                 temp.clusters["Soup"].append(_vertex.vertex)
             else:
                 temp.clusters.update({"Soup": [_vertex.vertex]})
+
     # End _add_nodes
 
     def _add_edges(_vertex):
         for vtx in _vertex.simplex:
+            vtx_port = vtx[4:len(vtx)] if vtx[:4] == "SEQ@" else vtx
             if _vertex.hstype in [ALPHA, BETA]:
-                temp.dot.edge(_vertex.vertex + ":" + vtx, vtx)
+                temp.dot.edge(_vertex.vertex + ":" + vtx_port, vtx_port)
             elif _vertex.hstype == VERTEX:
-                temp.dot.edge(vtx, _vertex.vertex)
+                temp.dot.edge(vtx_port, _vertex.vertex)
 
-            _add_edges(Hn._hypernetwork[vtx])
+            _add_edges(Hn._hypernetwork[vtx_port])
+
     # End _add_edges
 
     log.debug("Generating Graph ...")
 
-    if any([R, N, M, vertex]):
-        vertices = Hn.search(R=R, N=N, M=M, vertex=vertex)
+    if any([R, N, A, vertex]):
+        vertices = Hn.search(R=R, N=N, A=A, vertex=vertex)
     else:
         vertices = Hn.hypernetwork.keys()
 
@@ -87,13 +93,13 @@ def to_graph(Hn, direction="", R="", vertex="", N="", M=None, strict_meronymy=Fa
                 new_cluster.append(0)
             elif cluster[0] == "N":
                 new_cluster.append(int(cluster[1:]))
-    
+
         last_cluster_name = ""
 
         for i, n in enumerate(reversed(sorted(new_cluster))):
             cluster_name = "N" + ("" if n == 0 else "{0:+}".format(n))
             cluster = temp.clusters[cluster_name]
-            
+
             with temp.dot.subgraph(name=cluster_name) as sg:
                 sg.node(cluster_name, shape="plaintext", fontsize="16")
                 sg.attr(label=cluster_name, rank="same")

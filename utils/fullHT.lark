@@ -1,15 +1,19 @@
-?start:         ("relations" "[" rels "]")? (assign? hn)+
+?start:         ("relations" "[" rels+ "]")? (assign? hn)+
 
-?comments:
-rels:           assign wexpr (";" assign wexpr)* ";"?
+rels:           assign lambda_expr ";"
+              // | assign wexpr (";" assign wexpr)* ";"?
 
 hn:             hs
               | "(" hn ")"
 
 hs:             alpha
               | beta
-alpha:          "<" a_simplex r? where? time? mereonomy? psi? ">" level?
-beta:           "{" b_simplex r? time? mereonomy? "}" level?
+              | empty_alpha
+              | empty_beta
+alpha:          "<" a_simplex r? where? time? atomicity? psi? ">" level?
+beta:           "{" b_simplex r? time? atomicity? "}" level?
+empty_alpha:    "<>"
+empty_beta:     "{}"
 
 ?a_simplex:     a_vertex ("," a_vertex)*
 ?a_vertex:      vertex
@@ -23,7 +27,7 @@ sequence:       "(" NAME ")"
 assign:         NAME "="
 r:              ";" "R" ("_" NAME)?
 time:           ";" "t_" NUMBER
-mereonomy:      ";" "M(" NAME ("," NAME)* ")"
+atomicity:      ";" "A(" NAME ("," NAME)* ")"
 psi:            ";" "psi_" NAME
 level:          "^" N LEVEL*
 
@@ -44,6 +48,20 @@ typed:          ":" TYPE
 vname:          "v_" NUMBER
 rname:          NAME
 
+
+neg:            "-" hn      // minus == add hn neg hn
+
+lambda_expr:    "\\\\" vname ("," vname)* "." lambda_expr
+              | "(" lambda_expr ")"
+              | expr
+
+expr:           vname
+              | expr (logic_and | logic_or | rname) expr
+              | "(" expr ")"
+              | rname "(" vname ("," vname)* ")"
+
+
+// Terminals
 NAME:           "-" | DECIMAL | (LETTER (LETTER | DIGIT | "-" | "_" | "^" | "." | "&")*)
 NUMBER:         DIGIT+
 DECIMAL:        DIGIT+ "." DIGIT+
@@ -51,13 +69,9 @@ TYPE:           NAME
 N:              "N"
 LEVEL:          ("+" | "-") (NUMBER | LETTER)
 
-neg:            "-" hn      // minus == add hn neg hn
+logic_and:      "\/\\"
+logic_or:       "\\/"
 
-lambda:         NAME
-              | "lambda" NAME "." lambda
-              | "\\" NAME "." lambda
-              | lambda lambda
-              | "(" lambda ")"
 
 COMMENT:        /#.*/
 %ignore WS
