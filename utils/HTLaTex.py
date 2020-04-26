@@ -17,7 +17,6 @@ def _latex(hs):
         for v in hs.simplex:
             if v[:4] == "SEQ@":
                 v = "\\underline{" + v[4:len(v)] + "}"
-                v = v.replace('-', "\\mbox{-}")
 
             new_simplex.append(v)
 
@@ -36,6 +35,7 @@ def _latex(hs):
             bres = ""
 
     vert = hs.vertex.replace('-', "\\mbox{-}")
+    bres = bres.replace('-', "\\mbox{-}")
 
     return vert + "=&" + bres
 
