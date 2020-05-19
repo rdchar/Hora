@@ -262,13 +262,15 @@ class Hypernetwork:
 
             for v in simplex:
                 if isinstance(v, dict):
-                    self.add(vertex=v['SEQ'], hstype=VERTEX, partOf={vertex})
+                    key = list(v.keys())[0]
+                    self.add(vertex=v[key], hstype=VERTEX, partOf={vertex})
                 else:
                     self.add(vertex=v, hstype=VERTEX, partOf={vertex})
 
         for v in simplex:
             if isinstance(v, dict):
-                v = v['SEQ']
+                key = list(v.keys())[0]
+                v = v[key]
 
             if v in self._hypernetwork:
                 self._hypernetwork[v].partOf.add(vertex)
@@ -319,8 +321,7 @@ class Hypernetwork:
 
                 elif hs_k == "SEQ":
                     # TODO needs fully testing
-                    _hypersimplex.hs_type = str_to_node_type(hs_k)
-                    pass
+                    _hypersimplex.hs_simplex.append({"SEQ": hs_v})
 
                 elif hs_k == "t":
                     _hypersimplex.hs_t = hs_v

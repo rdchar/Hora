@@ -83,7 +83,17 @@ def from_string(Hn, parser, hs_string):
                 if where:
                     return expandR(simplex, where, other)[0]
 
-            return [at if isinstance(at, dict) else {"ALPHA": at} for at in tokens]
+            res = []
+            for at in tokens:
+                if isinstance(at, dict):
+                    if "SEQ" in at or "IMM" in at:
+                        res.append({"ALPHA": [at]})
+                    else:
+                        res.append(at)
+                else:
+                    res.append({"ALPHA": at})
+            return res
+            # return [at if isinstance(at, dict) else {"ALPHA": at} for at in tokens]
 
         def beta(self, *tokens):
             return [bt if isinstance(bt, dict) else {"BETA": bt} for bt in tokens]
@@ -118,6 +128,9 @@ def from_string(Hn, parser, hs_string):
 
         def sequence(self, token):
             return {"SEQ": str(token)}
+
+        def immutable(self, token):
+            return {"IMM": str(token)}
 
         def r(self, *tokens):
             if len(tokens) == 0:
@@ -167,7 +180,6 @@ def from_string(Hn, parser, hs_string):
                 else:
                     res.append(t)
 
-            print("RES: " + str(res))
             if not rname:
                 #  TODO log missing RNAME
                 return
@@ -191,7 +203,6 @@ def from_string(Hn, parser, hs_string):
             return {}
 
         def lambda_expr(self, *tokens):
-            print(tokens)
             return {}
 
     # tot_start = timer()

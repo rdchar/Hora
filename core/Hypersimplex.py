@@ -167,7 +167,14 @@ class Hypersimplex:
             self.hstype = hstype
 
         if simplex:
-            new_simplex = [("SEQ@" + v['SEQ']) if isinstance(v, dict) else v for v in simplex]
+            new_simplex = []
+            for v in simplex:
+                if isinstance(v, dict):
+                    key = list(v.keys())[0]
+                    new_simplex.append(key + "@" + v[key])
+                else:
+                    new_simplex.append(v)
+            # new_simplex = [("SEQ@" + v['SEQ']) if isinstance(v, dict) else v for v in simplex]
             self.simplex = new_simplex
 
         if R:
@@ -217,6 +224,8 @@ class Hypersimplex:
             for v in self.simplex:
                 if v[:4] == "SEQ@":
                     new_simplex.append("(" + v[4:len(v)] + ")")
+                if v[:4] == "IMM@":
+                    new_simplex.append("[" + v[4:len(v)] + "]")
                 else:
                     new_simplex.append(v)
 

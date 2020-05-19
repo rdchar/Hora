@@ -3,6 +3,20 @@ import logging as log
 
 from core.Hypersimplex import NODE_TYPE, NONE, VERTEX
 
+UP = 1
+UPANDDOWN = 0
+DOWN = -1
+
+
+def find_in(simplex, val):
+    found = False
+    for v in simplex:
+        if val == (v[4:] if v[:4] == "SEQ@" else v):
+            found = True
+            break
+
+    return found
+
 
 def best_fit(hn, search_hn, top):
     """
@@ -61,6 +75,26 @@ def get_paths(Hn, simplex):
             new.append(tuple((path.pos, path.vertex)))
 
     return paths
+
+
+def in_path(hn, start, val):
+    def _in_path(_start):
+        res = False
+
+        if _start in hn.hypernetwork:
+            partOf = hn.hypernetwork[_start].partOf
+            simplex = hn.hypernetwork[_start].simplex
+
+            for vertex in partOf:
+                found = find_in(partOf, val) or find_in(simplex, val)
+                res = True if found else _in_path(vertex)
+
+                if res:
+                    break
+
+        return res
+    # End _in_path
+    return _in_path(start)
 
 
 def find_head(path1, path2):

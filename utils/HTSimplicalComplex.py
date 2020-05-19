@@ -21,6 +21,7 @@ def gen_simplical_complex(hn, level=None, inc_parent_links=False, parent_links_o
 
     for hs in hs_at_level:
         parents.append(hn.hypernetwork[hs].vertex)
+        # v = v[4:len(v)] if v[:4] == "SEQ@" else v
         children.update(set(hn.hypernetwork[hs].simplex))
 
     edges = []
@@ -28,6 +29,7 @@ def gen_simplical_complex(hn, level=None, inc_parent_links=False, parent_links_o
     if parent_links_only:
         for hs in parents:
             for v in hn.hypernetwork[hs].simplex:
+                v = v[4:len(v)] if v[:4] == "SEQ@" else v
                 if len(hn.hypernetwork[v].partOf) > 1:
                     for p in hn.hypernetwork[v].partOf:
                         if exclude_beta:
@@ -48,6 +50,7 @@ def gen_simplical_complex(hn, level=None, inc_parent_links=False, parent_links_o
         for hs in hs_at_level:
             if inc_parent_links:
                 for v in hn.hypernetwork[hs].simplex:
+                    v = v[4:len(v)] if v[:4] == "SEQ@" else v
                     if not exclude_beta:
                         edges.append((hs, v))
                     else:
@@ -55,7 +58,9 @@ def gen_simplical_complex(hn, level=None, inc_parent_links=False, parent_links_o
                             edges.append((hs, v))
 
             for n, v1 in enumerate(hn.hypernetwork[hs].simplex):
+                v1 = v1[4:len(v)] if v1[:4] == "SEQ@" else v1
                 for v2 in hn.hypernetwork[hs].simplex[:n]:
+                    v2 = v2[4:len(v)] if v2[:4] == "SEQ@" else v2
                     edges.append((v1, v2))
 
     sc.add_edges_from(edges)

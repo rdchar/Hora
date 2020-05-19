@@ -18,12 +18,14 @@ empty_beta:     "{}"
 ?a_simplex:     a_vertex ("," a_vertex)*
 ?a_vertex:      vertex
               | sequence
+              | immutable
 
 ?b_simplex:     vertex ("," vertex)*
 
 vertex:         (NAME | assign? hs) typed?
-
 sequence:       "(" NAME ")"
+immutable:      "[" NAME "]"
+
 assign:         NAME "="
 r:              ";" "R" ("_" NAME)?
 time:           ";" "t_" NUMBER

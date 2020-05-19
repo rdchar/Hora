@@ -19,8 +19,15 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
             first = True
 
             for vtx in _vertex.simplex:
-                vtx_lbl = ("(" + vtx[4:len(vtx)] + ")") if vtx[:4] == "SEQ@" else vtx
-                vtx_port = vtx[4:len(vtx)] if vtx[:4] == "SEQ@" else vtx
+                if vtx[:4] == "SEQ@":
+                    vtx_lbl = ("(" + vtx[4:len(vtx)] + ")")
+                    vtx_port = vtx[4:len(vtx)]
+                elif vtx[:4] == "IMM@":
+                    vtx_lbl = ("[" + vtx[4:len(vtx)] + "]")
+                    vtx_port = vtx[4:len(vtx)]
+                else:
+                    vtx_lbl = vtx
+                    vtx_port = vtx
 
                 if first:
                     label += "<" + vtx_port + "> " + vtx_lbl
@@ -28,6 +35,7 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
                 else:
                     label += " | <" + vtx_port + "> " + vtx_lbl
 
+                # TODO feels a bit contrived
                 _add_nodes(Hn.hypernetwork[vtx_port])
 
             if _vertex.hstype == ALPHA:
@@ -65,13 +73,20 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
 
     def _add_edges(_vertex):
         for vtx in _vertex.simplex:
-            vtx_port = vtx[4:len(vtx)] if vtx[:4] == "SEQ@" else vtx
+            if vtx[:4] == "SEQ@":
+                vtx_port = vtx[4:len(vtx)]
+            elif vtx[:4] == "IMM@":
+                vtx_port = vtx[4:len(vtx)]
+            else:
+                vtx_port = vtx
+
             if _vertex.hstype in [ALPHA, BETA]:
                 temp.dot.edge(_vertex.vertex + ":" + vtx_port, vtx_port)
             elif _vertex.hstype == VERTEX:
                 temp.dot.edge(vtx_port, _vertex.vertex)
 
-            _add_edges(Hn._hypernetwork[vtx_port])
+            # TODO feels a bit contrived
+            _add_edges(Hn.hypernetwork[vtx_port])
 
     # End _add_edges
 
