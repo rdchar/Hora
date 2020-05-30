@@ -13,9 +13,9 @@ VERTEX = 0
 ALPHA = 1
 BETA = 2
 
-NODE_TYPE = ['NONE', 'VERTEX', 'ALPHA', 'BETA']
-node_type_to_str = lambda x: NODE_TYPE[x + 1]
-str_to_node_type = lambda x: NODE_TYPE.index(x) - 1
+HS_TYPE = ['NONE', 'VERTEX', 'ALPHA', 'BETA']
+hstype_to_str = lambda x: HS_TYPE[x + 1]
+str_to_hstype = lambda x: HS_TYPE.index(x) - 1
 
 
 class HsRelation:
@@ -200,7 +200,7 @@ class Hypersimplex:
 
     def _dump(self):
         return "vertex: " + str(self.vertex) \
-               + ", type: " + str(NODE_TYPE[self.hstype + 1]) \
+               + ", type: " + str(HS_TYPE[self.hstype + 1]) \
                + ", simplex: " + str(self.simplex) \
                + ", partOf: " + str(self.partOf) \
                + ((", A(" + str(self.A) + ")") if self.A != {} else "") \
@@ -226,6 +226,8 @@ class Hypersimplex:
                     new_simplex.append("(" + v[4:len(v)] + ")")
                 if v[:4] == "IMM@":
                     new_simplex.append("[" + v[4:len(v)] + "]")
+                if v[:4] == "MAN@":
+                    new_simplex.append("!" + v[4:len(v)])
                 else:
                     new_simplex.append(v)
 
@@ -260,6 +262,11 @@ class Hypersimplex:
             for v in self.simplex:
                 if v[:4] == "SEQ@":
                     new_simplex.append("(" + v[4:len(v)] + ")")
+                if v[:4] == "IMM@":
+                    new_simplex.append("[" + v[4:len(v)] + "]")
+                if v[:4] == "MAN@":
+                    new_simplex.append("!" + v[4:len(v)])
+
                 else:
                     new_simplex.append(v)
 

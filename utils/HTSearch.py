@@ -1,21 +1,12 @@
 import collections
 import logging as log
 
-from core.Hypersimplex import NODE_TYPE, NONE, VERTEX
+from core.Hypersimplex import HS_TYPE, NONE, VERTEX, hstype_to_str
+from utils.HTTools import find_in
 
 UP = 1
-UPANDDOWN = 0
+UP_AND_DOWN = 0
 DOWN = -1
-
-
-def find_in(simplex, val):
-    found = False
-    for v in simplex:
-        if val == (v[4:] if v[:4] == "SEQ@" else v):
-            found = True
-            break
-
-    return found
 
 
 def best_fit(hn, search_hn, top):
@@ -52,17 +43,17 @@ def best_fit(hn, search_hn, top):
     return partOf, (num - count) / num
 
 
-def get_paths(Hn, simplex):
+def get_paths(hn, simplex):
     # Side-effects: changes temp.paths; new; existing
     paths = collections.OrderedDict()
     new = []
     existing = []
 
     for idx, vtx in enumerate(simplex):
-        path = HsPath(Hn.hypernetwork, pos=idx, vertex=vtx)
+        path = HsPath(hn.hypernetwork, pos=idx, vertex=vtx)
 
-        if vtx in Hn.hypernetwork:
-            path.gen_path(Hn.hypernetwork[vtx])
+        if vtx in hn.hypernetwork:
+            path.gen_path(hn.hypernetwork[vtx])
         else:
             path.path = None
 
@@ -77,24 +68,41 @@ def get_paths(Hn, simplex):
     return paths
 
 
-def in_path(hn, start, val):
-    def _in_path(_start):
-        res = False
+def in_path(hn, start, val, dir=UP_AND_DOWN):
+    def _in_path(_start, _dir):
+        _res = False
 
         if _start in hn.hypernetwork:
             partOf = hn.hypernetwork[_start].partOf
             simplex = hn.hypernetwork[_start].simplex
 
-            for vertex in partOf:
-                found = find_in(partOf, val) or find_in(simplex, val)
-                res = True if found else _in_path(vertex)
+            for vertex in (partOf if _dir == UP else simplex):
+                if find_in(val, partOf) or find_in(val, simplex):
+                    _res = True
 
-                if res:
+                else:
+                    if partOf == {}:
+                        _res = False
+                    else:
+                        _res = _in_path(vertex, _dir)
+
+                if _res:
                     break
+        else:
+            _res = False
 
-        return res
+        return _res
     # End _in_path
-    return _in_path(start)
+
+    res = False
+
+    if dir in [UP, UP_AND_DOWN]:
+        res = _in_path(start, UP)
+
+    if dir in [DOWN, UP_AND_DOWN] and not res:
+        res = _in_path(start, DOWN)
+
+    return res
 
 
 def find_head(path1, path2):
@@ -137,7 +145,7 @@ class hsPathElem:
         return self._vertex == other.vertex and self._hstype == other.hstype
 
     def __str__(self):
-        return "<" + str(self.pathID) + "; " + self.vertex + "; " + str(NODE_TYPE[self.hstype+1]) + ">"
+        return "<" + str(self.pathID) + "; " + self.vertex + "; " + str(HS_TYPE[self.hstype + 1]) + ">"
 
 
 class HsPath:

@@ -6,7 +6,7 @@ from core.HTConfig import hs_replace_same_vertex
 from core.HTErrors import HnInsertError, HnUnknownHsType, HnVertexNoFound
 from core.HTRelations import Relations
 from core.HTTypes import Types
-from core.Hypersimplex import Hypersimplex, NONE, VERTEX, ALPHA, BETA, str_to_node_type, node_type_to_str
+from core.Hypersimplex import Hypersimplex, NONE, VERTEX, ALPHA, BETA, str_to_hstype, hstype_to_str
 import logging as log
 
 """
@@ -220,8 +220,11 @@ class Hypernetwork:
                     self.add(vertex=vertex, hstype=BETA, simplex=[vertex + "-1", vertex + "-2"],
                              R=tmpHs.R, t=tmpHs.t, A=tmpHs.A, N=_update_N(tmpHs.N), partOf=tmpHs.partOf)
 
+                    # TODO added the else, this needs testing
                     vertex += "-2"
-                    partOf.update(vertex)
+                else:
+                    # TODO why did I include the following
+                    partOf.update({vertex})
 
         # If the simplex of type hsTyoe is found then
         #   replace the new details and all references
@@ -300,7 +303,7 @@ class Hypernetwork:
                     _hypersimplex.hs_name = hs_v
 
                 elif hs_k in ["ALPHA", "BETA"]:
-                    _hypersimplex.hs_type = str_to_node_type(hs_k)
+                    _hypersimplex.hs_type = str_to_hstype(hs_k)
 
                     if isinstance(hs_v, str):
                         _hypersimplex.hs_simplex.append(hs_v)
@@ -360,6 +363,7 @@ class Hypernetwork:
             _hypersimplex.hs_A = set()
             _hypersimplex.hs_N = ""
             _hypersimplex.hs_psi = ""
+            _hypersimplex.hs_partOf = set()
 
             _relation.hs_R = ""
             _relation.hs_where = []

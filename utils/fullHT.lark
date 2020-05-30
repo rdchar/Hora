@@ -19,12 +19,14 @@ empty_beta:     "{}"
 ?a_vertex:      vertex
               | sequence
               | immutable
+              | mandatory
 
 ?b_simplex:     vertex ("," vertex)*
 
 vertex:         (NAME | assign? hs) typed?
 sequence:       "(" NAME ")"
 immutable:      "[" NAME "]"
+mandatory:      "!" NAME
 
 assign:         NAME "="
 r:              ";" "R" ("_" NAME)?
