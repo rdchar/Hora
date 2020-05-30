@@ -76,7 +76,21 @@ class Hypersimplex:
     def __init__(self, _hn, vertex, hstype=VERTEX, simplex=None, R="", t=-1,
                  A=None, N="", psi="", partOf=None, content=""):
         self._hypernetwork = _hn
-        self._simplex = [] if simplex is None else [("SEQ@" + v['SEQ']) if isinstance(v, dict) else v for v in simplex]
+        self._simplex = []
+
+        if simplex:
+            for v in simplex:
+                if isinstance(v, dict):
+                    if "SEQ" in v:
+                        self._simplex.append("SEQ@" + v["SEQ"])
+                    elif "IMM" in v:
+                        self._simplex.append("IMM@" + v["IMM"])
+                    elif "MAN" in v:
+                        self._simplex.append("MAN@" + v["MAN"])
+
+                else:
+                    self._simplex.append(v)
+
         self._partOf = set() if partOf is None else partOf
         self._vertex = HsVertex(vertex)
         self._hstype = VERTEX if hstype == NONE else hstype
