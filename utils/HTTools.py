@@ -1,5 +1,3 @@
-
-
 def are_similar(a, b):
     c = []
 
@@ -15,6 +13,10 @@ def is_seq(x):
 
 def is_immutable(x):
     return x[:4] == "IMM@"
+
+
+def is_mandatory(x):
+    return x[:4] == "MAN@"
 
 
 def remove_outliers(hn, N="N", smallest_nary=2):
@@ -39,4 +41,4 @@ def find_in(val, simplex):
 
 
 def remove_special(vert):
-    return vert[4:] if vert[:4] in ["SEQ@", "IMM@"] else vert
+    return vert[4:] if vert[:4] in ["SEQ@", "IMM@", "MAN@"] else vert
