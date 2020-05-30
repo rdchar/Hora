@@ -132,6 +132,9 @@ def from_string(Hn, parser, hs_string):
         def immutable(self, token):
             return {"IMM": str(token)}
 
+        def mandatory(self, token):
+            return {"MAN": str(token)}
+
         def r(self, *tokens):
             if len(tokens) == 0:
                 return {'R': " "}  # TODO this is a cheat until I can think of a better way

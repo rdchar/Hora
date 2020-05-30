@@ -25,6 +25,9 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
                 elif vtx[:4] == "IMM@":
                     vtx_lbl = ("[" + vtx[4:len(vtx)] + "]")
                     vtx_port = vtx[4:len(vtx)]
+                elif vtx[:4] == "MAN@":
+                    vtx_lbl = ("[" + vtx[4:len(vtx)] + "]")
+                    vtx_port = vtx[4:len(vtx)]
                 else:
                     vtx_lbl = vtx
                     vtx_port = vtx
@@ -76,6 +79,8 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
             if vtx[:4] == "SEQ@":
                 vtx_port = vtx[4:len(vtx)]
             elif vtx[:4] == "IMM@":
+                vtx_port = vtx[4:len(vtx)]
+            elif vtx[:4] == "MAN@":
                 vtx_port = vtx[4:len(vtx)]
             else:
                 vtx_port = vtx

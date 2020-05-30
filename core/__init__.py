@@ -1,0 +1,2 @@
+def HnQL():
+    return None

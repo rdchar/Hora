@@ -17,6 +17,10 @@ def _latex(hs):
         for v in hs.simplex:
             if v[:4] == "SEQ@":
                 v = "\\underline{" + v[4:len(v)] + "}"
+            if v[:4] == "IMM@":
+                v = "\\overline{" + v[4:len(v)] + "}"
+            if v[:4] == "MAN@":
+                v = "!" + v[4:len(v)]
 
             new_simplex.append(v)
 
