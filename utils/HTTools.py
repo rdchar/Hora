@@ -40,5 +40,22 @@ def find_in(val, simplex):
     return found
 
 
+def remove_all_special(simplex):
+    res = []
+    for vertex in simplex:
+        if isinstance(vertex, dict):
+            key = list(vertex.keys())[0]
+            res.append(key + "@" + vertex[key])
+
+        else:
+            res.append(vertex)
+
+    return res
+
+
 def remove_special(vert):
-    return vert[4:] if vert[:4] in ["SEQ@", "IMM@", "MAN@"] else vert
+    return vert[4:] if is_special(vert) else vert
+
+
+def is_special(vert):
+    return vert[:4] in ["SEQ@", "IMM@", "MAN@"]

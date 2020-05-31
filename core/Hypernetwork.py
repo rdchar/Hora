@@ -1,5 +1,7 @@
 import re
 
+from utils.HTTools import remove_all_special
+
 """
 from core.HTConfig import hs_replace_same_vertex
 """
@@ -125,22 +127,22 @@ class Hypernetwork:
 
     def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, A=None, N="", psi="", partOf=None):
         def _update_N(_N, _direction=UP):
-            res = "N"
+            res = ""
             l = len(_N)
+            if _N:
+                if _direction == UP:
+                    if l == 1:
+                        res = "N+1"
+                    else:
+                        level = int(_N[:l - 1]) + 1
+                        res[:l] = str(level)
 
-            if _direction == UP:
-                if l == 1:
-                    res = "N+1"
-                else:
-                    level = int(_N[:l - 1]) + 1
-                    res[:l] = str(level)
-
-            elif _direction == DOWN:
-                if l == 1 or _N[:l - 1] == 1:
-                    res = "N"
-                elif l > 2:
-                    level = int(_N[:l - 1]) - 1
-                    res[:l] = str(level)
+                elif _direction == DOWN:
+                    if l == 1 or _N[:l - 1] == 1:
+                        res = "N"
+                    elif l > 2:
+                        level = int(_N[:l - 1]) - 1
+                        res[:l] = str(level)
 
             return res
         # End _update_N
@@ -194,6 +196,7 @@ class Hypernetwork:
         if vertex in self.hypernetwork:
             if self.hypernetwork[vertex].hstype == BETA and self.hypernetwork[vertex].simplex != simplex:
                 found = False
+
                 for temp in self._hypernetwork:
                     if temp[:len(vertex)] == vertex and self.hypernetwork[temp].simplex == simplex:
                         # I don't like dropping out of a function in the middle of a loop!
@@ -211,7 +214,7 @@ class Hypernetwork:
 
             elif self.hypernetwork[vertex].hstype == ALPHA:
                 # Create a new BETA, move the simplex to a partOf the new BETA
-                if simplex != self.hypernetwork[vertex].simplex:
+                if remove_all_special(simplex) != self.hypernetwork[vertex].simplex:
                     tmpHs = self.hypernetwork[vertex]
 
                     self.add(vertex=vertex + "-1", hstype=tmpHs.hstype, simplex=tmpHs.simplex,
@@ -222,6 +225,7 @@ class Hypernetwork:
 
                     # TODO added the else, this needs testing
                     vertex += "-2"
+
                 else:
                     # TODO why did I include the following
                     partOf.update({vertex})
