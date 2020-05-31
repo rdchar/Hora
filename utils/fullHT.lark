@@ -29,6 +29,7 @@ immutable:      "[" NAME "]"
 mandatory:      "!" NAME
 
 assign:         NAME "="
+
 r:              ";" "R" ("_" NAME)?
 time:           ";" "t_" NUMBER
 atomicity:      ";" "A(" NAME ("," NAME)* ")"
