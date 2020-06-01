@@ -40,7 +40,7 @@ def find_in(val, simplex):
     return found
 
 
-def remove_all_special(simplex):
+def condense_all_specials(simplex):
     res = []
     for vertex in simplex:
         if isinstance(vertex, dict):

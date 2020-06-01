@@ -1,6 +1,6 @@
 import re
 
-from utils.HTTools import remove_all_special
+from utils.HTTools import condense_all_specials, remove_special
 
 """
 from core.HTConfig import hs_replace_same_vertex
@@ -195,26 +195,34 @@ class Hypernetwork:
         # TODO is this the right solution?  Or should it we use the matrix method.
         if vertex in self.hypernetwork:
             if self.hypernetwork[vertex].hstype == BETA and self.hypernetwork[vertex].simplex != simplex:
-                found = False
-
-                for temp in self._hypernetwork:
-                    if temp[:len(vertex)] == vertex and self.hypernetwork[temp].simplex == simplex:
-                        # I don't like dropping out of a function in the middle of a loop!
-                        found = True
-                        break
-
-                if found:
-                    return
+                # found = False
+                # for temp in self._hypernetwork:
+                #     print("\t\tHELLO 1", temp[:len(vertex)])
+                #     if temp[:len(vertex)] == vertex and self.hypernetwork[temp].simplex == simplex:
+                #         found = True
+                #         break
+                #
+                # if found:
+                #     return
 
                 # Add to BETA
-                new_vertex = vertex + "-" + str(len(self.hypernetwork[vertex].simplex) + 1)
-                partOf.update(vertex)
-                self.hypernetwork[vertex].simplex.append(new_vertex)
-                vertex = new_vertex
+                if hstype == BETA:
+                    self.hypernetwork[vertex].simplex = \
+                        list(sorted(set(self.hypernetwork[vertex].simplex).union(set(simplex))))
+                    return
+
+                elif hstype in [ALPHA, VERTEX]:
+                    new_vertex = vertex + "-" + str(len(self.hypernetwork[vertex].simplex) + 1)
+                    partOf.update(vertex)
+                    self.hypernetwork[vertex].simplex.append(new_vertex)
+                    vertex = new_vertex
+
+                else:
+                    print("SOMETHING WENT WRONG!!")
 
             elif self.hypernetwork[vertex].hstype == ALPHA:
                 # Create a new BETA, move the simplex to a partOf the new BETA
-                if remove_all_special(simplex) != self.hypernetwork[vertex].simplex:
+                if condense_all_specials(simplex) != self.hypernetwork[vertex].simplex:
                     tmpHs = self.hypernetwork[vertex]
 
                     self.add(vertex=vertex + "-1", hstype=tmpHs.hstype, simplex=tmpHs.simplex,
@@ -552,7 +560,7 @@ class Hypernetwork:
 
     def test_str(self):
         def _test_str(vertex):
-            simplex = self.hypernetwork[vertex]
+            simplex = self.hypernetwork[remove_special(vertex)]
 
             _res = (simplex.vertex + "=") if simplex.vertex else ""
 
@@ -564,7 +572,7 @@ class Hypernetwork:
 
                 _res += ("; R" + ("_" + simplex.R) if simplex.R != " " else "") if simplex.R else ""
                 _res += ("; t_" + str(simplex.t)) if simplex.t > -1 else ""
-                _res += ("; A={" + str(simplex.A) + "}") if simplex.A else ""
+                _res += ("; A(" + str(simplex.A) + ")") if simplex.A else ""
                 if simplex.N:
                     _res += ">^" + simplex.N + ", "
                 else:
@@ -597,6 +605,7 @@ class Hypernetwork:
 
         # A cheat, but it works
         res = res.replace(", }", "}")
+        res = res.replace(", >", ">")
         res = res.replace(", >", ">")
         res = res.replace(", ,", ",")
         res = res.replace(", ;", ";")
