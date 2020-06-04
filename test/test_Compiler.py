@@ -1,7 +1,7 @@
 import pytest
 
 from core.Hypernetwork import Hypernetwork
-from utils.HTCompiler import load_parser, from_string
+from utils.HTCompiler import load_parser, compile_hn
 
 
 @pytest.fixture
@@ -14,7 +14,7 @@ def test_1(setup_hn):
     test_hn = Hypernetwork()
     parser = setup_hn
 
-    x = from_string(test_hn, parser, """
+    x = compile_hn(test_hn, parser, """
         DER=<location, total-DER=<(DER-Gen); R_totalgen>>
         DER=<location, total-DER=<(DER-Gen); R_totalgen>>
     """)
@@ -26,7 +26,7 @@ def test_insert(setup_hn):
     test_hn = Hypernetwork()
     parser = setup_hn
 
-    x = from_string(test_hn, parser, """
+    x = compile_hn(test_hn, parser, """
         x=<a, b, c; R_x; t_1; A(y1, y2)>
     """)
 
@@ -37,7 +37,7 @@ def test_union_of_same_ALPHAs(setup_hn):
     test_hn = Hypernetwork()
     parser = setup_hn
 
-    x = from_string(test_hn, parser, """
+    x = compile_hn(test_hn, parser, """
         x=<a, b, c>
         x=<a, b, c>
     """)
@@ -49,7 +49,7 @@ def test_union_of_same_ALPHAs_with_R(setup_hn):
     test_hn = Hypernetwork()
     parser = setup_hn
 
-    x = from_string(test_hn, parser, """
+    x = compile_hn(test_hn, parser, """
         x=<a, b, c; R_x>
         x=<a, b, c; R_x>
     """)
@@ -62,7 +62,7 @@ def test_union_of_same_ALPHAs_with_diff_R(setup_hn):
     test_hn = Hypernetwork()
     parser = setup_hn
 
-    x = from_string(test_hn, parser, """
+    x = compile_hn(test_hn, parser, """
         x=<a, b, c; R_x>
         x=<a, b, c; R_y>
     """)
@@ -75,7 +75,7 @@ def test_union_of_different_ALPHAs(setup_hn):
     test_hn = Hypernetwork()
     parser = setup_hn
 
-    x = from_string(test_hn, parser, """
+    x = compile_hn(test_hn, parser, """
         x=<a, b, c>
         x=<b, c, d>
     """)
@@ -87,7 +87,7 @@ def test_BETA_Union(setup_hn):
     test_hn = Hypernetwork()
     parser = setup_hn
 
-    x = from_string(test_hn, parser, """
+    x = compile_hn(test_hn, parser, """
         x={a, b, c}
         x={b, c, d}
     """)
