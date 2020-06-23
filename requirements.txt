@@ -4,3 +4,4 @@ numpy==1.19.0
 graphviz==0.14
 networkx==2.4
 lark-parser==0.8.9
+pytest==5.4.3
