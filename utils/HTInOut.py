@@ -37,8 +37,8 @@ def to_data(Hn):
 
 def from_data(data):
     name = ""
-    #name = list(data.values())[0]
-    #data = list(data.values())[1]
+    # name = list(data.values())[0]
+    # data = list(data.values())[1]
     if "name" in data:
         name = data["name"]
 
