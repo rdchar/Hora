@@ -8,11 +8,9 @@ __HN_LARK__ = "./fullHT.lark"
 
 
 def load_parser():
-    # start = timer()
     kwargs = dict(rel_to=__file__, start="start")
     parser = lark.Lark.open(__HN_LARK__, parser="lalr", **kwargs)
-    # end = timer()
-    # print("Loading: " + str(end - start))
+
     return parser
 
 
@@ -208,35 +206,17 @@ def compile_hn(Hn, parser, hs_string):
         def lambda_expr(self, *tokens):
             return {}
 
-    # tot_start = timer()
-    # start = timer()
     tree = parser.parse(hs_string)
-    # print(tree.pretty())
-    # end = timer()
-    # print("Parsing: " + str(end - start))
-
-    # start = timer()
     transformer = HnTransformer()
     hs = transformer.transform(tree)
-    # end = timer()
-    # print("Transforming: " + str(end - start))
-
-    # print(hs)
-    # start = timer()
     Hn.parse(hs)
-    # end = timer()
-    # print("Hn: " + str(end - start))
-    # print(Hn)
-    # Hn._dump()
-    # tot_end = timer()
-    # print("Total: " + str(tot_end - tot_start))
 
     return Hn
 
 
-def load_ht(fname):
-    res = ""
-    for line in open(fname, 'r'):
-        res += line
-
-    return res
+# def load_ht(fname):
+#     res = ""
+#     for line in open(fname, 'r'):
+#         res += line
+#
+#     return res

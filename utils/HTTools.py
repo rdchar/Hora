@@ -40,6 +40,10 @@ def find_in(val, simplex):
     return found
 
 
+def remove_all_specials(simplex):
+    return [remove_special(vertex) for vertex in simplex]
+
+
 def condense_all_specials(simplex):
     res = []
     for vertex in simplex:

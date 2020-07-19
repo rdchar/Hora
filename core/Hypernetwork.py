@@ -538,6 +538,18 @@ class Hypernetwork:
 
         return list(res)
 
+    # def union(self, hs):
+        # if self.hypernetwork[hstype == hs.hstype:
+        #     for v in hs.
+        #         print()
+        # pass
+
+    # def intersection(self, hs):
+    #     if self.hstype == hs.hstype:
+    #         for v in hs.simplex:
+    #
+    #     pass
+
     @property
     def soup(self):
         return list(self.hypernetwork.keys())
