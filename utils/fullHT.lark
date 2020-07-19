@@ -48,7 +48,7 @@ named_rel:      wexpr rname wexpr
 
 //named_rel:      wexpr? rname (wexpr | "[" vname ( "," vname)* "]")
 
-typed:          ":" TYPE
+typed:          "::" TYPE
 
 vname:          "v_" NUMBER
 rname:          NAME
@@ -67,7 +67,7 @@ expr:           vname
 
 
 // Terminals
-NAME:           "-" | DECIMAL | (LETTER (LETTER | DIGIT | "-" | "_" | "^" | "." | "&")*)
+NAME:           "-" | DECIMAL | (LETTER | DIGIT | "-" | "_" | "^" | "." | "&" | ":")+
 NUMBER:         DIGIT+
 DECIMAL:        DIGIT+ "." DIGIT+
 TYPE:           NAME
