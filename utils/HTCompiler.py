@@ -1,4 +1,6 @@
 import lark
+from timeit import default_timer as timer
+
 from core.HTConfig import hs_expand_R
 from core.HTUtils import expandR
 
@@ -26,7 +28,6 @@ def compile_hn(Hn, parser, hs_string):
             return res
 
         def rels(self, *tokens):
-            print(tokens)
             for t in tokens:
                 if t.get("VAL"):
                     k = t.get("VAL")
@@ -146,9 +147,9 @@ def compile_hn(Hn, parser, hs_string):
 
         def level(self, *tokens):
             if len(tokens) == 0:
-                return {'N': "N"}
+                return {'N': ""}
 
-            return {'N': "N" + "".join(tokens)}
+            return {'N': "".join(tokens)}
 
         def psi(self, token):
             return {'psi': str(token)}
@@ -205,15 +206,6 @@ def compile_hn(Hn, parser, hs_string):
         def lambda_expr(self, *tokens):
             return {}
 
-        def wexpr(self, *tokens):
-            return {}
-
-        def rel_expr(self, *tokens):
-            return {}
-
-        def psis(self, *tokens):
-            return [[{"VERTEX": ""}, {"VAL": str(tokens[0])}, {"psi": str(tokens[1])}]]
-
     tree = parser.parse(hs_string)
     transformer = HnTransformer()
     hs = transformer.transform(tree)
@@ -222,9 +214,9 @@ def compile_hn(Hn, parser, hs_string):
     return Hn
 
 
-def load_ht(fname):
-    res = ""
-    for line in open(fname, 'r'):
-        res += line
-
-    return res
+# def load_ht(fname):
+#     res = ""
+#     for line in open(fname, 'r'):
+#         res += line
+#
+#     return res
