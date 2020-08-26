@@ -147,64 +147,15 @@ class Hypernetwork:
             return res
         # End _update_N
 
-        # TODO fix the matrix method if needed
-        """
-        def _insert_by_matrix(_simplex):
-            if R == self.hypernetwork[vertex].R \
-                    or R == "" \
-                    or self.hypernetwork[vertex].R == " ":
-
-                mtrx = to_matrix(self, vertex=vertex, R=R)
-
-                if len(mtrx[0]) == len(_simplex):
-                    if len(mtrx) > 1 and isinstance(mtrx[0], list):
-                        mtrx.append(_simplex)
-                    else:
-                        mtrx = [mtrx, _simplex]
-
-                    try:
-                        from_matrix(self, mtrx, vertex, R)
-                        return True
-
-                    except:
-                        print("ERROR: unable to use the matrix method!")
-                        # TODO log that we fall back on the standard processing
-
-            return False
-        # END _insert_by_matrix
-        """
-
         if simplex is None:
             simplex = []
 
         if partOf is None:
             partOf = set()
 
-        # TODO fix the matrix method if needed
-        """
-        if not hs_replace_same_vertex:
-            if vertex in self.hypernetwork and R == self.hypernetwork[vertex].R:
-                if _insert_by_matrix(simplex):  # TODO need to decide where this is best positioned.
-                                                #   Currently it cannot cope with, e.g.
-                                                #       face=<<eyes, smile>, round>
-                                                #       face=<<eyes, frown>, round>
-
-                    return vertex
-        """
-
         # TODO is this the right solution?  Or should it we use the matrix method.
         if vertex in self.hypernetwork:
             if self.hypernetwork[vertex].hstype == BETA and self.hypernetwork[vertex].simplex != simplex:
-                # found = False
-                # for temp in self._hypernetwork:
-                #     print("\t\tHELLO 1", temp[:len(vertex)])
-                #     if temp[:len(vertex)] == vertex and self.hypernetwork[temp].simplex == simplex:
-                #         found = True
-                #         break
-                #
-                # if found:
-                #     return
-
                 # Add to BETA
                 if hstype == BETA:
                     self.hypernetwork[vertex].simplex = \
@@ -243,8 +194,10 @@ class Hypernetwork:
         if simplex:
             if vertex or vertex != "":
                 search = self.search(hstype=hstype, vertex=vertex, simplex=simplex)
+
             else:
                 search = self.search(hstype=hstype, simplex=simplex)
+
         else:
             search = self.search(hstype=hstype, vertex=vertex)
 
@@ -271,6 +224,7 @@ class Hypernetwork:
                 if isinstance(partOf, str):
                     if partOf in self._hypernetwork:
                         self._hypernetwork[partOf].simplex.append(vertex)
+
                     else:
                         log.error("insert: partOf error.")
                         raise HnInsertError
@@ -279,6 +233,7 @@ class Hypernetwork:
                 if isinstance(v, dict):
                     key = list(v.keys())[0]
                     self.add(vertex=v[key], hstype=VERTEX, partOf={vertex})
+
                 else:
                     self.add(vertex=v, hstype=VERTEX, partOf={vertex})
 
@@ -291,6 +246,9 @@ class Hypernetwork:
                 self._hypernetwork[v].partOf.add(vertex)
 
         return vertex
+        
+    def update(self):
+        pass
 
     def parse(self, hypernet):
         class _hypersimplex:
@@ -313,6 +271,9 @@ class Hypernetwork:
             for hs_k, hs_v in _hs.items():
                 if hs_k == "VAL":
                     _hypersimplex.hs_name = hs_v
+
+                elif hs_k == "VERTEX":
+                    _hypersimplex.hs_type = str_to_hstype(hs_k)
 
                 elif hs_k in ["ALPHA", "BETA"]:
                     _hypersimplex.hs_type = str_to_hstype(hs_k)
@@ -379,7 +340,6 @@ class Hypernetwork:
 
             _relation.hs_R = ""
             _relation.hs_where = []
-
         # End _clear
 
         name = ""

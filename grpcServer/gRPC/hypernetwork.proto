@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package Hn;
+
+service Hn {
+    rpc HelloWorld(HelloMsg) returns (HelloMsg) {};
+    rpc GetHs(VertexMsg) returns (HsMsg) {};
+    rpc AddHs(HsMsg) returns (VertexMsg) {};
+    rpc DeleteHs(HsMsg) returns (VertexMsg) {};
+
+    rpc GetHn(EmptyMsg) returns (HsMsg) {};
+    
+    rpc CreateHnByString(HnByStringMsg) returns (HnMsg) {};
+}
+
+message HelloMsg {
+    string hello = 1;
+}
+
+message VertexMsg {
+    string vertex = 1;
+}
+
+message HsMsg {
+    string vertex = 1;
+    repeated string simplex = 2;
+    repeated string partOf = 3;
+    enum HsType {
+        VERTEX = 0;
+        ALPHA = 1;
+        BETA = 2;
+    }
+    HsType hsType = 4;
+    string R = 5;
+    int32 t = 6;
+    repeated string M = 7;
+    string N = 8;
+    string psi = 9;
+}
+
+message DeleteHsMsg {
+    string vertex = 1;
+    string R = 2;
+}
+
+message HnMsg {
+    string name = 1;
+    map<string, HsMsg> Hn = 2;
+}
+
+message HnByStringMsg {
+    string name = 1;
+    repeated string hn = 2;
+}
+
+message EmptyMsg {}
