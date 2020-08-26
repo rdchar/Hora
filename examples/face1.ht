@@ -1,3 +1,0 @@
-face=<eyes, mouth={smile, frown}, square; R_face>
-happy=<eyes, smile, contour={round, square}; R_face>
-sad=<eyes, frown, contour={round, square}; R_face>

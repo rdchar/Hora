@@ -249,7 +249,6 @@ class Hypersimplex:
 
             if self.hstype == ALPHA:
                 bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
-                bres += ("; psi_" + str(self.psi)) if self.psi else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
                 bres += ("; A(" + ", ".join(self.A) + ")") if self.A else ""
                 bres += ">"
