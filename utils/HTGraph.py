@@ -145,4 +145,4 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
     temp.dot.render(fname, view=view)
     log.debug("... complete")
 
-    return True
+    return temp.dot.source
