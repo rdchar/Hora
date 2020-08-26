@@ -6,3 +6,5 @@ networkx==2.4
 lark-parser==0.8.9
 pytest==5.4.3
 PyYAML==5.3.1
+Flask~=1.1.2
+requests~=2.21.0

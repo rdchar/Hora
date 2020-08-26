@@ -1,0 +1,13 @@
+Terminal=<ConnectivityNode, ConductingEquipment>
+PowerSystemRecource={Equipment}
+Substation=<PowerTransformer>
+    PowerTransformer=<!mRID, name,
+        TransformerWinding=<!mRID, name, connectionType, ratedS, ratedU>>
+Equipment={ConductingEquipment, PowerTransformer}
+    ConductingEquipment={TransformerWinding, Conductor, Connector}
+    Connector={BusbarSection}
+        BusbarSection=<!mRID, name>
+    EquipmentContainer=<Equipment>
+    Conductor={ACLineSegment}
+    ACLineSegment=<!mRID, name, bch, r, x, length>
+EquipmentContainer={Line}

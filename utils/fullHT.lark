@@ -1,7 +1,4 @@
-?start:         ("relations" "[" rels+ "]")? (assign? hn)+
-
-rels:           assign lambda_expr ";"
-              // | assign wexpr (";" assign wexpr)* ";"?
+?start:         "hn:"? (assign? hn)+ ("rels:" rels+)? ("lambdas:" lambdas+)? ("psis:" psis+)?
 
 hn:             hs
               | "(" hn ")"
@@ -10,7 +7,8 @@ hs:             alpha
               | beta
               | empty_alpha
               | empty_beta
-alpha:          "<" a_simplex r? where? time? atomicity? psi? ">" level?
+
+alpha:          "<" a_simplex r? time? atomicity? psi? ">" level?
 beta:           "{" b_simplex r? time? atomicity? "}" level?
 empty_alpha:    "<>"
 empty_beta:     "{}"
@@ -34,36 +32,35 @@ r:              ";" "R" ("_" NAME)?
 time:           ";" "t_" NUMBER
 atomicity:      ";" "A(" NAME ("," NAME)* ")"
 psi:            ";" "psi_" NAME
-level:          "^" N LEVEL*
-
-where:          "|" wexpr
-?wexpr:         typed
-              | vname+
-              | named_rel
-              | "(" wexpr ")"
-
-named_rel:      wexpr rname wexpr
-// TODO need to add ability to specify n-ary, e.g. x = above[v_1, v_2, v_3, v_4];
-//              | rname "[" vname ("," vname)* "]"
-
-//named_rel:      wexpr? rname (wexpr | "[" vname ( "," vname)* "]")
+level:          "^N" LEVEL*
 
 typed:          "::" TYPE
 
 vname:          "v_" NUMBER
 rname:          NAME
 
-
 neg:            "-" hn      // minus == add hn neg hn
 
+
+// Lambda functions for R
+lambdas:        assign lambda_expr ";"
 lambda_expr:    "\\\\" vname ("," vname)* "." lambda_expr
               | "(" lambda_expr ")"
               | expr
-
 expr:           vname
               | expr (logic_and | logic_or | rname) expr
               | "(" expr ")"
               | rname "(" vname ("," vname)* ")"
+
+
+// Simple relations
+rels:           assign rel_expr
+rel_expr:       vname
+              | PRED "(" rel_expr ("," rel_expr)* ")"
+
+
+// Psi functions for vertices
+psis:           NAME "=" NAME
 
 
 // Terminals
@@ -73,6 +70,7 @@ DECIMAL:        DIGIT+ "." DIGIT+
 TYPE:           NAME
 N:              "N"
 LEVEL:          ("+" | "-") (NUMBER | LETTER)
+PRED:           NAME
 
 logic_and:      "\/\\"
 logic_or:       "\\/"
