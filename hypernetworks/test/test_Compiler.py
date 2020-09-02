@@ -1,7 +1,7 @@
 import pytest
 
-from core.Hypernetwork import Hypernetwork
-from utils.HTCompiler import load_parser, compile_hn
+from hypernetworks.core.Hypernetwork import Hypernetwork
+from hypernetworks.utils import load_parser, compile_hn
 
 
 @pytest.fixture

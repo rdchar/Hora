@@ -1,0 +1,8 @@
+include HISTORY.txt
+include README.md
+include CHANGES.txt
+include CONTRIBUTORS.txt
+include LICENSE
+recursive-include . *.txt
+recursive-include . *.py
+recursive-include . *.lark

@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import grpcServer.gRPC.python.hypernetwork_pb2 as hypernetwork__pb2
+import exp.grpcServer.gRPC.python.hypernetwork_pb2 as hypernetwork__pb2
 
 
 class HnStub(object):

@@ -1,14 +1,14 @@
 import re
 
-from utils.HTTools import condense_all_specials, remove_special
+from hypernetworks.utils import condense_all_specials, remove_special
 
 """
 from core.HTConfig import hs_replace_same_vertex
 """
-from core.HTErrors import HnInsertError, HnUnknownHsType, HnVertexNoFound
-from core.HTRelations import Relations
-from core.HTTypes import Types
-from core.Hypersimplex import Hypersimplex, NONE, VERTEX, ALPHA, BETA, str_to_hstype, hstype_to_str
+from hypernetworks.core import HnInsertError, HnUnknownHsType, HnVertexNoFound
+from hypernetworks.core import Relations
+from hypernetworks.core import Types
+from hypernetworks.core import Hypersimplex, NONE, VERTEX, ALPHA, BETA, str_to_hstype
 import logging as log
 
 """
@@ -17,7 +17,7 @@ from utils.HTMatrix import to_matrix, from_matrix
 
 # TODO needs more validation when adding Hs.
 #      We get a mess when mixing R naming and assignment names across Hs's.
-from utils.HTSearch import get_peaks
+from hypernetworks.utils import get_peaks
 
 UP = 1
 DOWN = -1

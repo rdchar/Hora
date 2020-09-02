@@ -2,8 +2,8 @@ import logging as log
 
 import numpy as np
 
-from core.HTErrors import HnSearchError, HnVertexNoFound
-from core.Hypersimplex import ALPHA, BETA, VERTEX
+from hypernetworks.core import HnSearchError, HnVertexNoFound
+from hypernetworks.core import ALPHA, BETA, VERTEX
 
 
 # TODO need to manage the decorators.

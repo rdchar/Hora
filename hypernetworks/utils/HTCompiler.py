@@ -1,6 +1,6 @@
 import lark
-from core.HTConfig import hs_expand_R
-from core.HTUtils import expandR
+from hypernetworks.core import hs_expand_R
+from hypernetworks.core.HTUtils import expandR
 
 __HN_LARK__ = "./fullHT.lark"
 

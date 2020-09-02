@@ -1,12 +1,10 @@
 import time
 from concurrent import futures
-from grpcServer.gRPC.python.hypernetwork_pb2_grpc import *
-from grpcServer.gRPC.python.hypernetwork_pb2 import *
+from exp.grpcServer.gRPC.python.hypernetwork_pb2_grpc import *
 
 import grpc
 
-from core.Hypernetwork import Hypernetwork
-from utils.HTCompiler import compile_hn
+from hypernetworks.core.Hypernetwork import Hypernetwork
 
 
 class HypernetworkService(HnServicer):

@@ -4,8 +4,8 @@ from graphviz import Graph
 
 
 # TODO inc_parent_links may need more work
-from core.Hypersimplex import BETA
-from utils.QAnalysis import QAnalysis
+from hypernetworks.core import BETA
+from hypernetworks.utils import QAnalysis
 
 
 def gen_simplical_complex(hn, level=None, inc_parent_links=False, parent_links_only=False, exclude_beta=False):

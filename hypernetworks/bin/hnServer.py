@@ -1,11 +1,8 @@
-import json
-
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, make_response
 from flask_cors import CORS
-from core.Hypernetwork import Hypernetwork
-from utils.HTCompiler import load_parser, compile_hn
-from utils.HTGraph import to_graph
-from utils.HTInOut import to_data
+from hypernetworks.core.Hypernetwork import Hypernetwork
+from hypernetworks.utils import load_parser, compile_hn
+from hypernetworks.utils import to_graph
 
 app = Flask(__name__)
 CORS(app)

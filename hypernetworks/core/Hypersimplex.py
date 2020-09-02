@@ -1,7 +1,4 @@
-from core.HTMeronymy import *
-import re
 # Relation Types
-from core.HTRelations import Relations
 
 LOGIC = 0
 ANN = 1

@@ -1,7 +1,7 @@
 import json
 import yaml
-from core.Hypernetwork import Hypernetwork
-from core.Hypersimplex import Hypersimplex, hstype_to_str, str_to_hstype
+from hypernetworks.core.Hypernetwork import Hypernetwork
+from hypernetworks.core import Hypersimplex, hstype_to_str, str_to_hstype
 
 JSON = 1
 YAML = 2
