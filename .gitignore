@@ -142,4 +142,4 @@ cython_debug/
 
 # Other
 pip-instructions.txt
-.idea
+.idea/
