@@ -1,7 +1,9 @@
 from rdflib import Graph, Literal
 from rdflib.namespace import ClosedNamespace
 from rdflib.term import URIRef
-from hypernetworks.core.Hypernetwork import Hypernetwork, ALPHA, BETA
+
+from hypernetworks.core.Hypernetwork import Hypernetwork
+from hypernetworks.core.Hypersimplex import BETA, ALPHA
 
 HS = ClosedNamespace(
     uri=URIRef(""),

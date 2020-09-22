@@ -2,7 +2,7 @@ import logging as log
 
 from graphviz import Graph
 
-from hypernetworks.core import ALPHA, BETA, VERTEX
+from hypernetworks.core.Hypersimplex import ALPHA, BETA, VERTEX
 
 
 def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=False,

@@ -1,8 +1,9 @@
 import lark
-from hypernetworks.core import hs_expand_R
-from hypernetworks.core.HTUtils import expandR
 
 __HN_LARK__ = "./fullHT.lark"
+
+from hypernetworks.core.HTConfig import hs_expand_R
+from hypernetworks.core.HTUtils import expandR
 
 
 def load_parser():

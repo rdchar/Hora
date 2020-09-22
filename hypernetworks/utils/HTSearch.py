@@ -1,8 +1,8 @@
 import collections
 import logging as log
 
-from hypernetworks.core import HS_TYPE, NONE, VERTEX
-from hypernetworks.utils import find_in
+from hypernetworks.core.Hypersimplex import HS_TYPE, VERTEX, NONE
+from hypernetworks.utils.HTTools import find_in
 
 UP = 1
 UP_AND_DOWN = 0

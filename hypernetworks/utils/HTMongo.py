@@ -1,8 +1,9 @@
 from pymongo import MongoClient
-from hypernetworks.utils import to_data
+
+from hypernetworks.utils.HTInOut import to_data
 
 
-def save_hn(hn):
+def load_Hn_into_mongo(hn):
     client = MongoClient('mongodb://localhost:27017/')
 
     db = client.hypernetworks

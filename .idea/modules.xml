@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/HypernetworkTheory.iml" filepath="$PROJECT_DIR$/.idea/HypernetworkTheory.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/hypernetworks.iml" filepath="$PROJECT_DIR$/.idea/hypernetworks.iml" />
     </modules>
   </component>
 </project>

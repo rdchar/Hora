@@ -2,11 +2,11 @@ import logging as log
 
 import numpy as np
 
-from hypernetworks.core import HnSearchError, HnVertexNoFound
-from hypernetworks.core import ALPHA, BETA, VERTEX
 
 
 # TODO need to manage the decorators.
+from hypernetworks.core.HTErrors import HnSearchError, HnVertexNoFound
+from hypernetworks.core.Hypersimplex import VERTEX, ALPHA, BETA
 
 
 def to_matrix(Hn, vertex="", R=""):

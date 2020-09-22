@@ -1,5 +1,6 @@
-from setuptools import setup
+from setuptools import setup, command
 import os
+import shutil
 
 
 def strip_comments(l):
@@ -11,14 +12,31 @@ def reqs(*f):
         os.path.join(os.getcwd(), *f)).readlines()]))
 
 
+class py_install(command.install_scripts.install_scripts):
+    def run(self):
+        command.install_scripts.install_scripts.run(self)
+        for script in self.get_outputs():
+            if script.endswith(".py"):
+                shutil.move(script, script[:-3])
+
+
 setup(
-    name='hn',
-    version='0.0.1',
+    name='hypernetworks',
+    author='Richard Charlesworth',
+    version='0.0.7',
     license="MIT",
     url='https://github.com/rdchar/HypernetworkTheory',
-    description='Hypernetwork Theory library and bin.',
+    description='Hypernetwork Theory library.',
+    long_description_content_type='text/x-rst',
+    long_description="""
+        Hypernetwork Theory library.
+        """,
     install_requires=reqs('requirements.txt'),
-    packages=['hypernetworks'],
+    packages=['hypernetworks', 'hypernetworks/core', 'hypernetworks/utils'],
+    cmdclass={"install_scripts": py_install},
+    scripts=['hypernetworks/bin/hnLoader.py', 'hypernetworks/bin/hnServer.py'],
+    package_data={'': ['fullHT.lark']},
+    include_package_data=True,
     zip_safe=False
     # ...
 )

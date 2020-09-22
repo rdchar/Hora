@@ -1,14 +1,16 @@
 import re
 
-from hypernetworks.utils import condense_all_specials, remove_special
+from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInsertError
+from hypernetworks.core.HTRelations import Relations
+from hypernetworks.core.HTTypes import Types
+from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype
+from hypernetworks.utils.HTSearch import get_peaks
+from hypernetworks.utils.HTTools import condense_all_specials, remove_special
 
 """
 from core.HTConfig import hs_replace_same_vertex
 """
-from hypernetworks.core import HnInsertError, HnUnknownHsType, HnVertexNoFound
-from hypernetworks.core import Relations
-from hypernetworks.core import Types
-from hypernetworks.core import Hypersimplex, NONE, VERTEX, ALPHA, BETA, str_to_hstype
+
 import logging as log
 
 """
@@ -17,7 +19,7 @@ from utils.HTMatrix import to_matrix, from_matrix
 
 # TODO needs more validation when adding Hs.
 #      We get a mess when mixing R naming and assignment names across Hs's.
-from hypernetworks.utils import get_peaks
+
 
 UP = 1
 DOWN = -1
@@ -164,7 +166,7 @@ class Hypernetwork:
 
                 elif hstype in [ALPHA, VERTEX]:
                     new_vertex = vertex + "-" + str(len(self.hypernetwork[vertex].simplex) + 1)
-                    partOf.update(vertex)
+                    partOf.add(vertex)
                     self.hypernetwork[vertex].simplex.append(new_vertex)
                     vertex = new_vertex
 
@@ -177,7 +179,7 @@ class Hypernetwork:
                     tmpHs = self.hypernetwork[vertex]
 
                     self.add(vertex=vertex + "-1", hstype=tmpHs.hstype, simplex=tmpHs.simplex,
-                             R=tmpHs.R, t=tmpHs.t, A=tmpHs.A, N=tmpHs.N, psi=tmpHs.psi, partOf=set(vertex))
+                             R=tmpHs.R, t=tmpHs.t, A=tmpHs.A, N=tmpHs.N, psi=tmpHs.psi, partOf=set().add(vertex))
                     self.hypernetwork.pop(vertex, None)
                     self.add(vertex=vertex, hstype=BETA, simplex=[vertex + "-1", vertex + "-2"],
                              R=tmpHs.R, t=tmpHs.t, A=tmpHs.A, N=_update_N(tmpHs.N), partOf=tmpHs.partOf)
@@ -186,8 +188,8 @@ class Hypernetwork:
                     vertex += "-2"
 
                 else:
-                    # TODO why did I include the following
-                    partOf.update({vertex})
+                    # TODO why did I include the following?
+                    partOf.add(vertex)
 
         # If the simplex of type hsTyoe is found then
         #   replace the new details and all references
@@ -207,6 +209,7 @@ class Hypernetwork:
 
         if search:
             for v in search:
+
                 if v[:3] == "hs_":
                     # self._hypernetwork[v].simplex = [v if x == v else x for x in self._hypernetwork[v].simplex]
                     self._hypernetwork[v].simplex = [x for x in self._hypernetwork[v].simplex]
@@ -217,6 +220,11 @@ class Hypernetwork:
                 self._hypernetwork[vertex].update(R=R, t=t, A=A, N=N, psi=psi)
 
         else:
+            # TODO added this to union the partOf, not sure if it is correct, needs testing
+            if vertex in self._hypernetwork:
+                if hstype == BETA:
+                    partOf = partOf.union(self._hypernetwork[vertex].partOf)
+
             self.add(vertex=vertex, hstype=hstype, simplex=simplex, R=R, t=t, A=A, N=N, psi=psi,
                      partOf=partOf if isinstance(partOf, set) else {partOf})
 
@@ -246,7 +254,13 @@ class Hypernetwork:
                 self._hypernetwork[v].partOf.add(vertex)
 
         return vertex
-        
+
+    def union(self, _hn):
+        for hs in _hn.hypernetwork:
+            self.add_hs(hs, _hn.hypernetwork[hs])
+
+        return self
+
     def update(self):
         pass
 

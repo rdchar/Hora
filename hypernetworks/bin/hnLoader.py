@@ -1,9 +1,11 @@
+#!/usr/bin/env python
+
 import click
 
 from hypernetworks.core.Hypernetwork import Hypernetwork
-from hypernetworks.utils import load_parser, compile_hn
-from hypernetworks.utils import load_Hn
-from hypernetworks.utils import save_hn
+from hypernetworks.utils.HTCompiler import load_parser, compile_hn
+from hypernetworks.utils.HTInOut import load_Hn
+from hypernetworks.utils.HTMongo import load_Hn_into_mongo
 
 
 @click.command()
@@ -15,5 +17,5 @@ def hn_loader(name, fname):
 
     compile_hn(hn, parser, load_Hn(fname))
 
-    save_hn(hn)
+    load_Hn_into_mongo(hn)
     print("Loaded ...", fname, "as", name)

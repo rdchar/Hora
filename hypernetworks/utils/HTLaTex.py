@@ -1,5 +1,6 @@
 import re
-from hypernetworks.core import ALPHA, BETA, NONE, VERTEX
+
+from hypernetworks.core.Hypersimplex import ALPHA, BETA, VERTEX, NONE
 
 
 def _latex(hs):

@@ -18,6 +18,7 @@ empty_beta:     "{}"
               | sequence
               | immutable
               | mandatory
+              | WILDCARD
 
 ?b_simplex:     vertex ("," vertex)*
 
@@ -71,6 +72,7 @@ TYPE:           NAME
 N:              "N"
 LEVEL:          ("+" | "-") (NUMBER | LETTER)
 PRED:           NAME
+WILDCARD:       "*"
 
 logic_and:      "\/\\"
 logic_or:       "\\/"

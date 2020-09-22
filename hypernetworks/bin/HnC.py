@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import click
 import sys
 import numpy as np
@@ -5,11 +7,11 @@ import logging as log
 from timeit import default_timer as timer
 
 from hypernetworks.core.Hypernetwork import Hypernetwork
-from hypernetworks.utils import to_graph
-from hypernetworks.utils import qanalysis_of_simplical_complex, gen_simplical_complex, simplical_complex_to_graph
-from hypernetworks.utils import load_parser, compile_hn, load_ht
-from hypernetworks.utils import load_Hn, save_Hn, JSON, YAML
-
+from hypernetworks.utils.HTCompiler import load_parser, compile_hn, load_ht
+from hypernetworks.utils.HTGraph import to_graph
+from hypernetworks.utils.HTInOut import JSON, YAML, load_Hn, save_Hn
+from hypernetworks.utils.HTSimplicalComplex import qanalysis_of_simplical_complex, gen_simplical_complex, \
+    simplical_complex_to_graph
 
 logger = log.StreamHandler(sys.stdout)
 log.basicConfig(level=log.DEBUG, handlers=[logger])

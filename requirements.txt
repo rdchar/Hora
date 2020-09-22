@@ -11,3 +11,4 @@ click~=7.1.2
 pymongo~=3.11.0
 rdflib~=5.0.0
 Flask~=1.1.2
+Flask-Cors~=3.0.9

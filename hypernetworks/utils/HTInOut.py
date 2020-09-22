@@ -1,7 +1,8 @@
 import json
 import yaml
+
 from hypernetworks.core.Hypernetwork import Hypernetwork
-from hypernetworks.core import Hypersimplex, hstype_to_str, str_to_hstype
+from hypernetworks.core.Hypersimplex import hstype_to_str, str_to_hstype, Hypersimplex
 
 JSON = 1
 YAML = 2
@@ -55,7 +56,7 @@ def from_data(data):
         psi = d["psi"] if "psi" in d else ""
         N = d["N"] if "N" in d else ""
 
-        hn.load_hs(Hypersimplex(vertex=vertex, hstype=hstype, simplex=simplex,
+        hn.load_hs(Hypersimplex(hn, vertex=vertex, hstype=hstype, simplex=simplex,
                                 partOf=partOf, R=R, t=t, A=A, psi=psi, N=N))
 
     return hn
