@@ -142,8 +142,8 @@ def compile_hn(Hn, parser, hs_string):
         def time(self, token):
             return {'t': int(token)}
 
-        def atomicity(self, *tokens):
-            return {'A': {str(t) for t in tokens}}
+        def boundary(self, *tokens):
+            return {'B': {str(t) for t in tokens}}
 
         def level(self, *tokens):
             if len(tokens) == 0:

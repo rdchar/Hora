@@ -8,8 +8,8 @@ hs:             alpha
               | empty_alpha
               | empty_beta
 
-alpha:          "<" a_simplex r? time? atomicity? psi? ">" level?
-beta:           "{" b_simplex r? time? atomicity? "}" level?
+alpha:          "<" a_simplex r? time? boundary? psi? ">" level?
+beta:           "{" b_simplex r? time? boundary? "}" level?
 empty_alpha:    "<>"
 empty_beta:     "{}"
 
@@ -31,7 +31,7 @@ assign:         NAME "="
 
 r:              ";" "R" ("_" NAME)?
 time:           ";" "t_" NUMBER
-atomicity:      ";" "A(" NAME ("," NAME)* ")"
+boundary:       ";" "B(" NAME ("," NAME)* ")"
 psi:            ";" "psi_" NAME
 level:          "^N" LEVEL*
 

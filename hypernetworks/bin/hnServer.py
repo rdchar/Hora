@@ -38,7 +38,7 @@ def generate_graph():
             )
         else:
             response = app.response_class(
-                status=404,
+                status=400,
                 mimetype="application/json"
             )
 
@@ -65,7 +65,7 @@ def compile():
 
         else:
             response = app.response_class(
-                status=404,
+                status=400,
                 mimetype="application/json"
             )
 
@@ -96,7 +96,7 @@ def union():
 
         else:
             response = app.response_class(
-                status=404,
+                status=400,
                 mimetype="application/json"
             )
 
