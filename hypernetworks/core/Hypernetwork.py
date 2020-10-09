@@ -240,10 +240,10 @@ class Hypernetwork:
             for v in simplex:
                 if isinstance(v, dict):
                     key = list(v.keys())[0]
-                    self.add(vertex=v[key], hstype=VERTEX, partOf={vertex})
+                    self.add(vertex=v[key], hstype=VERTEX, partOf={vertex}, B=B)
 
                 else:
-                    self.add(vertex=v, hstype=VERTEX, partOf={vertex})
+                    self.add(vertex=v, hstype=VERTEX, partOf={vertex}, B=B)
 
         for v in simplex:
             if isinstance(v, dict):
