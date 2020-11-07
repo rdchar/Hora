@@ -1,3 +1,4 @@
+
 def are_similar(a, b):
     c = []
 
@@ -63,3 +64,5 @@ def remove_special(vert):
 
 def is_special(vert):
     return vert[:4] in ["SEQ@", "IMM@", "MAN@"]
+
+

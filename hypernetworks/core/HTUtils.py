@@ -1,3 +1,6 @@
+from hypernetworks.core.Hypersimplex import NONE, VERTEX, ALPHA, BETA
+
+
 def expandR(simplex, where, other_decs):
     res = []
     for v in where:
@@ -21,3 +24,18 @@ def expandR(simplex, where, other_decs):
             res.append(temp)
 
     return res
+
+
+def of_hstype(hn, v):
+    part_hstype = NONE
+    v_hstype = hn.hypernetwork[v].hstype
+
+    if v_hstype == VERTEX:
+        if hn.hypernetwork[v].partOf:
+            part = list(hn.hypernetwork[v].partOf)[0]
+            part_hstype = hn.hypernetwork[part].hstype
+
+    else:
+        return v_hstype
+
+    return part_hstype

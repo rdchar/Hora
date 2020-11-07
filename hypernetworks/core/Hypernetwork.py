@@ -68,7 +68,7 @@ class Hypernetwork:
             if temp.R == "" and R == "":
                 R = temp.R
 
-            if temp.B and B:
+            if temp.B == "" and B == "":
                 B = temp.B.copy()
 
             if temp.N != "" and N == "":
@@ -131,6 +131,7 @@ class Hypernetwork:
         def _update_N(_N, _direction=UP):
             res = ""
             l = len(_N)
+
             if _N:
                 if _direction == UP:
                     if l == 1:
@@ -156,6 +157,7 @@ class Hypernetwork:
             partOf = set()
 
         # TODO is this the right solution?  Or should it we use the matrix method.
+
         if vertex in self.hypernetwork:
             if self.hypernetwork[vertex].hstype == BETA and self.hypernetwork[vertex].simplex != simplex:
                 # Add to BETA
@@ -209,7 +211,6 @@ class Hypernetwork:
 
         if search:
             for v in search:
-
                 if v[:3] == "hs_":
                     # self._hypernetwork[v].simplex = [v if x == v else x for x in self._hypernetwork[v].simplex]
                     self._hypernetwork[v].simplex = [x for x in self._hypernetwork[v].simplex]
@@ -225,6 +226,7 @@ class Hypernetwork:
                 if hstype == BETA:
                     partOf = partOf.union(self._hypernetwork[vertex].partOf)
 
+            # TODO add cyclic removal code
             self.add(vertex=vertex, hstype=hstype, simplex=simplex, R=R, t=t, B=B, N=N, psi=psi,
                      partOf=partOf if isinstance(partOf, set) else {partOf})
 
@@ -253,6 +255,21 @@ class Hypernetwork:
             if v in self._hypernetwork:
                 self._hypernetwork[v].partOf.add(vertex)
 
+        # Remove cyclic references
+        temp = list(set(self._hypernetwork[vertex].simplex).intersection(self._hypernetwork[vertex].partOf))
+        if temp:
+            for v in simplex:
+                if isinstance(v, dict):
+                    v = list(v.values())[0]
+
+                if v in temp:
+                    self._hypernetwork[vertex].simplex.remove(v)
+                    # if not self._hypernetwork[vertex].simplex:
+                    #     self._hypernetwork[vertex].simplex = "UNKNOWN-VERTEX"
+
+                # if vertex in self._hypernetwork[v].partOf:
+                #     self._hypernetwork[v].partOf.remove(vertex)
+
         return vertex
 
     def union(self, _hn):
@@ -263,6 +280,9 @@ class Hypernetwork:
 
     def update(self):
         pass
+
+    def preparse(self, hypernet):
+        return
 
     def parse(self, hypernet):
         class _hypersimplex:
@@ -360,9 +380,12 @@ class Hypernetwork:
 
         _clear()
 
+        self.preparse(hypernet)
+
         for hn in hypernet:
             if isinstance(hn, dict):
                 _parse_hs(hn)
+
             else:
                 for hs in hn:
                     _parse_hs(hs)

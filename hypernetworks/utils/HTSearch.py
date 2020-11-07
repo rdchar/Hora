@@ -1,5 +1,6 @@
 import collections
 import logging as log
+from copy import deepcopy
 
 from hypernetworks.core.Hypersimplex import HS_TYPE, VERTEX, NONE
 from hypernetworks.utils.HTTools import find_in
@@ -49,18 +50,20 @@ def get_paths(hn, simplex):
     new = []
     existing = []
 
+    sb = hn.hypernetwork[simplex[0]].B
+
     for idx, vtx in enumerate(simplex):
         path = HsPath(hn.hypernetwork, pos=idx, vertex=vtx)
 
         if vtx in hn.hypernetwork:
-            path.gen_path(hn.hypernetwork[vtx])
+            path.gen_path(hn.hypernetwork[vtx], sb)
         else:
-            path.path = None
+            path.paths = None
 
         paths.update({tuple((idx, vtx)): path})
 
     for idx, path in paths.items():
-        if path.path:
+        if path.paths:
             existing.append(tuple((path.pos, path.vertex)))
         else:
             new.append(tuple((path.pos, path.vertex)))
@@ -106,8 +109,8 @@ def in_path(hn, start, val, dir=UP_AND_DOWN):
 
 
 def find_head(path1, path2):
-    for step in path1.path:
-        if step in path2.path:
+    for step in path1.paths:
+        if step in path2.paths:
             return step
 
     return None
@@ -123,15 +126,17 @@ def get_peaks(hn):
     return res
 
 
+def passbyval(func):
+    def new(*args):
+        cargs = [deepcopy(arg) for arg in args]
+        return func(*cargs)
+    return new
+
+
 class hsPathElem:
-    def __init__(self, pathID=0, vertex="", hstype=NONE):
-        self._pathID = pathID
+    def __init__(self, vertex="", hstype=NONE):
         self._vertex = vertex
         self._hstype = hstype
-
-    @property
-    def pathID(self):
-        return self._pathID
 
     @property
     def vertex(self):
@@ -145,18 +150,18 @@ class hsPathElem:
         return self._vertex == other.vertex and self._hstype == other.hstype
 
     def __str__(self):
-        return "<" + str(self.pathID) + "; " + self.vertex + "; " + str(HS_TYPE[self.hstype + 1]) + ">"
+        return "(" + self.vertex + ", " + str(HS_TYPE[self.hstype + 1]) + ")"
 
 
 class HsPath:
-    def __init__(self, hn, vertex="", pos=0, path=None):
-        if path is None:
-            path = []
+    def __init__(self, hn, vertex="", pos=0, paths=None):
+        if paths is None:
+            paths = []
 
         self._hn = hn
         self._vertex = vertex
         self._pos = pos
-        self._path = path[:]
+        self._paths = paths[:]
 
     @property
     def vertex(self):
@@ -175,53 +180,62 @@ class HsPath:
         self._pos = value
 
     @property
-    def path(self):
-        return self._path
+    def paths(self):
+        return self._paths
 
-    @path.setter
-    def path(self, value):
-        self._path = value
+    @paths.setter
+    def paths(self, value):
+        self._paths = value
 
     def __len__(self):
-        return len(self._path)
+        return len(self._paths)
 
     def __getitem__(self, item):
-        return self._path[item]
+        return self._paths[item]
 
     def __setitem__(self, key, value):
-        self._path[key] = value
+        self._paths[key] = value
 
     def __contains__(self, item):
         log.debug("ITEM: " + str(item))
-        return item in self._path
+        return item in self._paths
 
-    def gen_path(self, vertex, old_idx=0):
-        if vertex:
-            if vertex.hstype != VERTEX:
-                self._path.append(hsPathElem(old_idx, vertex.vertex, vertex.hstype))
+    def gen_path(self, vertex, sb):
+        @passbyval
+        def _gen_path(vertex, path_so_far=None, idx=0):
+            if path_so_far is None:
+                path_so_far = [hsPathElem(vertex.vertex, vertex.hstype)]
+            else:
+                path_so_far.append(hsPathElem(vertex.vertex, vertex.hstype))
 
-            for idx, partOf in enumerate(vertex.partOf):
-                if idx > old_idx:
+            if not (sb and len(sb.intersection(vertex.B)) == 0):
+                if vertex.partOf == set() and idx == 0:
+                    self._paths.append(path_so_far)
+                    return 0, path_so_far
+
+                for part in vertex.partOf:
                     old_idx = idx
+                    idx, result = _gen_path(self._hn[part], path_so_far, idx)
 
-                if not partOf:
-                    break
-                else:
-                    self.gen_path(self._hn[partOf], old_idx)
+                    if old_idx == idx:
+                        self._paths.append(result)
+                        idx += 1
 
-        return self._path
+            return idx, path_so_far
+        # End _gen_path
+
+        _gen_path(vertex)
+
+        return self._paths
 
     def __str__(self):
         res = ""
-        first = True
 
-        if self._path:
-            for path in self._path:
-                if first:
-                    res += str(path)
-                    first = False
-                else:
-                    res += " -> " + str(path)
+        if self._paths:
+            for i, path in enumerate(self._paths):
+                res += str(i) + " => "
+                res += "->".join([str(y) for y in path])
+                res += "\n"
         else:
             res = str(self.vertex) + " ... none"
 

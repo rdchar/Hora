@@ -235,9 +235,9 @@ class Hypersimplex:
             for v in self.simplex:
                 if v[:4] == "SEQ@":
                     new_simplex.append("(" + v[4:len(v)] + ")")
-                if v[:4] == "IMM@":
+                elif v[:4] == "IMM@":
                     new_simplex.append("[" + v[4:len(v)] + "]")
-                if v[:4] == "MAN@":
+                elif v[:4] == "MAN@":
                     new_simplex.append("!" + v[4:len(v)])
                 else:
                     new_simplex.append(v)
@@ -253,6 +253,8 @@ class Hypersimplex:
                 bres += ("^" + self.N) if self.N else ""
 
             elif self.hstype == BETA:
+                bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
+                bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
                 bres += "}" + (("^" + self.N) if self.N else "")
 
             else:
@@ -287,11 +289,17 @@ class Hypersimplex:
 
             if self.hstype == ALPHA:
                 bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
+                bres += ("; psi_" + str(self.psi)) if self.psi else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
+                bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
                 bres += ">"
                 bres += ("^" + self.N) if self.N else ""
+
             elif self.hstype == BETA:
+                bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
+                bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
                 bres += "}" + (("^" + self.N) if self.N else "")
+
             else:
                 bres = ""
 
