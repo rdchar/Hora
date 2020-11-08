@@ -43,22 +43,43 @@ def best_fit(hn, search_hn, top):
     return partOf, (num - count) / num
 
 
-def get_paths(hn, *simplex_list):
+def get_path(hn, vertex, sb=None):
+    if not sb:
+        sb = hn.hypernetwork[vertex].B
+
+    path = HsPath(hn.hypernetwork, vertex=vertex)
+
+    if vertex in hn.hypernetwork:
+        path.gen_path(hn.hypernetwork[vertex], sb)
+    else:
+        path.paths = None
+
+    return path
+
+
+def get_paths(hn, *vertex_list):
     # Side-effects: changes temp.paths; new; existing
     paths = {}
-    sb = hn.hypernetwork[simplex_list[0]].B
+    sb = hn.hypernetwork[vertex_list[0]].B
 
-    for vtx in simplex_list:
-        path = HsPath(hn.hypernetwork, vertex=vtx)
-
-        if vtx in hn.hypernetwork:
-            path.gen_path(hn.hypernetwork[vtx], sb)
-        else:
-            path.paths = None
-
-        paths.update({vtx: path})
+    for vtx in vertex_list:
+        paths.update({vtx: get_path(hn, vtx, sb)})
 
     return paths
+
+
+def get_underpath(hn, vertex, sb=None):
+    if not sb:
+        sb = hn.hypernetwork[vertex].B
+
+    path = HsPath(hn.hypernetwork, vertex=vertex)
+
+    if vertex in hn.hypernetwork:
+        path.gen_underpath(hn.hypernetwork[vertex], sb)
+    else:
+        path.paths = None
+
+    return path
 
 
 # TODO Needs evaluating, may be able to replace with memberOf and contains.
@@ -191,6 +212,35 @@ class HsPath:
         _gen_path(vertex)
 
         return self._paths
+
+    def gen_underpath(self, vertex, sb):
+        @passbyval
+        def _gen_path(vertex, path_so_far=None, idx=0):
+            if path_so_far is None:
+                path_so_far = [vertex.vertex]
+            else:
+                path_so_far.append(vertex.vertex)
+
+            if not (sb and len(sb.intersection(vertex.B)) == 0):
+                if vertex.simplex == set() and idx == 0:
+                    self._paths.append(path_so_far)
+                    return 0, path_so_far
+
+                for part in vertex.simplex:
+                    old_idx = idx
+                    idx, result = _gen_path(self._hn[part], path_so_far, idx)
+
+                    if old_idx == idx:
+                        self._paths.append(result)
+                        idx += 1
+
+            return idx, path_so_far
+        # End _gen_path
+
+        _gen_path(vertex)
+
+        return self._paths
+
 
     def __str__(self):
         res = ""
