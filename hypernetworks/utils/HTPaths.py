@@ -1,8 +1,6 @@
-import collections
 import logging as log
 from copy import deepcopy
 
-from hypernetworks.core.Hypersimplex import HS_TYPE, VERTEX, NONE
 from hypernetworks.utils.HTTools import find_in
 
 UP = 1
@@ -10,6 +8,7 @@ UP_AND_DOWN = 0
 DOWN = -1
 
 
+# TODO WIP
 def best_fit(hn, search_hn, top):
     """
     temp = []
@@ -44,33 +43,25 @@ def best_fit(hn, search_hn, top):
     return partOf, (num - count) / num
 
 
-def get_paths(hn, simplex):
+def get_paths(hn, *simplex_list):
     # Side-effects: changes temp.paths; new; existing
-    paths = collections.OrderedDict()
-    new = []
-    existing = []
+    paths = {}
+    sb = hn.hypernetwork[simplex_list[0]].B
 
-    sb = hn.hypernetwork[simplex[0]].B
-
-    for idx, vtx in enumerate(simplex):
-        path = HsPath(hn.hypernetwork, pos=idx, vertex=vtx)
+    for vtx in simplex_list:
+        path = HsPath(hn.hypernetwork, vertex=vtx)
 
         if vtx in hn.hypernetwork:
             path.gen_path(hn.hypernetwork[vtx], sb)
         else:
             path.paths = None
 
-        paths.update({tuple((idx, vtx)): path})
-
-    for idx, path in paths.items():
-        if path.paths:
-            existing.append(tuple((path.pos, path.vertex)))
-        else:
-            new.append(tuple((path.pos, path.vertex)))
+        paths.update({vtx: path})
 
     return paths
 
 
+# TODO Needs evaluating, may be able to replace with memberOf and contains.
 def in_path(hn, start, val, dir=UP_AND_DOWN):
     def _in_path(_start, _dir):
         _res = False
@@ -109,8 +100,8 @@ def in_path(hn, start, val, dir=UP_AND_DOWN):
 
 
 def find_head(path1, path2):
-    for step in path1.paths:
-        if step in path2.paths:
+    for step in path1:
+        if step in path2:
             return step
 
     return None
@@ -119,13 +110,15 @@ def find_head(path1, path2):
 def get_peaks(hn):
     res = []
 
-    for hs in hn.values():
+    for name in hn.hypernetwork:
+        hs = hn.hypernetwork[name]
         if hs.partOf == set():
             res.append(hs.vertex)
 
     return res
 
 
+# TODO should be moved somewhere more generic.
 def passbyval(func):
     def new(*args):
         cargs = [deepcopy(arg) for arg in args]
@@ -133,34 +126,13 @@ def passbyval(func):
     return new
 
 
-class hsPathElem:
-    def __init__(self, vertex="", hstype=NONE):
-        self._vertex = vertex
-        self._hstype = hstype
-
-    @property
-    def vertex(self):
-        return self._vertex
-
-    @property
-    def hstype(self):
-        return self._hstype
-
-    def __eq__(self, other):
-        return self._vertex == other.vertex and self._hstype == other.hstype
-
-    def __str__(self):
-        return "(" + self.vertex + ", " + str(HS_TYPE[self.hstype + 1]) + ")"
-
-
 class HsPath:
-    def __init__(self, hn, vertex="", pos=0, paths=None):
+    def __init__(self, hn, vertex="", paths=None):
         if paths is None:
             paths = []
 
         self._hn = hn
         self._vertex = vertex
-        self._pos = pos
         self._paths = paths[:]
 
     @property
@@ -170,14 +142,6 @@ class HsPath:
     @vertex.setter
     def vertex(self, value):
         self._vertex = value
-
-    @property
-    def pos(self):
-        return self._pos
-
-    @pos.setter
-    def pos(self, value):
-        self._pos = value
 
     @property
     def paths(self):
@@ -204,9 +168,9 @@ class HsPath:
         @passbyval
         def _gen_path(vertex, path_so_far=None, idx=0):
             if path_so_far is None:
-                path_so_far = [hsPathElem(vertex.vertex, vertex.hstype)]
+                path_so_far = [vertex.vertex]
             else:
-                path_so_far.append(hsPathElem(vertex.vertex, vertex.hstype))
+                path_so_far.append(vertex.vertex)
 
             if not (sb and len(sb.intersection(vertex.B)) == 0):
                 if vertex.partOf == set() and idx == 0:

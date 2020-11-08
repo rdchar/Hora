@@ -4,7 +4,7 @@ from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInse
 from hypernetworks.core.HTRelations import Relations
 from hypernetworks.core.HTTypes import Types
 from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype
-from hypernetworks.utils.HTSearch import get_peaks
+from hypernetworks.utils.HTPaths import get_peaks
 from hypernetworks.utils.HTTools import condense_all_specials, remove_special
 
 """

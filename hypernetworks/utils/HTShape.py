@@ -1,7 +1,7 @@
 from hypernetworks.core.Hypernetwork import Hypernetwork
-from hypernetworks.core.Hypersimplex import BETA
+from hypernetworks.core.Hypersimplex import BETA, ALPHA
 from hypernetworks.utils.HTCompiler import load_parser, compile_hn
-from hypernetworks.utils.HTSearch import get_paths
+from hypernetworks.utils.HTPaths import get_paths
 
 
 def get_shape(hn, *hs):
@@ -13,15 +13,17 @@ def get_shape(hn, *hs):
         path = paths.get(key)
         for p in path:
             for x in p:
-                if x.hstype == BETA:
+                if hn.hypernetwork[x].hstype == BETA:
                     pass
 
-                shape.add(x.vertex)
+                shape.add(x)
 
     s = ""
 
+    # TODO not keen on using this method, i.e. convert to tet and compile to get a ne Hn.
     for f in shape:
-        s += str(hn.hypernetwork[f]) + "\n"
+        if hn.hypernetwork[f].hstype in [ALPHA, BETA]:
+            s += str(hn.hypernetwork[f]) + "\n"
 
     new_hn = Hypernetwork()
     compile_hn(new_hn, parser, s)

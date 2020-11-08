@@ -9,5 +9,5 @@ __all__ = ["HTAlgebra",
            "HTTools",
            "HTGraph",
            "HTLambda",
-           "HTSearch",
+           "HTPaths.py",
            "HTWebOnt"]
