@@ -4,19 +4,21 @@ from hypernetworks.utils.HTCompiler import load_parser, compile_hn
 from hypernetworks.utils.HTPaths import get_paths, get_underpath
 
 
-def paths_to_hn(hn, *hs):
-    paths = get_paths(hn, *hs)
+def get_space(hn, ignore_sb, *hs):
+    paths = get_paths(hn, ignore_sb, *hs)
     shape = set()
     parser = load_parser()
 
     for key, val in paths.items():
         path = paths.get(key)
-        for p in path:
-            for x in p:
-                if hn.hypernetwork[x].hstype == BETA:
-                    pass
+        print(path)
+        if path is not None:
+            for p in path:
+                for x in p:
+                    if hn.hypernetwork[x].hstype == BETA:
+                        pass
 
-                shape.add(x)
+                    shape.add(x)
 
     s = ""
 

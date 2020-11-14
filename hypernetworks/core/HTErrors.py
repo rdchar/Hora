@@ -27,3 +27,7 @@ class HnVertexNoFound(HnErrors):
 class HnImmutableType(HnErrors):
     """ This type is immutable """
     pass
+
+
+class HnParseError(HnErrors):
+    pass

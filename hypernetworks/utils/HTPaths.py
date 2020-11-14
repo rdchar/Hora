@@ -57,10 +57,14 @@ def get_path(hn, vertex, sb=None):
     return path
 
 
-def get_paths(hn, *vertex_list):
+def get_paths(hn, ignore_sb, *vertex_list):
     # Side-effects: changes temp.paths; new; existing
     paths = {}
-    sb = hn.hypernetwork[vertex_list[0]].B
+
+    if ignore_sb:
+        sb = None
+    else:
+        sb = hn.hypernetwork[vertex_list[0]].B
 
     for vtx in vertex_list:
         paths.update({vtx: get_path(hn, vtx, sb)})

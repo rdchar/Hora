@@ -3,6 +3,7 @@ import lark
 __HN_LARK__ = "./fullHT.lark"
 
 from hypernetworks.core.HTConfig import hs_expand_R
+from hypernetworks.core.HTErrors import HnParseError
 from hypernetworks.core.HTUtils import expandR
 
 
@@ -215,12 +216,18 @@ def compile_hn(Hn, parser, hs_string):
         def psis(self, *tokens):
             return [[{"VERTEX": ""}, {"VAL": str(tokens[0])}, {"psi": str(tokens[1])}]]
 
-    tree = parser.parse(hs_string)
-    transformer = HnTransformer()
-    hs = transformer.transform(tree)
-    Hn.parse(hs)
+    try:
+        tree = parser.parse(hs_string)
+        transformer = HnTransformer()
+        hs = transformer.transform(tree)
+        Hn.parse(hs)
 
-    return Hn
+    except lark.exceptions.UnexpectedToken:
+        print("lark exception Unexpected Token")
+        raise HnParseError
+
+    finally:
+        return Hn
 
 
 def load_ht(fname):
