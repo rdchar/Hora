@@ -137,11 +137,7 @@ def hn_graph():
             to_graph(sub_hn, fname='/tmp/hn', view=False)
 
         if sub_hn:
-            response = app.response_class(
-                response=send_file('/tmp/hn.png', mimetype='image/png'),
-                status=200,
-                mimetype="image/png"
-            )
+            return send_file('/tmp/hn.png', mimetype='image/png')
 
         else:
             response = app.response_class(
