@@ -28,7 +28,6 @@ def best_fit(hn, search_hn, top):
 
         for h in search:
             hn_partOf = hn.hypernetwork[h].partOf
-            # print("\t" + h + ": " + str(hn.hypernetwork[h].simplex))
 
             if first:
                 partOf = hn_partOf
@@ -38,13 +37,12 @@ def best_fit(hn, search_hn, top):
                     partOf = partOf & hn_partOf
 
                 count -= 1
-            # print("\t\t: " + str(partOf))
 
     return partOf, (num - count) / num
 
 
-def get_path(hn, vertex, sb=None):
-    if not sb:
+def get_path(hn, vertex, ignore_sb=False, sb=None):
+    if not ignore_sb and not sb:
         sb = hn.hypernetwork[vertex].B
 
     path = HsPath(hn.hypernetwork, vertex=vertex)
@@ -67,13 +65,19 @@ def get_paths(hn, ignore_sb, *vertex_list):
         sb = hn.hypernetwork[vertex_list[0]].B
 
     for vtx in vertex_list:
-        paths.update({vtx: get_path(hn, vtx, sb)})
+        new_path = []
+        path = get_path(hn, vtx, ignore_sb, sb)
+
+        for item in path:
+            if item[-1] in vertex_list:
+                new_path.append(item)
+                paths.update({vtx: new_path})
 
     return paths
 
 
-def get_underpath(hn, vertex, sb=None):
-    if not sb:
+def get_underpath(hn, vertex, ignore_sb=False, sb=None):
+    if not ignore_sb and not sb:
         sb = hn.hypernetwork[vertex].B
 
     path = HsPath(hn.hypernetwork, vertex=vertex)
@@ -244,7 +248,6 @@ class HsPath:
         _gen_path(vertex)
 
         return self._paths
-
 
     def __str__(self):
         res = ""

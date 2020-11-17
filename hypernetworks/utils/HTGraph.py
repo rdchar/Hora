@@ -2,7 +2,7 @@ import logging as log
 
 from graphviz import Graph
 
-from hypernetworks.core.Hypersimplex import ALPHA, BETA, VERTEX
+from hypernetworks.core.Hypersimplex import ALPHA, BETA, VERTEX, PROPERTY
 
 
 def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=False,
@@ -19,27 +19,41 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
             first = True
 
             for vtx in _vertex.simplex:
+                vtx_port = ""
+
                 if vtx[:4] == "SEQ@":
-                    vtx_lbl = ("(" + vtx[4:len(vtx)] + ")")
-                    vtx_port = vtx[4:len(vtx)]
+                    vtx = vtx[4:len(vtx)]
+                    vtx_lbl = ("(" + vtx + ")")
+                    vtx_port = vtx
                 elif vtx[:4] == "IMM@":
-                    vtx_lbl = ("[" + vtx[4:len(vtx)] + "]")
-                    vtx_port = vtx[4:len(vtx)]
+                    vtx = vtx[4:len(vtx)]
+                    vtx_lbl = ("[" + vtx + "]")
+                    vtx_port = vtx
                 elif vtx[:4] == "MAN@":
-                    vtx_lbl = ("[" + vtx[4:len(vtx)] + "]")
-                    vtx_port = vtx[4:len(vtx)]
+                    vtx = vtx[4:len(vtx)]
+                    vtx_lbl = ("[" + vtx + "]")
+                    vtx_port = vtx
                 else:
                     vtx_lbl = vtx
-                    vtx_port = vtx
+                    if Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
+                        vtx_port = vtx
 
                 if first:
-                    label += "<" + vtx_port + "> " + vtx_lbl
+                    if Hn.hypernetwork[vtx].hstype in [PROPERTY]:
+                        label += vtx_lbl
+                    else:
+                        label += "<" + vtx_port + "> " + vtx_lbl
+
                     first = False
                 else:
-                    label += " | <" + vtx_port + "> " + vtx_lbl
+                    if Hn.hypernetwork[vtx].hstype in [PROPERTY]:
+                        label += " | " + vtx_lbl
+                    else:
+                        label += " | <" + vtx_port + "> " + vtx_lbl
 
                 # TODO feels a bit contrived
-                _add_nodes(Hn.hypernetwork[vtx_port])
+                if vtx_port:
+                    _add_nodes(Hn.hypernetwork[vtx_port])
 
             if _vertex.hstype == ALPHA:
                 temp.dot.attr('node', style='solid', shape='record')
@@ -76,6 +90,8 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
 
     def _add_edges(_vertex):
         for vtx in _vertex.simplex:
+            vtx_port = ""
+
             if vtx[:4] == "SEQ@":
                 vtx_port = vtx[4:len(vtx)]
             elif vtx[:4] == "IMM@":
@@ -83,15 +99,19 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
             elif vtx[:4] == "MAN@":
                 vtx_port = vtx[4:len(vtx)]
             else:
-                vtx_port = vtx
+                if Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
+                    vtx_port = vtx
 
             if _vertex.hstype in [ALPHA, BETA]:
-                temp.dot.edge(_vertex.vertex + ":" + vtx_port, vtx_port)
+                if vtx_port:
+                    temp.dot.edge(_vertex.vertex + ":" + vtx_port, vtx_port)
+
             elif _vertex.hstype == VERTEX:
                 temp.dot.edge(vtx_port, _vertex.vertex)
 
             # TODO feels a bit contrived
-            _add_edges(Hn.hypernetwork[vtx_port])
+            if vtx_port:
+                _add_edges(Hn.hypernetwork[vtx_port])
 
     # End _add_edges
 

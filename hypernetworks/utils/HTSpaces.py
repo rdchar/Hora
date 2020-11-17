@@ -1,17 +1,16 @@
 from hypernetworks.core.Hypernetwork import Hypernetwork
-from hypernetworks.core.Hypersimplex import BETA, ALPHA, VERTEX
+from hypernetworks.core.Hypersimplex import BETA, ALPHA, VERTEX, PROPERTY
 from hypernetworks.utils.HTCompiler import load_parser, compile_hn
 from hypernetworks.utils.HTPaths import get_paths, get_underpath
 
 
-def get_space(hn, ignore_sb, *hs):
-    paths = get_paths(hn, ignore_sb, *hs)
+def get_space(hn, ignore_sb, shrink_beta, *vertex_list):
+    paths = get_paths(hn, ignore_sb, *vertex_list)
     shape = set()
     parser = load_parser()
 
     for key, val in paths.items():
         path = paths.get(key)
-        print(path)
         if path is not None:
             for p in path:
                 for x in p:
@@ -31,25 +30,27 @@ def get_space(hn, ignore_sb, *hs):
     compile_hn(new_hn, parser, s)
 
     # TODO Remove the unnecessary vertices from each BETA
-    # to_del = []
-    # for name in new_hn.hypernetwork:
-    #     hs = new_hn.hypernetwork[name]
-    #     if hs.hstype == BETA:
-    #         temp = []
-    #         for v in hs.simplex:
-    #             if new_hn.hypernetwork[v].hstype != VERTEX:
-    #                 temp.append(v)
-    #             else:
-    #                 to_del.append(v)
-    #
-    #         if len(temp) > 0:
-    #             new_hn.hypernetwork[name].simplex = ",".join(temp)
-    #         else:
-    #             new_hn.hypernetwork[name].simplex = []
-    #             new_hn.hypernetwork[name].hstype = VERTEX
+    if shrink_beta:
+        to_del = []
+        for name in new_hn.hypernetwork:
+            hs = new_hn.hypernetwork[name]
+            if hs.hstype == BETA:
+                temp = []
+                for v in hs.simplex:
+                    if new_hn.hypernetwork[v].hstype in [VERTEX, PROPERTY] and v not in vertex_list:
+                        to_del.append(v)
+                    else:
+                        temp.append(v)
 
-    # for d in to_del:
-    #     new_hn.delete(d)
+                if len(temp) > 0:
+                    new_hn.hypernetwork[name].simplex = temp.copy()
+                # else:
+                #     new_hn.hypernetwork[name].simplex = []
+                #     new_hn.hypernetwork[name].hstype = VERTEX
+
+        for d in to_del:
+            if d in new_hn.hypernetwork:
+                del new_hn.hypernetwork[d]
 
     return new_hn
 
@@ -67,11 +68,9 @@ def underpath_to_hn(hn, vertex):
     hn_str = ""
     for v in vertex_list:
         hs = hn.hypernetwork[v]
-        if hs.hstype != VERTEX:
+        if hs.hstype not in [VERTEX, PROPERTY]:
             hn_str += str(hs) + "\n"
 
     compile_hn(underpath_hn, parser, hn_str)
 
     return underpath_hn
-
-

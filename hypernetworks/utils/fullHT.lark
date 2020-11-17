@@ -22,7 +22,8 @@ empty_beta:     "{}"
 
 ?b_simplex:     vertex ("," vertex)*
 
-vertex:         (NAME | assign? hs) typed?
+vertex:         (NAME | property | assign? hs) typed?
+property:       "~" NAME
 sequence:       "(" NAME ")"
 immutable:      "[" NAME "]"
 mandatory:      "!" NAME

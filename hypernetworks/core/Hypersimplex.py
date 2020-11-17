@@ -9,8 +9,9 @@ NONE = -1
 VERTEX = 0
 ALPHA = 1
 BETA = 2
+PROPERTY = 3
 
-HS_TYPE = ['NONE', 'VERTEX', 'ALPHA', 'BETA']
+HS_TYPE = ['NONE', 'VERTEX', 'ALPHA', 'BETA', 'PROPERTY']
 hstype_to_str = lambda x: HS_TYPE[x + 1]
 str_to_hstype = lambda x: HS_TYPE.index(x) - 1
 
@@ -84,6 +85,9 @@ class Hypersimplex:
                         self._simplex.append("IMM@" + v["IMM"])
                     elif "MAN" in v:
                         self._simplex.append("MAN@" + v["MAN"])
+                    else:
+                        if "PROPERTY" in v:
+                            self._simplex.append(v)
 
                 else:
                     self._simplex.append(v)
@@ -240,7 +244,10 @@ class Hypersimplex:
                 elif v[:4] == "MAN@":
                     new_simplex.append("!" + v[4:len(v)])
                 else:
-                    new_simplex.append(v)
+                    if self._hypernetwork[v].hstype == PROPERTY:
+                        new_simplex.append("~" + v)
+                    else:
+                        new_simplex.append(v)
 
             bres += ", ".join(new_simplex)
 
@@ -281,9 +288,11 @@ class Hypersimplex:
                     new_simplex.append("[" + v[4:len(v)] + "]")
                 if v[:4] == "MAN@":
                     new_simplex.append("!" + v[4:len(v)])
-
                 else:
-                    new_simplex.append(v)
+                    if self._hypernetwork[v].hstype == PROPERTY:
+                        new_simplex.append("~" + v)
+                    else:
+                        new_simplex.append(v)
 
             bres += ", ".join(new_simplex)
 

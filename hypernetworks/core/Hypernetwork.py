@@ -3,7 +3,7 @@ import re
 from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInsertError
 from hypernetworks.core.HTRelations import Relations
 from hypernetworks.core.HTTypes import Types
-from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype
+from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype, PROPERTY
 from hypernetworks.utils.HTPaths import get_peaks
 from hypernetworks.utils.HTTools import condense_all_specials, remove_special
 
@@ -59,7 +59,7 @@ class Hypernetwork:
             # Update an existing node
             temp = self._hypernetwork[vertex]
 
-            if temp.hstype not in [NONE, VERTEX]:
+            if temp.hstype not in [NONE, VERTEX, PROPERTY]:
                 hstype = temp.hstype
 
             if temp.simplex and not simplex:
@@ -166,7 +166,7 @@ class Hypernetwork:
                         list(sorted(set(self.hypernetwork[vertex].simplex).union(set(simplex))))
                     return
 
-                elif hstype in [ALPHA, VERTEX]:
+                elif hstype in [ALPHA, VERTEX, PROPERTY]:
                     new_vertex = vertex + "-" + str(len(self.hypernetwork[vertex].simplex) + 1)
                     partOf.add(vertex)
                     self.hypernetwork[vertex].simplex.append(new_vertex)
@@ -206,8 +206,9 @@ class Hypernetwork:
             search = self.search(hstype=hstype, vertex=vertex)
 
         if vertex == "" or not vertex:
-            vertex = "hs_{}".format(self._counter)
-            self._counter += 1
+            if hstype not in [PROPERTY]:
+                vertex = "hs_{}".format(self._counter)
+                self._counter += 1
 
         if search:
             for v in search:
@@ -230,6 +231,10 @@ class Hypernetwork:
             self.add(vertex=vertex, hstype=hstype, simplex=simplex, R=R, t=t, B=B, N=N, psi=psi,
                      partOf=partOf if isinstance(partOf, set) else {partOf})
 
+            for i, v in enumerate(simplex):
+                if "PROPERTY" in v:
+                    self._hypernetwork[vertex].simplex[i] = v["PROPERTY"]
+
             if partOf:
                 if isinstance(partOf, str):
                     if partOf in self._hypernetwork:
@@ -239,10 +244,13 @@ class Hypernetwork:
                         log.error("insert: partOf error.")
                         raise HnInsertError
 
-            for v in simplex:
+            for i, v in enumerate(simplex):
                 if isinstance(v, dict):
-                    key = list(v.keys())[0]
-                    self.add(vertex=v[key], hstype=VERTEX, partOf={vertex}, B=B)
+                    if "PROPERTY" in v:
+                        self.add(vertex=v["PROPERTY"], hstype=PROPERTY, partOf={vertex}, B=B)
+                    else:
+                        key = list(v.keys())[0]
+                        self.add(vertex=v[key], hstype=VERTEX, partOf={vertex}, B=B)
 
                 else:
                     self.add(vertex=v, hstype=VERTEX, partOf={vertex}, B=B)
@@ -306,7 +314,7 @@ class Hypernetwork:
                 if hs_k == "VAL":
                     _hypersimplex.hs_name = hs_v
 
-                elif hs_k == "VERTEX":
+                elif hs_k in ["VERTEX", "PROPERTY"]:
                     _hypersimplex.hs_type = str_to_hstype(hs_k)
 
                 elif hs_k in ["ALPHA", "BETA"]:
@@ -422,7 +430,7 @@ class Hypernetwork:
                     fail = True
 
             if simplex and not fail:
-                if hstype in [VERTEX]:
+                if hstype in [VERTEX, PROPERTY]:
                     if node.simplex == simplex:
                         found = True
                     else:
@@ -487,7 +495,7 @@ class Hypernetwork:
             Hn = None
 
         def _get_subHn(_hs):
-            if _hs.hstype not in [VERTEX]:
+            if _hs.hstype not in [VERTEX, PROPERTY]:
                 for v in _hs.simplex:
                     h = self.hypernetwork[v]
                     _get_subHn(h)
@@ -512,7 +520,7 @@ class Hypernetwork:
                 for v in self._hypernetwork[_vertex].simplex:
                     _res = _res.union(_get_vertices(v))
 
-            elif self._hypernetwork[_vertex].hstype in [VERTEX]:
+            elif self._hypernetwork[_vertex].hstype in [VERTEX, PROPERTY]:
                 _res.add(self._hypernetwork[_vertex].vertex)
 
             else:
@@ -562,7 +570,7 @@ class Hypernetwork:
         res = ""
 
         for (key, hs) in self.hypernetwork.items():
-            if hs.hstype not in [NONE, VERTEX]:
+            if hs.hstype not in [NONE, VERTEX, PROPERTY]:
                 res = res + str(hs) + "\n"
 
         return res
@@ -599,7 +607,7 @@ class Hypernetwork:
                 else:
                     _res += "}"
 
-            elif simplex.hstype in [VERTEX]:
+            elif simplex.hstype in [VERTEX, PROPERTY]:
                 return simplex.vertex
 
             return _res

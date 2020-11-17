@@ -28,7 +28,6 @@ def compile_hn(Hn, parser, hs_string):
             return res
 
         def rels(self, *tokens):
-            print(tokens)
             for t in tokens:
                 if t.get("VAL"):
                     k = t.get("VAL")
@@ -110,7 +109,10 @@ def compile_hn(Hn, parser, hs_string):
             res = []
             for tk in tokens:
                 if isinstance(tk, dict):
-                    res.append(tk)
+                    if "PROPERTY" in tk:
+                        res = tk
+                    else:
+                        res.append(tk)
                 elif isinstance(tk, list):
                     res.append(tk[0])  # TODO Need to test this properly
                 else:
@@ -133,6 +135,9 @@ def compile_hn(Hn, parser, hs_string):
 
         def mandatory(self, token):
             return {"MAN": str(token)}
+
+        def property(self, token):
+            return {"PROPERTY": str(token)}
 
         def r(self, *tokens):
             if len(tokens) == 0:
