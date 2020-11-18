@@ -50,7 +50,7 @@ def get_path(hn, vertex, ignore_sb=False, sb=None):
     if vertex in hn.hypernetwork:
         path.gen_path(hn.hypernetwork[vertex], sb)
     else:
-        path.paths = None
+        path.paths = []
 
     return path
 
@@ -68,10 +68,11 @@ def get_paths(hn, ignore_sb, *vertex_list):
         new_path = []
         path = get_path(hn, vtx, ignore_sb, sb)
 
-        for item in path:
-            if item[-1] in vertex_list:
-                new_path.append(item)
-                paths.update({vtx: new_path})
+        if path:
+            for item in path:
+                if item[-1] in vertex_list:
+                    new_path.append(item)
+                    paths.update({vtx: new_path})
 
     return paths
 

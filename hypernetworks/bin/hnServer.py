@@ -2,6 +2,7 @@
 
 from flask import Flask, request, make_response, jsonify, json, send_file
 from flask_cors import CORS
+import uuid
 
 from hypernetworks.core.Hypernetwork import Hypernetwork
 from hypernetworks.utils.HTCompiler import compile_hn, load_parser
@@ -129,15 +130,17 @@ def hn_graph():
         # TODO add reduce BETA functionality
         # reduce_beta = reduce_beta if reduce_beta else True
         hn = from_data(hn_req)
+        fname = ""
         sub_hn = get_space(hn, True, True, *vertices)
 
         if len(sub_hn.hypernetwork) > 0:
             # TODO add direction capability
             # direction = direction if direction else "TB"
-            to_graph(sub_hn, fname='/tmp/hn', view=False)
+            fname = "/tmp/" + str(uuid.uuid4())
+            to_graph(sub_hn, fname=fname, view=False)
 
-        if sub_hn:
-            return send_file('/tmp/hn.png', mimetype='image/png')
+        if sub_hn and fname:
+            return send_file(fname + ".png", mimetype='image/png')
 
         else:
             response = app.response_class(
