@@ -64,15 +64,19 @@ def get_paths(hn, ignore_sb, *vertex_list):
     else:
         sb = hn.hypernetwork[vertex_list[0]].B
 
-    for vtx in vertex_list:
-        new_path = []
-        path = get_path(hn, vtx, ignore_sb, sb)
+    if len(vertex_list) == 1:
+        paths.update({vertex_list[0]: [[vertex_list[0]]]})
 
-        if path:
-            for item in path:
-                if item[-1] in vertex_list:
-                    new_path.append(item)
-                    paths.update({vtx: new_path})
+    elif len(vertex_list) > 1:
+        for vtx in vertex_list:
+            new_path = []
+            path = get_path(hn, vtx, ignore_sb, sb)
+
+            if path:
+                for item in path:
+                    if item[-1] in vertex_list:
+                        new_path.append(item)
+                        paths.update({vtx: new_path})
 
     return paths
 

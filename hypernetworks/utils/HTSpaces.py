@@ -38,7 +38,6 @@ def get_space(hn, ignore_sb, shrink_beta, *vertex_list):
                 temp = []
                 for v in hs.simplex:
                     if new_hn.hypernetwork[v].hstype in [VERTEX, PROPERTY] and v not in vertex_list:
-                        # print(v)
                         to_del.append(v)
                     else:
                         if v in to_del:

@@ -112,7 +112,6 @@ def union():
 def hn_graph():
     hn_req = []
     vertices = []
-    print(request.get_json())
 
     if request.get_json():
         if 'hypernetwork' in request.get_json():
