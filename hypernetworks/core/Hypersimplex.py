@@ -71,7 +71,7 @@ class HsVertex:
 
 
 class Hypersimplex:
-    def __init__(self, _hn, vertex, hstype=VERTEX, simplex=None, R="", t=-1,
+    def __init__(self, _hn, vertex, hstype=VERTEX, simplex=None, R="", t=-1, C=None,
                  B=None, N="", psi="", partOf=None, content=""):
         self._hypernetwork = _hn
         self._simplex = []
@@ -97,6 +97,7 @@ class Hypersimplex:
         self._hstype = VERTEX if hstype == NONE else hstype
         self._R = R
         self._t = t
+        self._C = [] if C is None else C
         self._B = set() if B is None else B
         self._N = N
         self._psi = psi
@@ -154,6 +155,14 @@ class Hypersimplex:
         self._t = value
 
     @property
+    def C(self):
+        return self._C
+
+    @C.setter
+    def C(self, value):
+        self._C = value
+
+    @property
     def B(self):
         return self._B
 
@@ -177,7 +186,7 @@ class Hypersimplex:
     def psi(self, value):
         self._psi = value
 
-    def update(self, hstype=NONE, simplex=None, R="", t=-1, B=None, N="", psi="", partOf=None):
+    def update(self, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="", psi="", partOf=None):
         if hstype != NONE:
             self.hstype = hstype
 
@@ -197,6 +206,10 @@ class Hypersimplex:
 
         if t >= 0:
             self.t = t
+
+        if C:
+            print(C)
+            self.C = C
 
         if B:
             self.B = B
@@ -221,6 +234,7 @@ class Hypersimplex:
                + ((", B(" + str(self.B) + ")") if self.B != {} else "") \
                + ((", R" + ("" if self.R == " " else "_") + str(self.R)) if self.R else "") \
                + ((", t_" + str(self.t)) if self.t >= 0 else "") \
+               + ((", C(" + str(str(c) for c in self.C) + ")") if self.C != {} else "") \
                + ((", " + str(self.N)) if self.N != "" else "") \
                + ((", f_" + str(self.psi)) if self.psi else "")
 
@@ -257,6 +271,7 @@ class Hypersimplex:
                 bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
                 bres += ("; psi_" + str(self.psi)) if self.psi else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
+                bres += ("; C(" + ", ".join(str(c) for c in self.C) + ")") if self.C else ""
                 bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
                 bres += ">"
                 bres += ("^" + self.N) if self.N else ""
@@ -302,6 +317,7 @@ class Hypersimplex:
                 bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
                 bres += ("; psi_" + str(self.psi)) if self.psi else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
+                bres += ("; C(" + ", ".join(str(c) for c in self.C) + ")") if self.C else ""
                 bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
                 bres += ">"
                 bres += ("^" + self.N) if self.N else ""

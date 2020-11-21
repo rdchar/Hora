@@ -8,7 +8,7 @@ hs:             alpha
               | empty_alpha
               | empty_beta
 
-alpha:          "<" a_simplex r? time? boundary? psi? ">" level?
+alpha:          "<" a_simplex r? time? coordinate? boundary? psi? ">" level?
 beta:           "{" b_simplex r? time? boundary? "}" level?
 empty_alpha:    "<>"
 empty_beta:     "{}"
@@ -32,6 +32,7 @@ assign:         NAME "="
 
 r:              ";" "R" ("_" NAME)?
 time:           ";" "t_" NUMBER
+coordinate:     ";" "C(" X ("," Y ("," Z)?)? ")"
 boundary:       ";" "B(" NAME ("," NAME)* ")"
 psi:            ";" "psi_" NAME
 level:          "^N" LEVEL*
@@ -74,6 +75,9 @@ N:              "N"
 LEVEL:          ("+" | "-") (NUMBER | LETTER)
 PRED:           NAME
 WILDCARD:       "*"
+X:              DIGIT+
+Y:              DIGIT+
+Z:              DIGIT+
 
 logic_and:      "\/\\"
 logic_or:       "\\/"

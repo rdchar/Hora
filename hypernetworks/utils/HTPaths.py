@@ -49,6 +49,7 @@ def get_path(hn, vertex, ignore_sb=False, sb=None):
 
     if vertex in hn.hypernetwork:
         path.gen_path(hn.hypernetwork[vertex], sb)
+        print("HELLO 2", vertex, path)
     else:
         path.paths = []
 
@@ -56,6 +57,7 @@ def get_path(hn, vertex, ignore_sb=False, sb=None):
 
 
 def get_paths(hn, ignore_sb, *vertex_list):
+    print(vertex_list)
     # Side-effects: changes temp.paths; new; existing
     paths = {}
 
@@ -68,6 +70,7 @@ def get_paths(hn, ignore_sb, *vertex_list):
         paths.update({vertex_list[0]: [[vertex_list[0]]]})
 
     elif len(vertex_list) > 1:
+        print("HELLO 1")
         for vtx in vertex_list:
             new_path = []
             path = get_path(hn, vtx, ignore_sb, sb)
@@ -214,6 +217,7 @@ class HsPath:
                 for part in vertex.partOf:
                     old_idx = idx
                     idx, result = _gen_path(self._hn[part], path_so_far, idx)
+                    print(result)
 
                     if old_idx == idx:
                         self._paths.append(result)

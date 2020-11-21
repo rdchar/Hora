@@ -24,6 +24,8 @@ def to_data(Hn):
             temp["R"] = v.R
         if v.t >= 0:
             temp["T"] = v.t
+        if v.C:
+            temp["C"] = v.C
         if v.B:
             temp["B"] = list(v.B)
         if v.psi:
@@ -52,12 +54,13 @@ def from_data(data):
         partOf = set(d["partOf"]) if "partOf" in d else set()
         R = d["R"] if "R" in d else ""
         t = int(d["t"]) if "t" in d else -1
+        C = list(d["C"]) if "C" in d else []
         B = set(d["B"]) if "B" in d else set()
         psi = d["psi"] if "psi" in d else ""
         N = d["N"] if "N" in d else ""
 
         hn.load_hs(Hypersimplex(hn, vertex=vertex, hstype=hstype, simplex=simplex,
-                                partOf=partOf, R=R, t=t, B=B, psi=psi, N=N))
+                                partOf=partOf, R=R, t=t, C=C, B=B, psi=psi, N=N))
 
     return hn
 
@@ -78,12 +81,13 @@ def from_data_basic(data):
         partOf = set(d["partOf"]) if "partOf" in d else set()
         R = d["R"] if "R" in d else ""
         t = int(d["t"]) if "t" in d else -1
+        C = int(d["C"]) if "C" in d else []
         B = int(d["B"]) if "B" in d else set()
         psi = d["psi"] if "psi" in d else ""
         N = d["N"] if "N" in d else ""
 
         hn.load_hs(Hypersimplex(vertex=vertex, hstype=hstype, simplex=simplex,
-                                partOf=partOf, R=R, t=t, B=B, psi=psi, N=N))
+                                partOf=partOf, R=R, t=t, C=C, B=B, psi=psi, N=N))
 
     return hn
 
@@ -130,12 +134,13 @@ def load_YAML(fname=""):
             partOf = set(d["partOf"]) if "partOf" in d else set()
             R = d["R"] if "R" in d else ""
             t = int(d["t"]) if "t" in d else -1
+            C = int(d["C"]) if "C" in d else []
             B = int(d["B"]) if "B" in d else set()
             psi = d["psi"] if "psi" in d else ""
             N = d["N"] if "N" in d else ""
 
             hn.load_hs(Hypersimplex(_hn=hn, vertex=vertex, hstype=hstype, simplex=simplex,
-                                    partOf=partOf, R=R, t=t, B=B, psi=psi, N=N))
+                                    partOf=partOf, R=R, t=t, C=C, B=B, psi=psi, N=N))
 
         return hn
 

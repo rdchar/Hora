@@ -148,6 +148,9 @@ def compile_hn(Hn, parser, hs_string):
         def time(self, token):
             return {'t': int(token)}
 
+        def coordinate(self, *tokens):
+            return {'COORD': [int(t) for t in tokens]}
+
         def boundary(self, *tokens):
             return {'B': {str(t) for t in tokens}}
 

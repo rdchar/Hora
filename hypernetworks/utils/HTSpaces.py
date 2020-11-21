@@ -8,6 +8,8 @@ def get_space(hn, ignore_sb, shrink_beta, *vertex_list):
     paths = get_paths(hn, ignore_sb, *vertex_list)
     shape = set()
     parser = load_parser()
+    print(paths)
+    print()
 
     for key, val in paths.items():
         path = paths.get(key)
@@ -20,6 +22,7 @@ def get_space(hn, ignore_sb, shrink_beta, *vertex_list):
                     shape.add(x)
 
     s = ""
+    print(shape)
 
     # TODO not keen on using this method, i.e. convert to tet and compile to get a ne Hn.
     for f in shape:
