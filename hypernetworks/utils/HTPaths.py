@@ -1,6 +1,7 @@
 import logging as log
 from copy import deepcopy
 
+from hypernetworks.core.Algebra import memberOf
 from hypernetworks.utils.HTTools import find_in
 
 UP = 1
@@ -41,15 +42,14 @@ def best_fit(hn, search_hn, top):
     return partOf, (num - count) / num
 
 
-def get_path(hn, vertex, ignore_sb=False, sb=None):
+def get_path(hn, from_vertex, to_vertex="", ignore_sb=False, sb=None):
     if not ignore_sb and not sb:
-        sb = hn.hypernetwork[vertex].B
+        sb = hn.hypernetwork[from_vertex].B
 
-    path = HsPath(hn.hypernetwork, vertex=vertex)
+    path = HsPath(hn.hypernetwork, vertex=from_vertex)
 
-    if vertex in hn.hypernetwork:
-        path.gen_path(hn.hypernetwork[vertex], sb)
-        print("HELLO 2", vertex, path)
+    if from_vertex in hn.hypernetwork:
+        path.gen_path(from_vertex, to_vertex, sb)
     else:
         path.paths = []
 
@@ -57,7 +57,19 @@ def get_path(hn, vertex, ignore_sb=False, sb=None):
 
 
 def get_paths(hn, ignore_sb, *vertex_list):
-    print(vertex_list)
+    def _get_members():
+        members = []
+
+        for x in vertex_list:
+            for y in vertex_list:
+                if x != y:
+                    if memberOf(hn, x, y):
+                        members.append((x, y))
+                    if memberOf(hn, y, x):
+                        members.append((y, x))
+
+        return members
+
     # Side-effects: changes temp.paths; new; existing
     paths = {}
 
@@ -70,16 +82,18 @@ def get_paths(hn, ignore_sb, *vertex_list):
         paths.update({vertex_list[0]: [[vertex_list[0]]]})
 
     elif len(vertex_list) > 1:
-        print("HELLO 1")
-        for vtx in vertex_list:
+        members = _get_members()
+
+        for from_vertex, to_vertex in members:
             new_path = []
-            path = get_path(hn, vtx, ignore_sb, sb)
+            path = get_path(hn, from_vertex, to_vertex, ignore_sb, sb)
 
             if path:
-                for item in path:
-                    if item[-1] in vertex_list:
-                        new_path.append(item)
-                        paths.update({vtx: new_path})
+                for p in path.paths:
+                    for to_vertex in vertex_list:
+                        if to_vertex != from_vertex and to_vertex in p:
+                            new_path.append(path)
+                            paths.update({from_vertex: new_path})
 
     return paths
 
@@ -201,32 +215,27 @@ class HsPath:
         log.debug("ITEM: " + str(item))
         return item in self._paths
 
-    def gen_path(self, vertex, sb):
+    def gen_path(self, from_vertex, to_vertex, sb=None):
         @passbyval
-        def _gen_path(vertex, path_so_far=None, idx=0):
+        def _gen_path(_vertex, path_so_far=None, idx=0):
             if path_so_far is None:
-                path_so_far = [vertex.vertex]
+                path_so_far = [_vertex.vertex]
             else:
-                path_so_far.append(vertex.vertex)
+                path_so_far.append(_vertex.vertex)
 
-            if not (sb and len(sb.intersection(vertex.B)) == 0):
-                if vertex.partOf == set() and idx == 0:
-                    self._paths.append(path_so_far)
-                    return 0, path_so_far
+            if _vertex.vertex == to_vertex:
+                self._paths.append(path_so_far)
+                idx += 1
 
-                for part in vertex.partOf:
-                    old_idx = idx
-                    idx, result = _gen_path(self._hn[part], path_so_far, idx)
-                    print(result)
-
-                    if old_idx == idx:
-                        self._paths.append(result)
-                        idx += 1
+            else:
+                if not (sb and len(sb.intersection(_vertex.B)) == 0):
+                    for part in _vertex.partOf:
+                        idx, result = _gen_path(self._hn[part], path_so_far, idx)
 
             return idx, path_so_far
         # End _gen_path
 
-        _gen_path(vertex)
+        _gen_path(self._hn[from_vertex])
 
         return self._paths
 

@@ -208,7 +208,6 @@ class Hypersimplex:
             self.t = t
 
         if C:
-            print(C)
             self.C = C
 
         if B:

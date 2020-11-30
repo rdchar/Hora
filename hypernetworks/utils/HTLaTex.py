@@ -1,5 +1,6 @@
 import re
 
+
 from hypernetworks.core.Hypersimplex import ALPHA, BETA, VERTEX, NONE
 
 
@@ -59,5 +60,3 @@ def latex(hn):
     res = re.sub("_[0-9]+\-[0-9]+", repl, res)
 
     return res + "\\end{align}"
-
-

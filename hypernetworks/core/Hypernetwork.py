@@ -172,7 +172,7 @@ class Hypernetwork:
                     return
 
                 elif hstype in [ALPHA, VERTEX, PROPERTY]:
-                    new_vertex = vertex + "-" + str(len(self.hypernetwork[vertex].simplex) + 1)
+                    new_vertex = vertex + "@" + str(len(self.hypernetwork[vertex].simplex) + 1)
                     partOf.add(vertex)
                     self.hypernetwork[vertex].simplex.append(new_vertex)
                     vertex = new_vertex
@@ -185,14 +185,14 @@ class Hypernetwork:
                 if condense_all_specials(simplex) != self.hypernetwork[vertex].simplex:
                     tmpHs = self.hypernetwork[vertex]
 
-                    self.add(vertex=vertex + "-1", hstype=tmpHs.hstype, simplex=tmpHs.simplex,
+                    self.add(vertex=vertex + "@1", hstype=tmpHs.hstype, simplex=tmpHs.simplex,
                              R=tmpHs.R, t=tmpHs.t, C=tmpHs.C, B=tmpHs.B, N=tmpHs.N, psi=tmpHs.psi, partOf=set().add(vertex))
                     self.hypernetwork.pop(vertex, None)
-                    self.add(vertex=vertex, hstype=BETA, simplex=[vertex + "-1", vertex + "-2"],
+                    self.add(vertex=vertex, hstype=BETA, simplex=[vertex + "@1", vertex + "@2"],
                              R=tmpHs.R, t=tmpHs.t, C=tmpHs.C, B=tmpHs.B, N=_update_N(tmpHs.N), partOf=tmpHs.partOf)
 
                     # TODO added the else, this needs testing
-                    vertex += "-2"
+                    vertex += "@2"
 
                 else:
                     # TODO why did I include the following?
