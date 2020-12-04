@@ -1,6 +1,6 @@
 # Requirements
 
-#numpy==1.19.4
+numpy==1.19.4
 graphviz==0.15
 networkx==2.5
 lark-parser==0.11.1
