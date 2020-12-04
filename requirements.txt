@@ -1,14 +1,14 @@
 # Requirements
 
-numpy==1.19.1
-graphviz==0.14.1
+#numpy==1.19.4
+graphviz==0.15
 networkx==2.5
-lark-parser==0.9.0
-pytest==6.0.1
+lark-parser==0.11.1
+pytest==6.1.2
 PyYAML==5.3.1
 
 click~=7.1.2
-pymongo~=3.11.0
+pymongo~=3.11.2
 rdflib~=5.0.0
 Flask~=1.1.2
 Flask-Cors~=3.0.9
