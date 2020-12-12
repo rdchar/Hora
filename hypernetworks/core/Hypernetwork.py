@@ -4,6 +4,7 @@ from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInse
 from hypernetworks.core.HTRelations import Relations
 from hypernetworks.core.HTTypes import Types
 from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype, PROPERTY
+from hypernetworks.utils.HTCompiler import load_parser, compile_hn
 from hypernetworks.utils.HTPaths import get_peaks
 from hypernetworks.utils.HTTools import condense_all_specials, remove_special
 
@@ -286,8 +287,12 @@ class Hypernetwork:
         return vertex
 
     def union(self, _hn):
-        for hs in _hn.hypernetwork:
-            self.add_hs(hs, _hn.hypernetwork[hs])
+        this_hn = str(self)
+        this_hn += str(_hn)
+        parser = load_parser()
+        compile_hn(self, parser, this_hn)
+        # for hs in _hn.hypernetwork:
+        #     self.add_hs(hs, _hn.hypernetwork[hs])
 
         return self
 

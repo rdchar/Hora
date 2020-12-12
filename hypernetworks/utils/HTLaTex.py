@@ -31,6 +31,7 @@ def _latex(hs):
         if hs.hstype == ALPHA:
             bres += "; R" + (("" if hs.R == " " else "_{") + hs.R + "}") if hs.R else ""
             bres += ("; t_{" + str(hs.t) + "}") if hs.t >= 0 else ""
+            bres += ("; B_{\\testit{" + ", ".str(hs.B) + "}}") if hs.B else ""
             bres += "\\right>"
             bres += ("^{" + hs.N + "}") if hs.N else ""
 
