@@ -116,37 +116,38 @@ def load_Hn(fname="", type=JSON):
     return from_data(data)
 
 
+def from_YAML(data):
+    name = ""
+    # name = list(data.values())[0]
+    # data = list(data.values())[1]
+    if "name" in data:
+        name = data["name"]
+
+    hn = Hypernetwork(name)
+
+    for v, d in data.items():
+        # print(v, d)
+        vertex = v
+        hstype = d["hstype"] if isinstance(d["hstype"], int) else int(str_to_hstype(d["hstype"]))
+        simplex = list(d["simplex"]) if "simplex" in d else []
+        partOf = set(d["partOf"]) if "partOf" in d else set()
+        R = d["R"] if "R" in d else ""
+        t = int(d["t"]) if "t" in d else -1
+        C = int(d["C"]) if "C" in d else []
+        B = int(d["B"]) if "B" in d else set()
+        psi = d["psi"] if "psi" in d else ""
+        N = d["N"] if "N" in d else ""
+
+        hn.load_hs(Hypersimplex(_hn=hn, vertex=vertex, hstype=hstype, simplex=simplex,
+                                partOf=partOf, R=R, t=t, C=C, B=B, psi=psi, N=N))
+
+    return hn
+
+
 def load_YAML(fname=""):
-    def _from_data(data):
-        name = ""
-        # name = list(data.values())[0]
-        # data = list(data.values())[1]
-        if "name" in data:
-            name = data["name"]
-
-        hn = Hypernetwork(name)
-
-        for v, d in data.items():
-            # print(v, d)
-            vertex = v
-            hstype = d["hstype"] if isinstance(d["hstype"], int) else int(str_to_hstype(d["hstype"]))
-            simplex = list(d["simplex"]) if "simplex" in d else []
-            partOf = set(d["partOf"]) if "partOf" in d else set()
-            R = d["R"] if "R" in d else ""
-            t = int(d["t"]) if "t" in d else -1
-            C = int(d["C"]) if "C" in d else []
-            B = int(d["B"]) if "B" in d else set()
-            psi = d["psi"] if "psi" in d else ""
-            N = d["N"] if "N" in d else ""
-
-            hn.load_hs(Hypersimplex(_hn=hn, vertex=vertex, hstype=hstype, simplex=simplex,
-                                    partOf=partOf, R=R, t=t, C=C, B=B, psi=psi, N=N))
-
-        return hn
-
     fname = fname
 
     with open(fname, "r") as read_file:
         data = yaml.load(read_file, Loader=yaml.FullLoader)
 
-    return _from_data(data)
+    return from_YAML(data)

@@ -20,6 +20,8 @@ from utils.HTMatrix import to_matrix, from_matrix
 
 # TODO needs more validation when adding Hs.
 #      We get a mess when mixing R naming and assignment names across Hs's.
+# TODO delete
+# TODO change
 
 
 UP = 1
@@ -91,7 +93,8 @@ class Hypernetwork:
 
         else:
             # Create a new node
-            hs = Hypersimplex(self, vertex, hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N, psi=psi, partOf=partOf)
+            hs = Hypersimplex(self, vertex, hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N,
+                              psi=psi, partOf=partOf)
             self._hypernetwork.update({vertex: hs})
 
         if R:
@@ -101,7 +104,8 @@ class Hypernetwork:
         if vertex:
             vertex = hs.vertex
 
-        self.insert(vertex, hstype=hs.hstype, simplex=hs.simplex, R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=hs.N, psi=hs.psi)
+        self.insert(vertex, hstype=hs.hstype, simplex=hs.simplex, R=hs.R, t=hs.t, C=hs.C, B=hs.B,
+                    N=hs.N, psi=hs.psi)
 
     def delete(self, vertex="", R=""):
         def _delete(_vertex, _parent=""):
@@ -134,6 +138,21 @@ class Hypernetwork:
             raise HnVertexNoFound
 
     def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="", psi="", partOf=None):
+        def _remove_cyclic():
+            temp = list(set(self._hypernetwork[vertex].simplex).intersection(self._hypernetwork[vertex].partOf))
+            if temp:
+                for v in simplex:
+                    if isinstance(v, dict):
+                        v = list(v.values())[0]
+
+                    if v in temp:
+                        self._hypernetwork[vertex].simplex.remove(v)
+                        # if not self._hypernetwork[vertex].simplex:
+                        #     self._hypernetwork[vertex].simplex = "UNKNOWN-VERTEX"
+
+                    # if vertex in self._hypernetwork[v].partOf:
+                    #     self._hypernetwork[v].partOf.remove(vertex)
+
         def _update_N(_N, _direction=UP):
             res = ""
             l = len(_N)
@@ -270,19 +289,7 @@ class Hypernetwork:
                 self._hypernetwork[v].partOf.add(vertex)
 
         # Remove cyclic references
-        temp = list(set(self._hypernetwork[vertex].simplex).intersection(self._hypernetwork[vertex].partOf))
-        if temp:
-            for v in simplex:
-                if isinstance(v, dict):
-                    v = list(v.values())[0]
-
-                if v in temp:
-                    self._hypernetwork[vertex].simplex.remove(v)
-                    # if not self._hypernetwork[vertex].simplex:
-                    #     self._hypernetwork[vertex].simplex = "UNKNOWN-VERTEX"
-
-                # if vertex in self._hypernetwork[v].partOf:
-                #     self._hypernetwork[v].partOf.remove(vertex)
+        _remove_cyclic()
 
         return vertex
 

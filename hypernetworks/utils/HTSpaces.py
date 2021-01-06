@@ -26,6 +26,10 @@ def get_space(hn, ignore_sb, shrink_beta, *vertex_list):
             s += str(hn.hypernetwork[f]) + "\n"
 
     new_hn = Hypernetwork()
+
+    if not s:
+        return new_hn
+
     compile_hn(new_hn, parser, s)
 
     # TODO Remove the unnecessary vertices from each BETA

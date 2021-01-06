@@ -1,5 +1,9 @@
 # Hypernetwork Library
 
+This is a pre-production experimental library.  The intention was to create a set of tools that allow experimentation with Computational Hypernetwork Theory.
+
+Prerequisites: python 3.7 or 3.8 and pip.
+
 Installing the Hypernetwork library.
 
     > git clone <this repo>

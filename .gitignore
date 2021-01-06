@@ -143,3 +143,6 @@ cython_debug/
 # Other
 pip-instructions.txt
 .idea/
+exp/
+.DS_Store
+examples/ITSM.ipynb

@@ -60,8 +60,8 @@ def get_paths(hn, ignore_sb, *vertex_list):
     def _get_members():
         members = []
 
-        for x in vertex_list:
-            for y in vertex_list:
+        for x in list(vertex_list):
+            for y in list(vertex_list):
                 if x != y:
                     if memberOf(hn, x, y):
                         members.append((x, y))
@@ -69,6 +69,7 @@ def get_paths(hn, ignore_sb, *vertex_list):
                         members.append((y, x))
 
         return members
+    # End _get_members
 
     # Side-effects: changes temp.paths; new; existing
     paths = {}
@@ -215,7 +216,7 @@ class HsPath:
         log.debug("ITEM: " + str(item))
         return item in self._paths
 
-    def gen_path(self, from_vertex, to_vertex, sb=None):
+    def gen_path(self, from_vertex, to_vertex="", sb=None):
         @passbyval
         def _gen_path(_vertex, path_so_far=None, idx=0):
             if path_so_far is None:
@@ -223,7 +224,8 @@ class HsPath:
             else:
                 path_so_far.append(_vertex.vertex)
 
-            if _vertex.vertex == to_vertex:
+            # If the specified vertex is found, or if the vertex has not been specified and the peak has been found
+            if _vertex.vertex == to_vertex or (not to_vertex and len(_vertex.partOf) == 0):
                 self._paths.append(path_so_far)
                 idx += 1
 
