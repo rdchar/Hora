@@ -22,6 +22,7 @@ from utils.HTMatrix import to_matrix, from_matrix
 #      We get a mess when mixing R naming and assignment names across Hs's.
 # TODO delete
 # TODO change
+# TODO hyperintersection
 
 
 UP = 1
@@ -57,7 +58,9 @@ class Hypernetwork:
     def load_hs(self, hs):
         self._hypernetwork.update({hs.vertex: hs})
 
-    def add(self, vertex, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="", psi="", partOf=None):
+    def add(self, vertex, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="",
+            psi="", partOf=None):
+
         if vertex in self._hypernetwork:
             # Update an existing node
             temp = self._hypernetwork[vertex]
@@ -107,23 +110,28 @@ class Hypernetwork:
         self.insert(vertex, hstype=hs.hstype, simplex=hs.simplex, R=hs.R, t=hs.t, C=hs.C, B=hs.B,
                     N=hs.N, psi=hs.psi)
 
-    def delete(self, vertex="", R=""):
+    def delete(self, vertex="", R="", del_children=False):
         def _delete(_vertex, _parent=""):
-            if _parent in self._hypernetwork[_vertex].partOf:
-                self._hypernetwork[_vertex].partOf.remove(_parent)
+            # if _parent in self._hypernetwork[_vertex].partOf:
+            #     self._hypernetwork[_vertex].partOf.remove(_parent)
 
             for _vert in self._hypernetwork[_vertex].simplex:
-                if len(self._hypernetwork[_vertex].partOf) == 0:
-                    _delete(_vert, _vertex)
+                if _vertex in self._hypernetwork[_vert].partOf:
+                    self._hypernetwork[_vert].partOf.remove(_vertex)
+
+                if del_children:
+                    if len(self._hypernetwork[_vert].partOf) == 0:
+                        _delete(_vert, _vertex)
 
             # Removes all instances of the vertex.
             for _whole in self._hypernetwork[_vertex].partOf:
-                for _part in self._hypernetwork[_whole].simplex:
+                for temp in self._hypernetwork[_whole].simplex:
+                    _part = remove_special(temp)
                     if _part == _vertex:
-                        self._hypernetwork[_whole].simplex.remove(_part)
+                        self._hypernetwork[_whole].simplex.remove(temp)
 
-            if len(self._hypernetwork[_vertex].partOf) == 0:
-                del self._hypernetwork[_vertex]
+            del self._hypernetwork[_vertex]
+        # End _delete
 
         # TODO may need more work
         if R:
@@ -152,6 +160,7 @@ class Hypernetwork:
 
                     # if vertex in self._hypernetwork[v].partOf:
                     #     self._hypernetwork[v].partOf.remove(vertex)
+        # End _remove_cyclic
 
         def _update_N(_N, _direction=UP):
             res = ""

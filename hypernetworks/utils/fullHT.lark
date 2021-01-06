@@ -24,7 +24,7 @@ empty_beta:     "{}"
 
 vertex:         (NAME | property | assign? hs) typed?
 property:       "~" NAME
-sequence:       "(" NAME ")"
+sequence:       "(" vertex ")"
 immutable:      "[" NAME "]"
 mandatory:      "!" NAME
 

@@ -1,3 +1,5 @@
+from setuptools._vendor.ordered_set import OrderedSet
+
 from hypernetworks.core.Algebra import memberOf
 from hypernetworks.utils.HTPaths import HsPath, find_head
 
