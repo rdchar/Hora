@@ -1,3 +1,4 @@
+
 from rdflib import Graph, Literal
 from rdflib.namespace import ClosedNamespace
 from rdflib.term import URIRef

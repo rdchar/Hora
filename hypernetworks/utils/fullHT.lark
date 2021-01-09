@@ -1,4 +1,4 @@
-?start:         "hn:"? (assign? hn)+ ("rels:" rels+)? ("lambdas:" lambdas+)? ("psis:" psis+)?
+?start:         "hn:"? (assign? hn)* ("lambdas:" lambdas+)? ("psis:" psis+)?
 
 hn:             hs
               | "(" hn ")"
@@ -7,8 +7,9 @@ hs:             alpha
               | beta
               | empty_alpha
               | empty_beta
+              | relation
 
-alpha:          "<" a_simplex r? time? coordinate? boundary? psi? ">" level?
+alpha:          "<" a_simplex r? time? coordinate? boundary? psi? where? ">" level?
 beta:           "{" b_simplex r? time? boundary? "}" level?
 empty_alpha:    "<>"
 empty_beta:     "{}"
@@ -57,9 +58,14 @@ expr:           vname
 
 
 // Simple relations
-rels:           assign rel_expr
-rel_expr:       vname
-              | PRED "(" rel_expr ("," rel_expr)* ")"
+where:          "|" rels_expr
+relation:       rel_assign rels_expr ";"
+rel_assign:     NAME "->"
+?rels_expr:     vname
+              | rels_expr (pred rels_expr)+
+              | "(" rels_expr ")"
+              | pred "(" rels_expr ("," rels_expr)+ ")"
+pred:           "/" PRED "/"
 
 
 // Psi functions for vertices

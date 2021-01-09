@@ -1,3 +1,5 @@
+import traceback
+
 import lark
 
 __HN_LARK__ = "./fullHT.lark"
@@ -27,15 +29,6 @@ def compile_hn(Hn, parser, hs_string):
                     res.append(ht)
             return res
 
-        def rels(self, *tokens):
-            for t in tokens:
-                if t.get("VAL"):
-                    k = t.get("VAL")
-                else:
-                    Hn.relations[k] = t
-
-            return {"REL": [t for t in tokens]}
-
         def rel(self, *tokens):
             return {"REL": tokens}
 
@@ -49,40 +42,37 @@ def compile_hn(Hn, parser, hs_string):
             return {"VAL": str(token)}
 
         def alpha(self, *tokens):
-            if hs_expand_R:
-                r = None
-                where = None
-                simplex = None
-                other = []
+            # r = None
+            # where = None
+            # other = []
 
-                for t in tokens:
-                    if isinstance(t, list):
-                        simplex = t
-
-                    elif isinstance(t, dict):
-                        for k, v in t.items():
-                            if k == "R":
-                                r = v
-                            if k == "WHERE":
-                                where = v
-                            other.append({k: v})
-
-                        if r and not where:  # If a where hasn't been provided, then get it from relations.
-                            where = [Hn.relations[r]]
-                            if not where[0]:
-                                where = None
-
-                    elif isinstance(t, str):
-                        simplex = [t]
-
-                    else:
-                        print("WTF from string Alpha", tokens, "went wrong!!!")  # TODO log issue!
-
-                if where:
-                    return expandR(simplex, where, other)[0]
+            # for t in tokens:
+            #     if isinstance(t, dict):
+            #         for k, v in t.items():
+            #             if k == "R":
+            #                 r = v
+            #             if k == "WHERE":
+            #                 where = v
+            #             other.append({k: v})
+            #
+            #         if r and not where:  # If a where hasn't been provided, then get it from relations.
+            #             if r in Hn.relations:
+            #                 where = [Hn.relations[r]]
+            #                 if not where[0]:
+            #                     where = None
+            #
+            #         elif r:
+            #             print("WHERE", where)
 
             res = []
+            r = ""
             for at in tokens:
+                if "R" in at:
+                    r = at["R"]
+
+                if "WHERE" in at:
+                    at = {"WHERE": [{"R": r}, at["WHERE"][0] if len(at["WHERE"]) == 1 else at["WHERE"]]}
+
                 if isinstance(at, dict):
                     if "SEQ" in at or "IMM" in at:
                         res.append({"ALPHA": [at]})
@@ -90,6 +80,7 @@ def compile_hn(Hn, parser, hs_string):
                         res.append(at)
                 else:
                     res.append({"ALPHA": at})
+
             return res
             # return [at if isinstance(at, dict) else {"ALPHA": at} for at in tokens]
 
@@ -176,7 +167,7 @@ def compile_hn(Hn, parser, hs_string):
             return {"TYPE": (str(tokens[0]), str(tokens[1]))}
 
         def where(self, *tokens):
-            return {"WHERE": [t for t in tokens]}
+            return {"WHERE": list(tokens)}
 
         def named_rel(self, *tokens):
             res = []
@@ -205,33 +196,53 @@ def compile_hn(Hn, parser, hs_string):
         def vname(self, token):
             return {"VNAME": int(token)}
 
-        # TODO
-        def derived(self, *tokens):
-            return {"DERIVED": [tokens]}
+        # Rels
+        # def rels(self, *tokens):
+        #     print("HELLO 1", tokens)
+        #     for t in tokens:
+        #         if t.get("VAL"):
+        #             k = t.get("VAL")
+        #         else:
+        #             Hn.relations[k] = t
+        #
+        #     return {"REL": [t for t in tokens]}
 
-        def rel_def(self, token):
-            return {}
+        def relation(self, *tokens):
+            return {"RELATION": list(tokens)}
 
-        def lambda_expr(self, *tokens):
-            return {}
+        def rel_assign(self, token):
+            return {"R": str(token)}
 
-        def wexpr(self, *tokens):
-            return {}
+        def rels_expr(self, *tokens):
+            return list(tokens)
 
-        def rel_expr(self, *tokens):
-            return {}
+        def pred(self, token):
+            return {"PRED": str(token)}
 
         def psis(self, *tokens):
             return [[{"VERTEX": ""}, {"VAL": str(tokens[0])}, {"psi": str(tokens[1])}]]
 
+        # TODO
+        def derived(self, *tokens):
+            return {"DERIVED": [tokens]}
+
+        def wexpr(self, *tokens):
+            return {}
+
     try:
         tree = parser.parse(hs_string)
+        # print(tree.pretty())
         transformer = HnTransformer()
         hs = transformer.transform(tree)
         Hn.parse(hs)
 
     except lark.exceptions.UnexpectedToken:
         print("lark exception Unexpected Token")
+        traceback.print_exc()
+        raise HnParseError
+
+    except:
+        traceback.print_exc()
         raise HnParseError
 
     finally:

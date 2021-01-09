@@ -20,7 +20,6 @@ from utils.HTMatrix import to_matrix, from_matrix
 
 # TODO needs more validation when adding Hs.
 #      We get a mess when mixing R naming and assignment names across Hs's.
-# TODO delete
 # TODO change
 # TODO hyperintersection
 
@@ -36,7 +35,8 @@ class Hypernetwork:
         self._hypernetwork = dict()
         self._name = name
         self._types = Types()
-        self._relations = Relations()
+        self._relations = dict()
+        # self._relations = Relations()
         # self._counter = 0
 
     @property
@@ -145,7 +145,8 @@ class Hypernetwork:
         else:
             raise HnVertexNoFound
 
-    def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="", psi="", partOf=None):
+    def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None,
+               N="", psi="", partOf=None):
         def _remove_cyclic():
             temp = list(set(self._hypernetwork[vertex].simplex).intersection(self._hypernetwork[vertex].partOf))
             if temp:
@@ -333,7 +334,7 @@ class Hypernetwork:
             hs_where = ""
 
         class _relation:
-            hs_R = ""
+            hs_R = None
             hs_where = []
 
         def _parse_hs(_hs):
@@ -389,8 +390,16 @@ class Hypernetwork:
                 elif hs_k == "TYPED":
                     print("\tTYPED:" + str(hs_v))
 
-                elif hs_k == "WHERE":
-                    _relation.hs_where = hs_v
+                elif hs_k in ["RELATION", "WHERE"]:
+                    _relation.hs_R = hs_v[0]['R']
+
+                    if _relation.hs_R not in self._relations:
+                        _relation.hs_where = hs_v[1:]
+                    else:
+                        if not self._relations[_relation.hs_R]:
+                            _relation.hs_where = hs_v[1:]
+                        else:
+                            print("Duplicate relation", _relation.hs_R)
 
                 elif hs_k == "DERIVED":
                     _hypersimplex.hs_where = "DERIVED"
@@ -445,6 +454,11 @@ class Hypernetwork:
                     self.relations[_relation.hs_R] = _relation.hs_where
 
                 _clear()
+
+            else:
+                if _relation.hs_where:
+                    self.relations[_relation.hs_R] = _relation.hs_where[0] \
+                        if len(_relation.hs_where) == 1 else _relation.hs_where
 
         return name
 
