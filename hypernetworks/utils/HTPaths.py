@@ -1,8 +1,8 @@
 import logging as log
-from copy import deepcopy
 
 from hypernetworks.core.Algebra import memberOf
-from hypernetworks.utils.HTTools import find_in
+from hypernetworks.utils.HTTools import find_in, passbyval
+
 
 UP = 1
 UP_AND_DOWN = 0
@@ -168,14 +168,6 @@ def get_peaks(hn):
             res.append(hs.vertex)
 
     return res
-
-
-# TODO should be moved somewhere more generic.
-def passbyval(func):
-    def new(*args):
-        cargs = [deepcopy(arg) for arg in args]
-        return func(*cargs)
-    return new
 
 
 class HsPath:

@@ -7,6 +7,7 @@ __HN_LARK__ = "./fullHT.lark"
 from hypernetworks.core.HTConfig import hs_expand_R
 from hypernetworks.core.HTErrors import HnParseError
 from hypernetworks.core.HTUtils import expandR
+from hypernetworks.utils.HTAnalysis import check_all_vertices_count
 
 
 def load_parser():
@@ -82,7 +83,6 @@ def compile_hn(Hn, parser, hs_string):
                     res.append({"ALPHA": at})
 
             return res
-            # return [at if isinstance(at, dict) else {"ALPHA": at} for at in tokens]
 
         def beta(self, *tokens):
             return [bt if isinstance(bt, dict) else {"BETA": bt} for bt in tokens]
@@ -154,11 +154,6 @@ def compile_hn(Hn, parser, hs_string):
         def psi(self, token):
             return {'psi': str(token)}
 
-        """
-        def seq(self, *tokens):
-            return [e for e in tokens]
-        """
-
         # TODO doesn't currently do anything
         def typed(self, *tokens):
             if len(tokens) == 1:
@@ -196,17 +191,6 @@ def compile_hn(Hn, parser, hs_string):
         def vname(self, token):
             return {"VNAME": int(token)}
 
-        # Rels
-        # def rels(self, *tokens):
-        #     print("HELLO 1", tokens)
-        #     for t in tokens:
-        #         if t.get("VAL"):
-        #             k = t.get("VAL")
-        #         else:
-        #             Hn.relations[k] = t
-        #
-        #     return {"REL": [t for t in tokens]}
-
         def relation(self, *tokens):
             return {"RELATION": list(tokens)}
 
@@ -218,6 +202,12 @@ def compile_hn(Hn, parser, hs_string):
 
         def pred(self, token):
             return {"PRED": str(token)}
+
+        def logic_and(self, *tokens):
+            return "AND"
+
+        def logic_or(self, *tokens):
+            return "OR"
 
         def psis(self, *tokens):
             return [[{"VERTEX": ""}, {"VAL": str(tokens[0])}, {"psi": str(tokens[1])}]]
@@ -236,8 +226,13 @@ def compile_hn(Hn, parser, hs_string):
         hs = transformer.transform(tree)
         Hn.parse(hs)
 
+        # Validate the Hn for consistency.
+        vertex_comparison = check_all_vertices_count(Hn)
+        if len(vertex_comparison) > 0:
+            print("WARNING:", ", ".join(vertex_comparison), "failed the vertex check!")
+
     except lark.exceptions.UnexpectedToken:
-        print("lark exception Unexpected Token")
+        print("ERROR: lark exception Unexpected Token")
         traceback.print_exc()
         raise HnParseError
 

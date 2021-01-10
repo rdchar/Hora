@@ -1,7 +1,7 @@
 import pytest
 
 from hypernetworks.core.Hypernetwork import Hypernetwork
-from hypernetworks.utils import load_parser, compile_hn
+from hypernetworks.utils.HTCompiler import load_parser, compile_hn
 
 
 @pytest.fixture
@@ -68,7 +68,6 @@ def test_union_of_same_ALPHAs_with_diff_R(setup_hn):
     """)
 
     assert str(test_hn) == "x=<a, b, c; R_y>\n"
-
 
 
 def test_union_of_different_ALPHAs(setup_hn):

@@ -399,7 +399,11 @@ class Hypernetwork:
                         if not self._relations[_relation.hs_R]:
                             _relation.hs_where = hs_v[1:]
                         else:
-                            print("Duplicate relation", _relation.hs_R)
+                            if _relation.hs_where != self._relations[_relation.hs_R]:
+                                print("WARNING: Duplicate relation", _relation.hs_R,
+                                      "has new definition:", _relation.hs_where,
+                                      "does not match current:", self._relations[_relation.hs_R],
+                                      "the current definition will be kept.")
 
                 elif hs_k == "DERIVED":
                     _hypersimplex.hs_where = "DERIVED"

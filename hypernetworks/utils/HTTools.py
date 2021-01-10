@@ -1,4 +1,14 @@
+from copy import deepcopy
+
 from hypernetworks.core.HTUtils import of_hstype
+
+
+def passbyval(func):
+    def new(*args):
+        cargs = [deepcopy(arg) for arg in args]
+        return func(*cargs)
+
+    return new
 
 
 def are_similar(a, b):

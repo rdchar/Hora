@@ -66,6 +66,8 @@ rel_assign:     NAME "->"
               | "(" rels_expr ")"
               | pred "(" rels_expr ("," rels_expr)+ ")"
 pred:           "/" PRED "/"
+              | logic_and
+              | logic_or
 
 
 // Psi functions for vertices
@@ -85,8 +87,9 @@ X:              DIGIT+
 Y:              DIGIT+
 Z:              DIGIT+
 
-logic_and:      "\/\\"
-logic_or:       "\\/"
+
+logic_and:      "\/\\" | "AND"
+logic_or:       "\\/"  | "OR"
 
 
 COMMENT:        /#.*/
