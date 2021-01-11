@@ -257,10 +257,8 @@ class Hypersimplex:
                 elif v[:4] == "MAN@":
                     new_simplex.append("!" + v[4:len(v)])
                 else:
-                    # print(v, self.simplex)
-                    # if v in self._hypernetwork:
-                    if self._hypernetwork[v].hstype == PROPERTY:
-                        new_simplex.append("~" + v)
+                    if v in self._hypernetwork.hypernetwork and self._hypernetwork.hypernetwork[v].hstype == PROPERTY:
+                            new_simplex.append("~" + v)
                     else:
                         new_simplex.append(v)
 

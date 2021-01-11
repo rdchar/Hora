@@ -1,6 +1,9 @@
 from hypernetworks.core.Hypernetwork import Hypernetwork
 from hypernetworks.utils.HTCompiler import load_parser, compile_hn
 
+# Expect "WARNING: Duplicate relation x has new definition: [[{'VNAME': 1}, {'PRED': 'above'}, [{'VNAME': 2},
+#         {'PRED': 'above'}, {'VNAME': 3}]]] does not match current: [{'VNAME': 1}, {'PRED': 'above'}, [{'VNAME': 2},
+#         {'PRED': 'above'}, {'VNAME': 3}]] the current definition will be kept."
 # Expect "WARNING: w, x failed the vertex check!"
 if __name__ == "__main__":
     parser = load_parser()

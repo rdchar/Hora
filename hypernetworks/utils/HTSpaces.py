@@ -5,6 +5,10 @@ from hypernetworks.utils.HTPaths import get_paths, get_underpath
 
 
 def get_space(hn, ignore_sb, shrink_beta, *vertex_list):
+    if len(vertex_list) <= 1:
+        print("WARNING: get_space requires at least two vertices.")
+        return None
+
     paths = get_paths(hn, ignore_sb, *vertex_list)
     shape = set()
     parser = load_parser()

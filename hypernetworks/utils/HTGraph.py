@@ -35,18 +35,18 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
                     vtx_port = vtx
                 else:
                     vtx_lbl = vtx
-                    if Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
+                    if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
                         vtx_port = vtx
 
                 if first:
-                    if Hn.hypernetwork[vtx].hstype in [PROPERTY]:
+                    if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype in [PROPERTY]:
                         label += vtx_lbl
                     else:
                         label += "<" + vtx_port + "> " + vtx_lbl
 
                     first = False
                 else:
-                    if Hn.hypernetwork[vtx].hstype in [PROPERTY]:
+                    if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype in [PROPERTY]:
                         label += " | " + vtx_lbl
                     else:
                         label += " | <" + vtx_port + "> " + vtx_lbl
@@ -99,7 +99,7 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
             elif vtx[:4] == "MAN@":
                 vtx_port = vtx[4:len(vtx)]
             else:
-                if Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
+                if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
                     vtx_port = vtx
 
             if _vertex.hstype in [ALPHA, BETA]:
@@ -112,8 +112,11 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
             # TODO feels a bit contrived
             if vtx_port:
                 _add_edges(Hn.hypernetwork[vtx_port])
-
     # End _add_edges
+
+    if not Hn:
+        print("WARNING: Hn empty cannot generate graph.")
+        return None
 
     log.debug("Generating Graph ...")
 

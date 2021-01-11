@@ -1,4 +1,5 @@
 import logging as log
+from copy import deepcopy
 
 from hypernetworks.core.Algebra import memberOf
 from hypernetworks.utils.HTTools import find_in, passbyval
@@ -60,8 +61,8 @@ def get_paths(hn, ignore_sb, *vertex_list):
     def _get_members():
         members = []
 
-        for x in list(vertex_list):
-            for y in list(vertex_list):
+        for x in vertex_list:
+            for y in vertex_list:
                 if x != y:
                     if memberOf(hn, x, y):
                         members.append((x, y))

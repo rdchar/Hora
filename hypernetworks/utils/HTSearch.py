@@ -25,7 +25,7 @@ def get_search_paths(hn, ignore_sb=False, *vertex_list):
         sb = hn.hypernetwork[vertex_list[0]].B
 
     if len(vertex_list) == 1:
-        paths.update({vertex_list[0]: [[vertex_list[0]]]})
+        paths = [{vertex_list: [[vertex_list]]}]
 
     elif len(vertex_list) > 1:
         for vertex in vertex_list:
