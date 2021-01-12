@@ -1,3 +1,5 @@
+from hypernetworks.core.Hypernetwork import Hypernetwork
+from hypernetworks.core.Hypersimplex import BETA
 from hypernetworks.utils.HTPaths import HsPath, find_head
 
 
@@ -60,3 +62,52 @@ def what_is_it(hn, ignore_sb=False, *vertex_list):
             objects = objects.intersection(temp)
 
     return list(objects)
+
+
+def top_down(hn, ignore_sb=False, top_vertex=""):
+    class Hypernet:
+        B = set()
+        hypernetwork = Hypernetwork()
+
+    def _iter(_hs):
+        if len(Hypernet.B) == 0 or len(_hs.B.intersection(Hypernet.B)) > 1:
+            Hypernet.hypernetwork.insert(_hs.vertex, hstype=_hs.hstype,
+                                         simplex=_hs.simplex, R=_hs.R, t=_hs.t,
+                                         C=_hs.C, B=_hs.B, psi=_hs.psi)
+
+        for v in _hs.simplex:
+            _iter(hn.hypernetwork[v])
+    # End _iter
+
+    if top_vertex:
+        hs = hn.hypernetwork[top_vertex]
+        if not ignore_sb:
+            Hypernet.B = hs.B
+        _iter(hs)
+
+    return Hypernet.hypernetwork
+
+
+def bottom_up(hn, ignore_sb=False, bottom_vertex=""):
+    class Hypernet:
+        B = set()
+        hypernetwork = Hypernetwork()
+
+    def _iter(_hs, parent=""):
+        if len(Hypernet.B) == 0 or len(_hs.B.intersection(Hypernet.B)) > 1:
+            simplex = [parent] if _hs.hstype == BETA else _hs.simplex
+            Hypernet.hypernetwork.insert(_hs.vertex, hstype=_hs.hstype,
+                                         simplex=simplex, R=_hs.R, t=_hs.t,
+                                         C=_hs.C, B=_hs.B, psi=_hs.psi)
+
+        for v in _hs.partOf:
+            _iter(hn.hypernetwork[v], _hs.vertex)
+    # End _iter
+
+    if bottom_vertex:
+        hs = hn.hypernetwork[bottom_vertex]
+        if not ignore_sb:
+            Hypernet.B = hs.B
+        _iter(hs)
+
+    return Hypernet.hypernetwork
