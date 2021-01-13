@@ -1,7 +1,8 @@
 import re
 
+from hypernetworks.utils.HTSearch import bottom_up
+
 from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInsertError
-from hypernetworks.core.HTRelations import Relations
 from hypernetworks.core.HTTypes import Types
 from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype, PROPERTY
 from hypernetworks.utils.HTCompiler import load_parser, compile_hn
@@ -54,6 +55,10 @@ class Hypernetwork:
     @property
     def relations(self):
         return self._relations
+
+    @property
+    def empty(self):
+        return len(self._hypernetwork) == 0
 
     def load_hs(self, hs):
         self._hypernetwork.update({hs.vertex: hs})
@@ -194,7 +199,7 @@ class Hypernetwork:
         # TODO is this the right solution?  Or should it we use the matrix method.
 
         if vertex in self.hypernetwork:
-            if self.hypernetwork[vertex].hstype == BETA and self.hypernetwork[vertex].simplex != simplex:
+            if self.hypernetwork[vertex].hstype == BETA and self.hypernetwork[vertex].simplex != simplex and simplex:
                 # Add to BETA
                 if hstype == BETA:
                     self.hypernetwork[vertex].simplex = \
@@ -212,11 +217,13 @@ class Hypernetwork:
 
             elif self.hypernetwork[vertex].hstype == ALPHA:
                 # Create a new BETA, move the simplex to a partOf the new BETA
-                if condense_all_specials(simplex) != self.hypernetwork[vertex].simplex:
+                if hstype not in [VERTEX, PROPERTY] and \
+                        condense_all_specials(simplex) != self.hypernetwork[vertex].simplex:
                     tmpHs = self.hypernetwork[vertex]
 
                     self.add(vertex=vertex + "@1", hstype=tmpHs.hstype, simplex=tmpHs.simplex,
-                             R=tmpHs.R, t=tmpHs.t, C=tmpHs.C, B=tmpHs.B, N=tmpHs.N, psi=tmpHs.psi, partOf=set().add(vertex))
+                             R=tmpHs.R, t=tmpHs.t, C=tmpHs.C, B=tmpHs.B, N=tmpHs.N,
+                             psi=tmpHs.psi, partOf=set().add(vertex))
                     self.hypernetwork.pop(vertex, None)
                     self.add(vertex=vertex, hstype=BETA, simplex=[vertex + "@1", vertex + "@2"],
                              R=tmpHs.R, t=tmpHs.t, C=tmpHs.C, B=tmpHs.B, N=_update_N(tmpHs.N), partOf=tmpHs.partOf)
@@ -303,15 +310,38 @@ class Hypernetwork:
 
         return vertex
 
+    # TODO Needs testing properly
     def union(self, _hn):
-        this_hn = str(self)
-        this_hn += str(_hn)
-        parser = load_parser()
-        compile_hn(self, parser, this_hn)
-        # for hs in _hn.hypernetwork:
-        #     self.add_hs(hs, _hn.hypernetwork[hs])
+        # this_hn = str(self)
+        # this_hn += str(_hn)
+        # parser = load_parser()
+        # compile_hn(self, parser, this_hn)
+        for name in _hn.hypernetwork:
+            hs = _hn.hypernetwork[name]
+            self.insert(hs.vertex, hstype=hs.hstype, simplex=hs.simplex,
+                        R=hs.R, t=hs.t, C=hs.C, B=hs.B, psi=hs.psi)
 
         return self
+
+    # TODO Needs testing properly
+    def intersection(self, hn, inc_whole=False):
+        temp = Hypernetwork()
+
+        for name in self.hypernetwork:
+            if name in hn.hypernetwork:
+                hs = self.hypernetwork[name]
+                temp.insert(hs.vertex, hstype=hs.hstype, simplex=hs.simplex,
+                              R=hs.R, t=hs.t, C=hs.C, B=hs.B, psi=hs.psi)
+
+        if inc_whole:
+            names = temp.soup
+            new_hn = Hypernetwork()
+
+            for name in names:
+                bu = bottom_up(hn, False, name)
+                new_hn.union(bu)
+
+        return new_hn
 
     def update(self):
         pass
@@ -530,7 +560,7 @@ class Hypernetwork:
             #     ...
 
             if B and not fail:
-                if node.B.intersection(B):
+                if intersection(B):
                     found = True
                 else:
                     fail = True
@@ -592,18 +622,6 @@ class Hypernetwork:
             res = res.union(_get_vertices(vert))
 
         return list(res)
-
-    # def union(self, hs):
-        # if self.hypernetwork[hstype == hs.hstype:
-        #     for v in hs.
-        #         print()
-        # pass
-
-    # def intersection(self, hs):
-    #     if self.hstype == hs.hstype:
-    #         for v in hs.simplex:
-    #
-    #     pass
 
     @property
     def soup(self):

@@ -1,6 +1,7 @@
 import logging as log
 from copy import deepcopy
 
+import hypernetworks.core.Hypernetwork
 from hypernetworks.core.Algebra import memberOf
 from hypernetworks.utils.HTTools import find_in, passbyval
 
@@ -223,9 +224,11 @@ class HsPath:
                 idx += 1
 
             else:
-                if not (sb and len(sb.intersection(_vertex.B)) == 0):
-                    for part in _vertex.partOf:
-                        idx, result = _gen_path(self._hn[part], path_so_far, idx)
+                if sb and len(hypernetworks.core.Hypernetwork.intersection(_vertex.B)) == 0:
+                    return
+
+                for part in _vertex.partOf:
+                    idx, result = _gen_path(self._hn[part], path_so_far, idx)
 
             return idx, path_so_far
         # End _gen_path
@@ -242,7 +245,7 @@ class HsPath:
             else:
                 path_so_far.append(vertex.vertex)
 
-            if not (sb and len(sb.intersection(vertex.B)) == 0):
+            if not (sb and len(hypernetworks.core.Hypernetwork.intersection(vertex.B)) == 0):
                 if vertex.simplex == set() and idx == 0:
                     self._paths.append(path_so_far)
                     return 0, path_so_far
