@@ -5,7 +5,6 @@ from hypernetworks.utils.HTSearch import bottom_up
 from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInsertError
 from hypernetworks.core.HTTypes import Types
 from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype, PROPERTY
-from hypernetworks.utils.HTCompiler import load_parser, compile_hn
 from hypernetworks.utils.HTPaths import get_peaks
 from hypernetworks.utils.HTTools import condense_all_specials, remove_special
 
@@ -22,7 +21,8 @@ from utils.HTMatrix import to_matrix, from_matrix
 # TODO needs more validation when adding Hs.
 #      We get a mess when mixing R naming and assignment names across Hs's.
 # TODO change
-# TODO hyperintersection
+#       - ALPHA
+#       - Hn
 
 
 UP = 1
