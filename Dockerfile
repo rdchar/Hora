@@ -10,7 +10,7 @@ RUN apt-get install -y graphviz
 ENV PYTHONPATH=/usr/lib/python3.7/dist-packages
 RUN pip3 install uwsgi
 
-RUN git clone https://github.com/rdchar/hypernetworks.git ./hypernetworks
+RUN git clone https://github.com/rdchar/Hora.git ./hypernetworks
 RUN cd ./hypernetworks
 WORKDIR ./hypernetworks
 RUN pip3 install .
