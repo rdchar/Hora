@@ -1,10 +1,10 @@
-# Hypernetwork Library
+# Hora: Hypernetwork Library
 
-This is a pre-production experimental library.  The intention was to create a set of tools that allow experimentation with Computational Hypernetwork Theory.
+This is a pre-production experimental library.  The intention was to create a set of tools that allow experimentation with Hypernetwork Theory.
 
 Prerequisites: python 3.7 or 3.8 and pip.
 
-Installing the Hypernetwork library.
+Installing the Hora Hypernetwork library.
 
     > git clone <this repo>
     > cd hypernetworks

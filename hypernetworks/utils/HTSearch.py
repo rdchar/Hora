@@ -1,5 +1,5 @@
 import hypernetworks.core.Hypernetwork
-# import hypernetworks.core.Hypernetwork
+# import hora.core.Hypernetwork
 from hypernetworks.core.Hypersimplex import BETA
 from hypernetworks.utils.HTPaths import HsPath, find_head
 

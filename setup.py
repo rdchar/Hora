@@ -21,20 +21,20 @@ class py_install(command.install_scripts.install_scripts):
 
 
 setup(
-    name='hypernetworks',
+    name='hora',
     author='Richard Charlesworth',
     version='0.0.7',
     license="MIT",
-    url='https://github.com/rdchar/HypernetworkTheory',
+    url='https://github.com/rdchar/Hora',
     description='Hypernetwork Theory library.',
     long_description_content_type='text/x-rst',
     long_description="""
         Hypernetwork Theory library.
         """,
     install_requires=reqs('requirements.txt'),
-    packages=['hypernetworks', 'hypernetworks/core', 'hypernetworks/utils'],
+    packages=['hora', 'hora/core', 'hora/utils'],
     cmdclass={"install_scripts": py_install},
-    scripts=['hypernetworks/bin/hnLoader.py', 'hypernetworks/bin/hnServer.py'],
+    scripts=['hora/bin/hnLoader.py', 'hora/bin/hnServer.py'],
     package_data={'': ['fullHT.lark']},
     include_package_data=True,
     zip_safe=False

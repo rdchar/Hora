@@ -99,6 +99,7 @@ class Hypersimplex:
         self._t = t
         self._C = [] if C is None else C
         self._B = set() if B is None else B
+        self._other = []
         self._N = N
         self._psi = psi
 
@@ -171,6 +172,14 @@ class Hypersimplex:
         self._B = value
 
     @property
+    def other(self):
+        return self._other
+
+    @other.setter
+    def other(self, value):
+        self._other = value
+
+    @property
     def N(self):
         return self._N
 
@@ -186,7 +195,7 @@ class Hypersimplex:
     def psi(self, value):
         self._psi = value
 
-    def update(self, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="", psi="", partOf=None):
+    def update(self, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, other=None, N="", psi="", partOf=None):
         if hstype != NONE:
             self.hstype = hstype
 
@@ -212,6 +221,9 @@ class Hypersimplex:
 
         if B:
             self.B = B
+
+        if other:
+            self.other = other
 
         if N != "":
             self.N = N

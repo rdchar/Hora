@@ -249,12 +249,12 @@ class Hypernetwork:
 
         if vertex == "" or not vertex:
             if hstype not in [PROPERTY]:
-                vertex = "hs_{}".format(self._counter)
+                vertex = "@Hs_{}@".format(self._counter)
                 self._counter += 1
 
         if search:
             for v in search:
-                if v[:3] == "hs_":
+                if v[:4] == "@Hs_":
                     # self._hypernetwork[v].simplex = [v if x == v else x for x in self._hypernetwork[v].simplex]
                     self._hypernetwork[v].simplex = [x for x in self._hypernetwork[v].simplex]
                     self._hypernetwork[v].vertex = v

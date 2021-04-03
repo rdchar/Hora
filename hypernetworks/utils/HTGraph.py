@@ -67,7 +67,7 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
                 + (("; " + _vertex.N) if show_level and _vertex.N != "" else "") \
                 + "|{" + label + "}}"
 
-            if _vertex.N:
+            if show_level and _vertex.N:
                 temp.dot.node(_vertex.vertex, v)
 
                 if _vertex.N in temp.clusters.keys():
@@ -81,10 +81,11 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
             temp.dot.attr('node', shape="ellipse")
             temp.dot.node(_vertex.vertex, _vertex.vertex)
 
-            if "Soup" in temp.clusters.keys():
-                temp.clusters["Soup"].append(_vertex.vertex)
-            else:
-                temp.clusters.update({"Soup": [_vertex.vertex]})
+            if show_level:
+                if "Soup" in temp.clusters.keys():
+                    temp.clusters["Soup"].append(_vertex.vertex)
+                else:
+                    temp.clusters.update({"Soup": [_vertex.vertex]})
 
     # End _add_nodes
 
