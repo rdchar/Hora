@@ -23,7 +23,7 @@ class py_install(command.install_scripts.install_scripts):
 setup(
     name='Hora',
     author='Richard Charlesworth',
-    version='0.0.7',
+    version='0.1.0',
     license="MIT",
     url='https://github.com/rdchar/Hora',
     description='Hypernetwork Theory library.',
