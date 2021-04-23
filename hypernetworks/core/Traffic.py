@@ -5,8 +5,8 @@ class TrafficDupInUnionError(Exception): pass
 class Traffic:
     def __init__(self, hn):
         self._assoc_hn = hn
-        self._traffic = {}
-        self._t = 0
+        self._traffic = {}  # key references the Hs and value is some app specific KISS value
+        self._t = 0         # point in time
 
     @property
     def traffic(self):
