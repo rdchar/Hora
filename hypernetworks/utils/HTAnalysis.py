@@ -51,8 +51,8 @@ def check_all_vertices_count(hn):
         hs = hn.hypernetwork[name]
         vertices_list = [i for i in range(1, len(hs.simplex) + 1)]
 
-        if hs.R in hn.relations:
-            if not check_vertex_count(hn, hs.R, vertices_list):
+        if hs.R.name in hn.relations:
+            if not check_vertex_count(hn, hs.R.name, vertices_list):
                 res.append(name)
 
     return res

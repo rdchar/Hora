@@ -39,10 +39,8 @@ class Types:
         return self._types[item]
 
     def __iadd__(self, other):
-        print("HELLO 1")
         self.types += other
 
     @types.setter
     def types(self, value):
-        print(value)
         self._types = value

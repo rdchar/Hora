@@ -1,13 +1,11 @@
 import logging as log
-
 from graphviz import Graph
-
 from hypernetworks.core.Hypersimplex import ALPHA, BETA, VERTEX, PROPERTY
 
 
-def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=False,
-             show_rel=True, show_meronymy=False, show_level=False, show_time=False,
-             view=True, fname="/tmp/Hn"):
+def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=False,
+            show_rel=True, show_meronymy=False, show_level=False, show_time=False,
+            view=True, fname="/tmp/Hn"):
 
     class temp:
         clusters = {}
@@ -61,8 +59,8 @@ def to_graph(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fa
                 temp.dot.attr('node', style='rounded', shape='record')
 
             v = "{" + _vertex.vertex \
-                + (("; R" + ("" if _vertex.R == " " else ("_" + _vertex.R)))
-                   if show_rel and _vertex.R != "" else "") \
+                + (("; R" + ("" if _vertex.R.name == " " else ("_" + _vertex.R.name)))
+                   if show_rel and _vertex.R.name != "" else "") \
                 + (("; t_" + str(_vertex.t)) if show_time and _vertex.t > -1 else "") \
                 + (("; " + _vertex.N) if show_level and _vertex.N != "" else "") \
                 + "|{" + label + "}}"

@@ -245,7 +245,7 @@ def matrix_to_string(M, vertex="", R=""):
         # A cheat to ensure correct formatting!
         res = res.replace("><", ">,<")
         res = res.replace("}{", "},{")
-        res = res.replace(",>", ("; R_" + R if R else "") + ">")
+        res = res.replace(",>", ("; R_" + R.name if R.name else "") + ">")
 
     return res
 

@@ -1,10 +1,10 @@
 import re
-
+from networkx import intersection
 from hypernetworks.utils.HTSearch import bottom_up
-
 from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInsertError
 from hypernetworks.core.HTTypes import Types
-from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype, PROPERTY
+from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype, PROPERTY, \
+    HsRelation, BASIC
 from hypernetworks.utils.HTPaths import get_peaks
 from hypernetworks.utils.HTTools import condense_all_specials, remove_special
 
@@ -76,7 +76,11 @@ class Hypernetwork:
             if temp.simplex and not simplex:
                 simplex = temp.simplex[:]
 
-            if temp.R == "" and R == "":
+            if temp.R.name == "" and (R if isinstance(R, str) else R.name) == "":
+                # if isinstance(R, str):
+                #     R = HsRelation(R, reltype=BASIC, content=R)
+                # else:
+                #     print("HELLO 1", type(R))
                 R = temp.R
 
             if temp.C and not C:
@@ -331,7 +335,7 @@ class Hypernetwork:
             if name in hn.hypernetwork:
                 hs = self.hypernetwork[name]
                 temp.insert(hs.vertex, hstype=hs.hstype, simplex=hs.simplex,
-                              R=hs.R, t=hs.t, C=hs.C, B=hs.B, psi=hs.psi)
+                            R=hs.R, t=hs.t, C=hs.C, B=hs.B, psi=hs.psi)
 
         if inc_whole:
             names = temp.soup
@@ -536,7 +540,7 @@ class Hypernetwork:
             # TODO needs more work when we implement full R functionality
             if R and not fail:
                 # if node.R == R or re.search(R, node.R):
-                if re.search(R, node.R):
+                if re.search(R if isinstance(R, str) else R.name, node.R.name):
                     found = True
                 else:
                     fail = True
@@ -655,7 +659,7 @@ class Hypernetwork:
                     _res += _test_str(v)
                     _res += ", "
 
-                _res += ("; R" + ("_" + simplex.R) if simplex.R != " " else "") if simplex.R else ""
+                _res += ("; R" + ("_" + simplex.R.name) if simplex.R.name != " " else "") if simplex.R.name else ""
                 _res += ("; t_" + str(simplex.t)) if simplex.t > -1 else ""
                 _res += ("; B(" + str(simplex.B) + ")") if simplex.B else ""
                 if simplex.N:

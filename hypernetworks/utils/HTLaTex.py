@@ -29,7 +29,7 @@ def _latex(hs):
         bres += ", ".join(new_simplex)
 
         if hs.hstype == ALPHA:
-            bres += "; R" + (("" if hs.R == " " else "_{") + hs.R + "}") if hs.R else ""
+            bres += "; R" + (("" if hs.R.name == " " else "_{") + hs.R.name + "}") if hs.R.name else ""
             bres += ("; t_{" + str(hs.t) + "}") if hs.t >= 0 else ""
             bres += ("; B_{\\testit{" + ", ".str(hs.B) + "}}") if hs.B else ""
             bres += "\\right>"

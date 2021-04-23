@@ -6,7 +6,7 @@ import uuid
 
 from hypernetworks.core.Hypernetwork import Hypernetwork
 from hypernetworks.utils.HTCompiler import compile_hn, load_parser
-from hypernetworks.utils.HTGraph import to_graph
+from hypernetworks.utils.HTGraph import draw_hn
 from hypernetworks.utils.HTInOut import from_data, to_data
 from hypernetworks.utils.HTSpaces import get_space
 
@@ -34,7 +34,7 @@ def generate_graph():
 
         if hn:
             response = app.response_class(
-                response=json.dumps({"dot": to_graph(hn, view=False)}),
+                response=json.dumps({"dot": draw_hn(hn, view=False)}),
                 status=200,
                 mimetype="application/json"
             )
@@ -136,7 +136,7 @@ def hn_graph():
             # TODO add direction capability
             # direction = direction if direction else "TB"
             fname = "/tmp/" + str(uuid.uuid4())
-            to_graph(sub_hn, fname=fname, view=False)
+            draw_hn(sub_hn, fname=fname, view=False)
 
         if sub_hn and fname:
             return send_file(fname + ".png", mimetype='image/png')

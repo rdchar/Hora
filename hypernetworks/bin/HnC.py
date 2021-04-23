@@ -8,7 +8,7 @@ from timeit import default_timer as timer
 
 from hypernetworks.core.Hypernetwork import Hypernetwork
 from hypernetworks.utils.HTCompiler import load_parser, compile_hn, load_ht
-from hypernetworks.utils.HTGraph import to_graph
+from hypernetworks.utils.HTGraph import draw_hn
 from hypernetworks.utils.HTInOut import JSON, YAML, load_Hn, save_Hn
 from hypernetworks.utils.HTSimplicalComplex import qanalysis_of_simplical_complex, gen_simplical_complex, \
     simplical_complex_to_graph
@@ -87,7 +87,7 @@ def run(ht, name, nograph, dir, output, time, r, qanalysis, levelgraph, level,
         log.debug("Parsing: " + str(end - start))
 
     if not nograph:
-        to_graph(hn, direction=dir, fname=output + name, R=r, N=level, A=atomic, show_level=False)
+        draw_hn(hn, direction=dir, fname=output + name, R=r, N=level, A=atomic, show_level=False)
 
     if levelgraph:
         parents, children, sc = gen_simplical_complex(hn, level=level, inc_parent_links=incparent)

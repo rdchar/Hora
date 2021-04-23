@@ -1,8 +1,9 @@
 # Relation Types
-
-LOGIC = 0
-ANN = 1
-LAMBDA = 2
+BASIC = 0
+LOGIC = 1
+ANN = 2
+LAMBDA = 3
+PETRI_NET = 4
 
 # Node type
 NONE = -1
@@ -17,11 +18,11 @@ str_to_hstype = lambda x: HS_TYPE.index(x) - 1
 
 
 class HsRelation:
-    def __init__(self, _name, _reltype=LOGIC, _content=""):
-        self._pathID = 0
-        self._name = _name
-        self._reltype = _reltype
-        self._content = _content
+    # def __init__(self, name, reltype=BASIC, content=None):
+    def __init__(self, name, reltype=BASIC):
+        self._name = name
+        # self._content = "" if content else content
+        self._reltype = reltype
 
     @property
     def reltype(self):
@@ -39,13 +40,13 @@ class HsRelation:
     def name(self, value):
         self._name = value
 
-    @property
-    def content(self):
-        return self._content
-
-    @content.setter
-    def content(self, _content):
-        self._content = _content
+    # @property
+    # def content(self):
+    #     return self._content
+    #
+    # @content.setter
+    # def content(self, _content):
+    #     self._content = _content
 
 
 class HsVertex:
@@ -95,7 +96,8 @@ class Hypersimplex:
         self._partOf = set() if partOf is None else partOf
         self._vertex = HsVertex(vertex)
         self._hstype = VERTEX if hstype == NONE else hstype
-        self._R = R
+        self._R = HsRelation(R, reltype=BASIC) if isinstance(R, str) else R
+        # self._R = HsRelation(R, reltype=BASIC, content=R) if isinstance(R, str) else R
         self._t = t
         self._C = [] if C is None else C
         self._B = set() if B is None else B
@@ -133,11 +135,14 @@ class Hypersimplex:
 
     @property
     def R(self):
+        # if self._R.reltype == BASIC:
+        #     return self._R.name
         return self._R
 
     @R.setter
     def R(self, value):
-        self._R = value
+        self._R = HsRelation(value, reltype=BASIC) if isinstance(value, str) else value
+        # self._R = HsRelation(value, reltype=BASIC, content=value) if isinstance(value, str) else value
 
     @property
     def partOf(self):
@@ -243,7 +248,7 @@ class Hypersimplex:
                + ", simplex: " + str(self.simplex) \
                + ", partOf: " + str(self.partOf) \
                + ((", B(" + str(self.B) + ")") if self.B != {} else "") \
-               + ((", R" + ("" if self.R == " " else "_") + str(self.R)) if self.R else "") \
+               + ((", R" + ("" if self.R.name == " " else "_") + str(self.R.name)) if self.R.name else "") \
                + ((", t_" + str(self.t)) if self.t >= 0 else "") \
                + ((", C(" + str(str(c) for c in self.C) + ")") if self.C != {} else "") \
                + ((", " + str(self.N)) if self.N != "" else "") \
@@ -277,7 +282,7 @@ class Hypersimplex:
             bres += ", ".join(new_simplex)
 
             if self.hstype == ALPHA:
-                bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
+                bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
                 bres += ("; psi_" + str(self.psi)) if self.psi else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
                 bres += ("; C(" + ", ".join(str(c) for c in self.C) + ")") if self.C else ""
@@ -286,7 +291,7 @@ class Hypersimplex:
                 bres += ("^" + self.N) if self.N else ""
 
             elif self.hstype == BETA:
-                bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
+                bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
                 bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
                 bres += "}" + (("^" + self.N) if self.N else "")
 
@@ -323,7 +328,7 @@ class Hypersimplex:
             bres += ", ".join(new_simplex)
 
             if self.hstype == ALPHA:
-                bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
+                bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
                 bres += ("; psi_" + str(self.psi)) if self.psi else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
                 bres += ("; C(" + ", ".join(str(c) for c in self.C) + ")") if self.C else ""
@@ -332,7 +337,7 @@ class Hypersimplex:
                 bres += ("^" + self.N) if self.N else ""
 
             elif self.hstype == BETA:
-                bres += "; R" + (("" if self.R == " " else "_") + self.R) if self.R else ""
+                bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
                 bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
                 bres += "}" + (("^" + self.N) if self.N else "")
 
