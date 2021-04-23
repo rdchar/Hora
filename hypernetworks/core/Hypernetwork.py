@@ -154,6 +154,53 @@ class Hypernetwork:
         else:
             raise HnVertexNoFound
 
+    def _update_N(self, _N, _direction=UP):
+        res = ""
+        l = len(_N)
+
+        if _N:
+            if _direction == UP:
+                if l == 1:
+                    res = "N+1"
+                else:
+                    level = int(_N[:l - 1]) + 1
+                    res[:l] = str(level)
+
+            elif _direction == DOWN:
+                if l == 1 or _N[:l - 1] == 1:
+                    res = "N"
+                elif l > 2:
+                    level = int(_N[:l - 1]) - 1
+                    res[:l] = str(level)
+
+        return res
+    # End _update_N
+
+    def _handleHsUnionDups(self, vertex="", hstype=NONE, simplex=None,
+                           R="", t=-1, C=None, B=None, N="", psi="", partOf=None):
+        hs = self.hypernetwork[vertex]
+
+        self.add(vertex=vertex + "@1", hstype=hs.hstype, simplex=hs.simplex,
+                 R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=hs.N,
+                 psi=hs.psi, partOf=set().add(vertex))
+        self.hypernetwork.pop(vertex, None)
+        self.add(vertex=vertex, hstype=BETA, simplex=[vertex + "@1", vertex + "@2"],
+                 R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=self._update_N(hs.N), partOf=hs.partOf)
+
+        # TODO added the else, this needs testing
+        vertex += "@2"
+
+    # def _handle_std_Hs_union(self, vertex, hs):
+    #     self.add(vertex=vertex + "@1", hstype=hs.hstype, simplex=hs.simplex,
+    #              R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=hs.N,
+    #              psi=hs.psi, partOf=set().add(vertex))
+    #     self.hypernetwork.pop(vertex, None)
+    #     self.add(vertex=vertex, hstype=BETA, simplex=[vertex + "@1", vertex + "@2"],
+    #              R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=self._update_N(hs.N), partOf=hs.partOf)
+    #
+    #     # TODO added the else, this needs testing
+    #     vertex += "@2"
+
     def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None,
                N="", psi="", partOf=None):
         def _remove_cyclic():
@@ -172,35 +219,11 @@ class Hypernetwork:
                     #     self._hypernetwork[v].partOf.remove(vertex)
         # End _remove_cyclic
 
-        def _update_N(_N, _direction=UP):
-            res = ""
-            l = len(_N)
-
-            if _N:
-                if _direction == UP:
-                    if l == 1:
-                        res = "N+1"
-                    else:
-                        level = int(_N[:l - 1]) + 1
-                        res[:l] = str(level)
-
-                elif _direction == DOWN:
-                    if l == 1 or _N[:l - 1] == 1:
-                        res = "N"
-                    elif l > 2:
-                        level = int(_N[:l - 1]) - 1
-                        res[:l] = str(level)
-
-            return res
-        # End _update_N
-
         if simplex is None:
             simplex = []
 
         if partOf is None:
             partOf = set()
-
-        # TODO is this the right solution?  Or should it we use the matrix method.
 
         if vertex in self.hypernetwork:
             if self.hypernetwork[vertex].hstype == BETA and self.hypernetwork[vertex].simplex != simplex and simplex:
@@ -223,17 +246,8 @@ class Hypernetwork:
                 # Create a new BETA, move the simplex to a partOf the new BETA
                 if hstype not in [VERTEX, PROPERTY] and \
                         condense_all_specials(simplex) != self.hypernetwork[vertex].simplex:
-                    tmpHs = self.hypernetwork[vertex]
-
-                    self.add(vertex=vertex + "@1", hstype=tmpHs.hstype, simplex=tmpHs.simplex,
-                             R=tmpHs.R, t=tmpHs.t, C=tmpHs.C, B=tmpHs.B, N=tmpHs.N,
-                             psi=tmpHs.psi, partOf=set().add(vertex))
-                    self.hypernetwork.pop(vertex, None)
-                    self.add(vertex=vertex, hstype=BETA, simplex=[vertex + "@1", vertex + "@2"],
-                             R=tmpHs.R, t=tmpHs.t, C=tmpHs.C, B=tmpHs.B, N=_update_N(tmpHs.N), partOf=tmpHs.partOf)
-
-                    # TODO added the else, this needs testing
-                    vertex += "@2"
+                    self._handleHsUnionDups(vertex=vertex, hstype=hstype, simplex=simplex,
+                                            R=R, t=t, C=C, B=B, N=N, psi=psi, partOf=partOf)
 
                 else:
                     # TODO why did I include the following?
