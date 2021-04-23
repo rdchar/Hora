@@ -190,17 +190,6 @@ class Hypernetwork:
         # TODO added the else, this needs testing
         vertex += "@2"
 
-    # def _handle_std_Hs_union(self, vertex, hs):
-    #     self.add(vertex=vertex + "@1", hstype=hs.hstype, simplex=hs.simplex,
-    #              R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=hs.N,
-    #              psi=hs.psi, partOf=set().add(vertex))
-    #     self.hypernetwork.pop(vertex, None)
-    #     self.add(vertex=vertex, hstype=BETA, simplex=[vertex + "@1", vertex + "@2"],
-    #              R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=self._update_N(hs.N), partOf=hs.partOf)
-    #
-    #     # TODO added the else, this needs testing
-    #     vertex += "@2"
-
     def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None,
                N="", psi="", partOf=None):
         def _remove_cyclic():
