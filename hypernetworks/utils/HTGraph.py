@@ -3,9 +3,8 @@ from graphviz import Graph
 from hypernetworks.core.Hypersimplex import ALPHA, BETA, VERTEX, PROPERTY
 
 
-def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=False,
-            show_rel=True, show_meronymy=False, show_level=False, show_time=False,
-            view=True, fname="/tmp/Hn"):
+def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show_level=False,
+            show_time=False, view=True, fname="/tmp/Hn"):
 
     class temp:
         clusters = {}
@@ -17,28 +16,29 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fal
             first = True
 
             for vtx in _vertex.simplex:
+                # vtx_hs = Hn.hypernetwork[strip_special(vtx)]
+                vtx_hs = Hn.hypernetwork[vtx]
                 vtx_port = ""
+                vtx_lbl = ""
 
-                if vtx[:4] == "SEQ@":
-                    vtx = vtx[4:len(vtx)]
-                    vtx_lbl = ("(" + vtx + ")")
+                # if is_sequence(vtx):
+                #     vtx_lbl = "*" + vtx
+                #     vtx_port = vtx
+                # if vtx_hs.is_immutable():
+                #     vtx_lbl = "!" + vtx
+                #     vtx_port = vtx
+                # elif vtx_hs.is_mandatory():
+                #     vtx_lbl = "[" + vtx + "]"
+                #     vtx_port = vtx
+                # else:
+                vtx_lbl = vtx
+                if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
                     vtx_port = vtx
-                elif vtx[:4] == "IMM@":
-                    vtx = vtx[4:len(vtx)]
-                    vtx_lbl = ("[" + vtx + "]")
-                    vtx_port = vtx
-                elif vtx[:4] == "MAN@":
-                    vtx = vtx[4:len(vtx)]
-                    vtx_lbl = ("[" + vtx + "]")
-                    vtx_port = vtx
-                else:
-                    vtx_lbl = vtx
-                    if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
-                        vtx_port = vtx
 
                 if first:
                     if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype in [PROPERTY]:
                         label += vtx_lbl
+
                     else:
                         label += "<" + vtx_port + "> " + vtx_lbl
 
@@ -59,10 +59,10 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fal
                 temp.dot.attr('node', style='rounded', shape='record')
 
             v = "{" + _vertex.vertex \
-                + (("; R" + ("" if _vertex.R.name == " " else ("_" + _vertex.R.name)))
-                   if show_rel and _vertex.R.name != "" else "") \
                 + (("; t_" + str(_vertex.t)) if show_time and _vertex.t > -1 else "") \
                 + (("; " + _vertex.N) if show_level and _vertex.N != "" else "") \
+                + (("|R" + ("" if _vertex.R.name == " " else ("_" + _vertex.R.name)))
+                   if show_rel and _vertex.R.name != "" else "") \
                 + "|{" + label + "}}"
 
             if show_level and _vertex.N:
@@ -89,14 +89,16 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, strict_meronymy=Fal
 
     def _add_edges(_vertex):
         for vtx in _vertex.simplex:
+            # vtx_hs = Hn.hypernetwork[strip_special(vtx)]
+            vtx_hs = Hn.hypernetwork[vtx]
             vtx_port = ""
 
-            if vtx[:4] == "SEQ@":
-                vtx_port = vtx[4:len(vtx)]
-            elif vtx[:4] == "IMM@":
-                vtx_port = vtx[4:len(vtx)]
-            elif vtx[:4] == "MAN@":
-                vtx_port = vtx[4:len(vtx)]
+            # if is_sequence(vtx):
+            #     vtx_port = vtx
+            if vtx_hs.is_immutable():
+                vtx_port = vtx
+            # elif vtx_hs.is_mandatory():
+            #     vtx_port = vtx
             else:
                 if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
                     vtx_port = vtx

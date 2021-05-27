@@ -1,10 +1,15 @@
 import re
+from pprint import pprint
+
 from networkx import intersection
+
+from hypernetworks.core.Colouring import Colouring
+from hypernetworks.core.Traffic import Traffic
 from hypernetworks.utils.HTSearch import bottom_up
 from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInsertError
 from hypernetworks.core.HTTypes import Types
-from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype, PROPERTY, \
-    HsRelation, BASIC
+from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype, PROPERTY,\
+    IMMUTABLE_ALPHA
 from hypernetworks.utils.HTPaths import get_peaks
 from hypernetworks.utils.HTTools import condense_all_specials, remove_special
 
@@ -34,10 +39,10 @@ class Hypernetwork:
 
     def __init__(self, name="Unnamed"):
         self._hypernetwork = dict()
+        self._traffic = Traffic(self)
         self._name = name
         self._types = Types()
         self._relations = dict()
-        # self._relations = Relations()
         # self._counter = 0
 
     @property
@@ -64,7 +69,7 @@ class Hypernetwork:
         self._hypernetwork.update({hs.vertex: hs})
 
     def add(self, vertex, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="",
-            psi="", partOf=None):
+            psi="", phi="", partOf=None, traffic=None, coloured=None):
 
         if vertex in self._hypernetwork:
             # Update an existing node
@@ -77,10 +82,6 @@ class Hypernetwork:
                 simplex = temp.simplex[:]
 
             if temp.R.name == "" and (R if isinstance(R, str) else R.name) == "":
-                # if isinstance(R, str):
-                #     R = HsRelation(R, reltype=BASIC, content=R)
-                # else:
-                #     print("HELLO 1", type(R))
                 R = temp.R
 
             if temp.C and not C:
@@ -88,8 +89,6 @@ class Hypernetwork:
 
             if temp.B and not B:
                 B = temp.B.copy()
-            # if temp.B == "" and B == "":
-            #     B = temp.B.copy()
 
             if temp.N != "" and N == "":
                 N = temp.N
@@ -97,16 +96,31 @@ class Hypernetwork:
             if temp.psi != "" and psi == "":
                 psi = temp.psi
 
+            if temp.phi != "" and phi == "":
+                phi = temp.phi
+
             if temp.partOf and not partOf:
                 partOf = temp.partOf.copy()
 
-            temp.update(hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N, psi=psi, partOf=partOf)
+            if temp.traffic and traffic == None:
+                traffic = temp.traffic
+
+            if temp.coloured and coloured == None:
+                coloured = temp.coloured
+
+            temp.update(hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N, psi=psi, phi=phi, partOf=partOf,
+                        traffic=traffic, coloured=coloured)
             self._hypernetwork[vertex] = temp
 
         else:
             # Create a new node
+            # if vertex in self._hypernetwork:
+            #     self._hypernetwork[vertex].update(hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N,
+            #                                       psi=psi, phi=phi, partOf=partOf, traffic=traffic, coloured=coloured)
+            #
+            # else:
             hs = Hypersimplex(self, vertex, hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N,
-                              psi=psi, partOf=partOf)
+                              psi=psi, phi=phi, partOf=partOf, traffic=traffic, coloured=coloured)
             self._hypernetwork.update({vertex: hs})
 
         if R:
@@ -117,7 +131,7 @@ class Hypernetwork:
             vertex = hs.vertex
 
         self.insert(vertex, hstype=hs.hstype, simplex=hs.simplex, R=hs.R, t=hs.t, C=hs.C, B=hs.B,
-                    N=hs.N, psi=hs.psi)
+                    N=hs.N, psi=hs.psi, phi=hs.phi, traffic=hs.traffic, coloured=hs.coloured)
 
     def delete(self, vertex="", R="", del_children=False):
         def _delete(_vertex, _parent=""):
@@ -176,22 +190,23 @@ class Hypernetwork:
         return res
     # End _update_N
 
-    def _handleHsUnionDups(self, vertex="", hstype=NONE, simplex=None,
-                           R="", t=-1, C=None, B=None, N="", psi="", partOf=None):
+    def _handleHsUnionDups(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="",
+                           psi="", phi="", partOf=None, traffic=None, coloured=None):
         hs = self.hypernetwork[vertex]
 
         self.add(vertex=vertex + "@1", hstype=hs.hstype, simplex=hs.simplex,
                  R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=hs.N,
-                 psi=hs.psi, partOf=set().add(vertex))
+                 psi=hs.psi, phi=hs.phi, partOf=set().add(vertex), traffic=hs.traffic, coloured=hs.coloured)
         self.hypernetwork.pop(vertex, None)
         self.add(vertex=vertex, hstype=BETA, simplex=[vertex + "@1", vertex + "@2"],
-                 R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=self._update_N(hs.N), partOf=hs.partOf)
+                 R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=self._update_N(hs.N), partOf=hs.partOf,
+                 traffic=hs.traffic, coloured=hs.coloured)
 
         # TODO added the else, this needs testing
         vertex += "@2"
 
     def insert(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None,
-               N="", psi="", partOf=None):
+               N="", psi="", phi="", partOf=None, traffic=None, coloured=None):
         def _remove_cyclic():
             temp = list(set(self._hypernetwork[vertex].simplex).intersection(self._hypernetwork[vertex].partOf))
             if temp:
@@ -222,7 +237,7 @@ class Hypernetwork:
                         list(sorted(set(self.hypernetwork[vertex].simplex).union(set(simplex))))
                     return
 
-                elif hstype in [ALPHA, VERTEX, PROPERTY]:
+                elif hstype in [ALPHA, VERTEX, PROPERTY, IMMUTABLE_ALPHA]:
                     new_vertex = vertex + "@" + str(len(self.hypernetwork[vertex].simplex) + 1)
                     partOf.add(vertex)
                     self.hypernetwork[vertex].simplex.append(new_vertex)
@@ -231,12 +246,12 @@ class Hypernetwork:
                 else:
                     print("SOMETHING WENT WRONG!!")
 
-            elif self.hypernetwork[vertex].hstype == ALPHA:
+            elif self.hypernetwork[vertex].hstype in [ALPHA, IMMUTABLE_ALPHA]:
                 # Create a new BETA, move the simplex to a partOf the new BETA
                 if hstype not in [VERTEX, PROPERTY] and \
                         condense_all_specials(simplex) != self.hypernetwork[vertex].simplex:
-                    self._handleHsUnionDups(vertex=vertex, hstype=hstype, simplex=simplex,
-                                            R=R, t=t, C=C, B=B, N=N, psi=psi, partOf=partOf)
+                    self._handleHsUnionDups(vertex=vertex, hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N,
+                                            psi=psi, phi=phi, partOf=partOf, traffic=traffic, coloured=coloured)
 
                 else:
                     # TODO why did I include the following?
@@ -268,7 +283,8 @@ class Hypernetwork:
                     self._counter -= 1
                     vertex = v
 
-                self._hypernetwork[vertex].update(R=R, t=t, C=C, B=B, N=N, psi=psi)
+                self._hypernetwork[vertex].update(R=R, t=t, C=C, B=B, N=N, psi=psi, phi=phi,
+                                                  traffic=traffic, coloured=coloured)
 
         else:
             # TODO added this to union the partOf, not sure if it is correct, needs testing
@@ -277,8 +293,8 @@ class Hypernetwork:
                     partOf = partOf.union(self._hypernetwork[vertex].partOf)
 
             # TODO add cyclic removal code
-            self.add(vertex=vertex, hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N, psi=psi,
-                     partOf=partOf if isinstance(partOf, set) else {partOf})
+            self.add(vertex=vertex, hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N, psi=psi, phi=phi,
+                     partOf=partOf if isinstance(partOf, set) else {partOf}, traffic=traffic, coloured=coloured)
 
             for i, v in enumerate(simplex):
                 if "PROPERTY" in v:
@@ -296,13 +312,15 @@ class Hypernetwork:
             for i, v in enumerate(simplex):
                 if isinstance(v, dict):
                     if "PROPERTY" in v:
-                        self.add(vertex=v["PROPERTY"], hstype=PROPERTY, partOf={vertex}, B=B)
+                        self.add(vertex=v["PROPERTY"], hstype=PROPERTY, partOf={vertex}, B=B,
+                                 traffic=traffic, coloured=coloured)
                     else:
                         key = list(v.keys())[0]
-                        self.add(vertex=v[key], hstype=VERTEX, partOf={vertex}, B=B)
+                        self.add(vertex=v[key], hstype=VERTEX, partOf={vertex}, B=B,
+                                 traffic=traffic, coloured=coloured)
 
                 else:
-                    self.add(vertex=v, hstype=VERTEX, partOf={vertex}, B=B)
+                    self.add(vertex=v, hstype=VERTEX, partOf={vertex}, B=B, traffic=traffic, coloured=coloured)
 
         for v in simplex:
             if isinstance(v, dict):
@@ -325,8 +343,8 @@ class Hypernetwork:
         # compile_hn(self, parser, this_hn)
         for name in _hn.hypernetwork:
             hs = _hn.hypernetwork[name]
-            self.insert(hs.vertex, hstype=hs.hstype, simplex=hs.simplex,
-                        R=hs.R, t=hs.t, C=hs.C, B=hs.B, psi=hs.psi)
+            self.insert(hs.vertex, hstype=hs.hstype, simplex=hs.simplex, R=hs.R, t=hs.t, C=hs.C, B=hs.B,
+                        psi=hs.psi, phi=hs.phi, traffic=hs.traffic, coloured=hs.coloured)
 
         return self
 
@@ -337,8 +355,8 @@ class Hypernetwork:
         for name in self.hypernetwork:
             if name in hn.hypernetwork:
                 hs = self.hypernetwork[name]
-                temp.insert(hs.vertex, hstype=hs.hstype, simplex=hs.simplex,
-                            R=hs.R, t=hs.t, C=hs.C, B=hs.B, psi=hs.psi)
+                temp.insert(hs.vertex, hstype=hs.hstype, simplex=hs.simplex, R=hs.R, t=hs.t, C=hs.C, B=hs.B,
+                            psi=hs.psi, phi=hs.phi, traffic=hs.traffic, coloured=hs.coloured)
 
         if inc_whole:
             names = temp.soup
@@ -367,8 +385,12 @@ class Hypernetwork:
             hs_B = set()
             hs_N = ""
             hs_psi = ""
+            hs_phi = ""
             hs_partOf = set()
             hs_where = ""
+            hs_traffic = None
+            hs_coloured = None
+            hs_special = NONE
 
         class _relation:
             hs_R = None
@@ -382,16 +404,18 @@ class Hypernetwork:
                 elif hs_k in ["VERTEX", "PROPERTY"]:
                     _hypersimplex.hs_type = str_to_hstype(hs_k)
 
-                elif hs_k in ["ALPHA", "BETA"]:
+                elif hs_k in ["ALPHA", "BETA", "IMMUTABLE_ALPHA"]:
                     _hypersimplex.hs_type = str_to_hstype(hs_k)
 
-                    if isinstance(hs_v, str):
+                    if isinstance(hs_v, str) or isinstance(hs_v, dict):
                         _hypersimplex.hs_simplex.append(hs_v)
 
                     else:
                         for v in hs_v:
                             if isinstance(v, list):
                                 _hypersimplex.hs_simplex.append(self.parse(v))
+                            elif isinstance(v, dict):
+                                _hypersimplex.hs_simplex.append(v)
                             else:
                                 _hypersimplex.hs_simplex.append(v)
 
@@ -401,10 +425,6 @@ class Hypernetwork:
                 elif hs_k == "R":
                     _relation.hs_R = hs_v
                     _hypersimplex.hs_R = hs_v
-
-                elif hs_k == "SEQ":
-                    # TODO needs fully testing
-                    _hypersimplex.hs_simplex.append({"SEQ": hs_v})
 
                 elif hs_k == "t":
                     _hypersimplex.hs_t = hs_v
@@ -421,9 +441,12 @@ class Hypernetwork:
                 elif hs_k == "psi":
                     _hypersimplex.hs_psi = hs_v
 
+                elif hs_k == "phi":
+                    _hypersimplex.hs_phi = hs_v
+
                 elif hs_k == "TYPE":
                     print("\tTYPE:" + str(hs_v))
-
+                    
                 elif hs_k == "TYPED":
                     print("\tTYPED:" + str(hs_v))
 
@@ -446,7 +469,6 @@ class Hypernetwork:
                     _hypersimplex.hs_where = "DERIVED"
 
             return _hypersimplex.hs_name
-
         # End _parse_hs
 
         def _clear():
@@ -459,16 +481,17 @@ class Hypernetwork:
             _hypersimplex.hs_B = set()
             _hypersimplex.hs_N = ""
             _hypersimplex.hs_psi = ""
+            _hypersimplex.hs_phi = ""
             _hypersimplex.hs_partOf = set()
+            _hypersimplex.hs_traffic = None
+            _hypersimplex.hs_coloured = None
 
             _relation.hs_R = ""
             _relation.hs_where = []
         # End _clear
 
         name = ""
-
         _clear()
-
         self.preparse(hypernet)
 
         for hn in hypernet:
@@ -489,7 +512,10 @@ class Hypernetwork:
                                    B=_hypersimplex.hs_B,
                                    N=_hypersimplex.hs_N,
                                    psi=_hypersimplex.hs_psi,
-                                   partOf=_hypersimplex.hs_partOf)
+                                   phi=_hypersimplex.hs_phi,
+                                   partOf=_hypersimplex.hs_partOf,
+                                   traffic=None,
+                                   coloured=None)
 
                 if _relation.hs_where:
                     self.relations[_relation.hs_R] = _relation.hs_where
@@ -523,7 +549,7 @@ class Hypernetwork:
                     else:
                         fail = True
 
-                elif hstype == ALPHA:
+                elif hstype in [ALPHA, IMMUTABLE_ALPHA]:
                     if node.simplex == simplex:
                         found = True
                     else:
@@ -602,7 +628,7 @@ class Hypernetwork:
         def _get_vertices(_vertex):
             _res = set()
 
-            if self._hypernetwork[_vertex].hstype in [ALPHA, BETA]:
+            if self._hypernetwork[_vertex].hstype in [ALPHA, BETA, IMMUTABLE_ALPHA]:
                 _res.add(_vertex)
                 for v in self._hypernetwork[_vertex].simplex:
                     _res = _res.union(_get_vertices(v))
@@ -639,7 +665,9 @@ class Hypernetwork:
             print(v._dump())
 
     def __getitem__(self, item):
-        return self._hypernetwork[item]
+        if item in self._hypernetwork:
+            return self._hypernetwork[item]
+        return None
 
     def __str__(self):
         res = ""

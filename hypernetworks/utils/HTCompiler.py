@@ -4,9 +4,7 @@ import lark
 
 __HN_LARK__ = "./fullHT.lark"
 
-from hypernetworks.core.HTConfig import hs_expand_R
 from hypernetworks.core.HTErrors import HnParseError
-from hypernetworks.core.HTUtils import expandR
 from hypernetworks.utils.HTAnalysis import check_all_vertices_count
 
 
@@ -42,31 +40,13 @@ def compile_hn(Hn, parser, hs_string):
         def assign(self, token):
             return {"VAL": str(token)}
 
+        def a_assign(self, token):
+            return {"VAL": str(token)}
+
         def alpha(self, *tokens):
-            # r = None
-            # where = None
-            # other = []
-
-            # for t in tokens:
-            #     if isinstance(t, dict):
-            #         for k, v in t.items():
-            #             if k == "R":
-            #                 r = v
-            #             if k == "WHERE":
-            #                 where = v
-            #             other.append({k: v})
-            #
-            #         if r and not where:  # If a where hasn't been provided, then get it from relations.
-            #             if r in Hn.relations:
-            #                 where = [Hn.relations[r]]
-            #                 if not where[0]:
-            #                     where = None
-            #
-            #         elif r:
-            #             print("WHERE", where)
-
             res = []
             r = ""
+
             for at in tokens:
                 if "R" in at:
                     r = at["R"]
@@ -74,18 +54,21 @@ def compile_hn(Hn, parser, hs_string):
                 if "WHERE" in at:
                     at = {"WHERE": [{"R": r}, at["WHERE"][0] if len(at["WHERE"]) == 1 else at["WHERE"]]}
 
-                if isinstance(at, dict):
-                    if "SEQ" in at or "IMM" in at:
-                        res.append({"ALPHA": [at]})
-                    else:
-                        res.append(at)
-                else:
-                    res.append({"ALPHA": at})
+                # if isinstance(at, dict):
+                #     if "IMMUTABLE_ALPHA" in at:
+                #         res.append({"ALPHA": [at]})
+                #     else:
+                #         res.append(at)
+                # else:
+                res.append({"ALPHA": at})
 
             return res
 
         def beta(self, *tokens):
             return [bt if isinstance(bt, dict) else {"BETA": bt} for bt in tokens]
+
+        def immutable_alpha(self, *tokens):
+            return {"IMMUTABLE_ALPHA": tokens[0][0]["ALPHA"]}  # TODO Seems a bit of a hack
 
         def a_simplex(self, *tokens):
             return [e for e in tokens]
@@ -121,11 +104,8 @@ def compile_hn(Hn, parser, hs_string):
         def sequence(self, token):
             return {"SEQ": str(token)}
 
-        def immutable(self, token):
-            return {"IMM": str(token)}
-
-        def mandatory(self, token):
-            return {"MAN": str(token)}
+        # def immutable(self, token):
+        #     return {"IMMUTABLE_ALPHA": str(token)}
 
         def property(self, token):
             return {"PROPERTY": str(token)}
@@ -153,6 +133,9 @@ def compile_hn(Hn, parser, hs_string):
 
         def psi(self, token):
             return {'psi': str(token)}
+
+        def phi(self, token):
+            return {'phi': str(token)}
 
         # TODO doesn't currently do anything
         def typed(self, *tokens):
@@ -211,6 +194,9 @@ def compile_hn(Hn, parser, hs_string):
 
         def psis(self, *tokens):
             return [[{"VERTEX": ""}, {"VAL": str(tokens[0])}, {"psi": str(tokens[1])}]]
+
+        def phis(self, *tokens):
+            return [[{"VERTEX": ""}, {"VAL": str(tokens[0])}, {"phi": str(tokens[1])}]]
 
         # TODO
         def derived(self, *tokens):

@@ -1,9 +1,11 @@
 # Relation Types
-BASIC = 0
+import copy
+
+R_BASIC = 0
 LOGIC = 1
 ANN = 2
 LAMBDA = 3
-PETRI_NET = 4
+R_TRANSITION = 4
 
 # Node type
 NONE = -1
@@ -11,15 +13,29 @@ VERTEX = 0
 ALPHA = 1
 BETA = 2
 PROPERTY = 3
+IMMUTABLE_ALPHA = 4
 
-HS_TYPE = ['NONE', 'VERTEX', 'ALPHA', 'BETA', 'PROPERTY']
+# Special types
+NONE = -1
+IMMUTABLE = 0
+
+HS_TYPE = ['NONE', 'VERTEX', 'ALPHA', 'BETA', 'PROPERTY', 'IMMUTABLE_ALPHA']
 hstype_to_str = lambda x: HS_TYPE[x + 1]
 str_to_hstype = lambda x: HS_TYPE.index(x) - 1
+
+SPECIAL_TYPE = ['NONE', 'IMMUTABLE']
+special_to_str = lambda x: SPECIAL_TYPE[x + 1]
+str_to_special = lambda x: SPECIAL_TYPE.index(x) - 1
+
+
+# is_sequence = lambda vertex: vertex[:4] in ["SEQ@"]
+# is_immutable = lambda vertex: vertex[:4] in ["IMM@"]
+# strip_special = lambda vertex: vertex[4:] if vertex[:4] in ["SEQ@", "IMM@"] else vertex
 
 
 class HsRelation:
     # def __init__(self, name, reltype=BASIC, content=None):
-    def __init__(self, name, reltype=BASIC):
+    def __init__(self, name, reltype=R_BASIC):
         self._name = name
         # self._content = "" if content else content
         self._reltype = reltype
@@ -73,37 +89,36 @@ class HsVertex:
 
 class Hypersimplex:
     def __init__(self, _hn, vertex, hstype=VERTEX, simplex=None, R="", t=-1, C=None,
-                 B=None, N="", psi="", partOf=None, content=""):
+                 B=None, N="", psi="", phi="", partOf=None, traffic=None, coloured=None):
+
         self._hypernetwork = _hn
         self._simplex = []
+        self._special = None
+
+        if hstype == IMMUTABLE_ALPHA:
+            hstype = ALPHA
+            self._special = IMMUTABLE
+        else:
+            self._special = NONE
+
+        self._vertex = HsVertex(vertex)
 
         if simplex:
             for v in simplex:
-                if isinstance(v, dict):
-                    if "SEQ" in v:
-                        self._simplex.append("SEQ@" + v["SEQ"])
-                    elif "IMM" in v:
-                        self._simplex.append("IMM@" + v["IMM"])
-                    elif "MAN" in v:
-                        self._simplex.append("MAN@" + v["MAN"])
-                    else:
-                        if "PROPERTY" in v:
-                            self._simplex.append(v)
-
-                else:
-                    self._simplex.append(v)
+                self._simplex.append(v)
 
         self._partOf = set() if partOf is None else partOf
-        self._vertex = HsVertex(vertex)
         self._hstype = VERTEX if hstype == NONE else hstype
-        self._R = HsRelation(R, reltype=BASIC) if isinstance(R, str) else R
-        # self._R = HsRelation(R, reltype=BASIC, content=R) if isinstance(R, str) else R
+        self._R = HsRelation(R, reltype=R_BASIC) if isinstance(R, str) else R
         self._t = t
         self._C = [] if C is None else C
         self._B = set() if B is None else B
         self._other = []
         self._N = N
         self._psi = psi
+        self._phi = phi
+        self._traffic = traffic
+        self._coloured = coloured
 
     @property
     def vertex(self):
@@ -141,7 +156,7 @@ class Hypersimplex:
 
     @R.setter
     def R(self, value):
-        self._R = HsRelation(value, reltype=BASIC) if isinstance(value, str) else value
+        self._R = HsRelation(value, reltype=R_BASIC) if isinstance(value, str) else value
         # self._R = HsRelation(value, reltype=BASIC, content=value) if isinstance(value, str) else value
 
     @property
@@ -200,19 +215,58 @@ class Hypersimplex:
     def psi(self, value):
         self._psi = value
 
-    def update(self, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, other=None, N="", psi="", partOf=None):
+    @property
+    def phi(self):
+        return self._phi
+
+    @phi.setter
+    def phi(self, value):
+        self._phi = value
+
+    @property
+    def traffic(self):
+        return self._traffic
+
+    @traffic.setter
+    def traffic(self, value):
+        self._traffic = value
+
+    @property
+    def coloured(self):
+        return self._coloured
+
+    @coloured.setter
+    def coloured(self, value):
+        self._coloured = value
+
+    @property
+    def special(self):
+        return self._special
+
+    @special.setter
+    def special(self, value):
+        self._special = value
+
+    # # def is_sequence(self):
+    # #     return
+    # #     return self._special == SEQUENCE
+    # #
+    # def is_mandatory(self):
+    #     return self._special == MANDATORY
+
+    def is_immutable(self):
+        return self._special == IMMUTABLE
+
+    def update(self, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, other=None, N="",
+               psi="", phi="", partOf=None, traffic=None, coloured=None):
         if hstype != NONE:
             self.hstype = hstype
 
         if simplex:
             new_simplex = []
             for v in simplex:
-                if isinstance(v, dict):
-                    key = list(v.keys())[0]
-                    new_simplex.append(key + "@" + v[key])
-                else:
-                    new_simplex.append(v)
-            # new_simplex = [("SEQ@" + v['SEQ']) if isinstance(v, dict) else v for v in simplex]
+                new_simplex.append(v)
+
             self.simplex = new_simplex
 
         if R:
@@ -236,17 +290,27 @@ class Hypersimplex:
         if psi != "":
             self.psi = psi
 
+        if phi:
+            self.phi = phi
+
         if partOf:
             if None in self._partOf:
                 self._partOf = partOf
             else:
                 self._partOf.union(partOf)
 
+        if not traffic == None:
+            self._traffic = traffic
+
+        if not coloured == None:
+            self._coloured = coloured
+
     def _dump(self):
         return "vertex: " + str(self.vertex) \
                + ", type: " + str(HS_TYPE[self.hstype + 1]) \
                + ", simplex: " + str(self.simplex) \
                + ", partOf: " + str(self.partOf) \
+               + ", special: " + special_to_str(self.special) \
                + ((", B(" + str(self.B) + ")") if self.B != {} else "") \
                + ((", R" + ("" if self.R.name == " " else "_") + str(self.R.name)) if self.R.name else "") \
                + ((", t_" + str(self.t)) if self.t >= 0 else "") \
@@ -267,17 +331,14 @@ class Hypersimplex:
 
             new_simplex = []
             for v in self.simplex:
-                if v[:4] == "SEQ@":
-                    new_simplex.append("(" + v[4:len(v)] + ")")
-                elif v[:4] == "IMM@":
-                    new_simplex.append("[" + v[4:len(v)] + "]")
-                elif v[:4] == "MAN@":
-                    new_simplex.append("!" + v[4:len(v)])
+                # if is_sequence(v):
+                #     new_simplex.append("*" + v)
+                #
+                # else:
+                if v in self._hypernetwork.hypernetwork and self._hypernetwork.hypernetwork[v].hstype == PROPERTY:
+                    new_simplex.append("~" + v)
                 else:
-                    if v in self._hypernetwork.hypernetwork and self._hypernetwork.hypernetwork[v].hstype == PROPERTY:
-                            new_simplex.append("~" + v)
-                    else:
-                        new_simplex.append(v)
+                    new_simplex.append(v)
 
             bres += ", ".join(new_simplex)
 
@@ -297,53 +358,10 @@ class Hypersimplex:
 
             else:
                 bres = ""
+
+        child = self._hypernetwork.hypernetwork[self.vertex]
+        # child = self._hypernetwork.hypernetwork[strip_special(self.vertex)]
+        if child.is_immutable():
+            bres = "!" + bres
 
         return self.vertex + "=" + bres
-
-    def test_str(self):
-        bres = ""
-
-        if self.simplex:
-            if self.hstype == ALPHA:
-                bres = "<"
-            elif self.hstype == BETA:
-                bres = "{"
-            else:
-                bres = ""
-
-            new_simplex = []
-            for v in self.simplex:
-                if v[:4] == "SEQ@":
-                    new_simplex.append("(" + v[4:len(v)] + ")")
-                if v[:4] == "IMM@":
-                    new_simplex.append("[" + v[4:len(v)] + "]")
-                if v[:4] == "MAN@":
-                    new_simplex.append("!" + v[4:len(v)])
-                else:
-                    if self._hypernetwork[v].hstype == PROPERTY:
-                        new_simplex.append("~" + v)
-                    else:
-                        new_simplex.append(v)
-
-            bres += ", ".join(new_simplex)
-
-            if self.hstype == ALPHA:
-                bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
-                bres += ("; psi_" + str(self.psi)) if self.psi else ""
-                bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
-                bres += ("; C(" + ", ".join(str(c) for c in self.C) + ")") if self.C else ""
-                bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
-                bres += ">"
-                bres += ("^" + self.N) if self.N else ""
-
-            elif self.hstype == BETA:
-                bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
-                bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
-                bres += "}" + (("^" + self.N) if self.N else "")
-
-            else:
-                bres = ""
-
-        return self.vertex \
-               + (" = " if self._hstype not in [VERTEX] else " is a vertex") \
-               + bres

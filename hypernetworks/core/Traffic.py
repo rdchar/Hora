@@ -40,6 +40,15 @@ class Traffic:
         else:
             raise TrafficNotInHnError
 
+    def update(self, key, value):
+        # if key in self._traffic:
+        self._traffic.update({key: value})
+        # else:
+        #     raise TrafficNotInHnError
+
+    def __delitem__(self, key):
+        del self._traffic[key]
+
     def union(self, traffic):
         intersection = set(self._traffic.keys()).intersection(traffic.keys())
 
@@ -49,3 +58,6 @@ class Traffic:
 
         for key, value in traffic:
             self.add(key, value)
+
+        # TODO ensure that the new Hn replaces the assoc_hn
+        # self._assoc_hn = ?
