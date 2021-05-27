@@ -15,13 +15,14 @@ def are_similar(a, b):
     c = []
 
     for v in b:
-        c.append(v if v[:4] not in ["SEQ@", "IMM@"] else v[4:])
+        c.append(v if v[:4] not in ["IMM@"] else v[4:])
+        # c.append(v if v[:4] not in ["SEQ@", "IMM@"] else v[4:])
 
     return len(set(c).difference(set(a))) == 0 and len(set(a).difference(set(c))) == 0
 
 
-def is_seq(x):
-    return x[:4] == "SEQ@"
+# def is_seq(x):
+#     return x[:4] == "SEQ@"
 
 
 def is_immutable(x):
@@ -75,7 +76,8 @@ def remove_special(vert):
 
 
 def is_special(vert):
-    return vert[:4] in ["SEQ@", "IMM@", "MAN@"]
+    return vert[:4] in ["IMM@", "MAN@"]
+    # return vert[:4] in ["SEQ@", "IMM@", "MAN@"]
 
 
 def get_vertex_types(hn, *vertices):

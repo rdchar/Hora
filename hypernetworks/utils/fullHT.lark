@@ -1,33 +1,30 @@
-?start:         "hn:"? (assign? hn)* ("lambdas:" lambdas+)? ("psis:" psis+)?
+?start:         "hn:"? (assign? hn)* ("lambdas:" lambdas+)? ("psis:" psis+)? ("phis:" phis+)?
 
 hn:             hs
               | "(" hn ")"
 
 hs:             alpha
+              | immutable_alpha
               | beta
               | empty_alpha
               | empty_beta
               | relation
 
-alpha:          "<" a_simplex r? time? coordinate? boundary? psi? where? ">" level?
+immutable_alpha: "!" alpha
+alpha:          "<" a_simplex r? time? coordinate? boundary? psi? phi? where? ">" level?
 beta:           "{" b_simplex r? time? boundary? "}" level?
 empty_alpha:    "<>"
 empty_beta:     "{}"
 
 ?a_simplex:     a_vertex ("," a_vertex)*
 ?a_vertex:      vertex
-              | sequence
-              | immutable
-              | mandatory
               | WILDCARD
 
 ?b_simplex:     vertex ("," vertex)*
 
 vertex:         (NAME | property | assign? hs) typed?
 property:       "~" NAME
-sequence:       "(" vertex ")"
-immutable:      "[" NAME "]"
-mandatory:      "!" NAME
+immutable:      "!" NAME "="
 
 assign:         NAME "="
 
@@ -36,6 +33,7 @@ time:           ";" "t_" NUMBER
 coordinate:     ";" "C(" X ("," Y ("," Z)?)? ")"
 boundary:       ";" "B(" NAME ("," NAME)* ")"
 psi:            ";" "psi_" NAME
+phi:            ";" "phi_" NAME
 level:          "^N" LEVEL*
 
 typed:          "::" TYPE
@@ -72,6 +70,7 @@ pred:           "/" PRED "/"
 
 // Psi functions for vertices
 psis:           NAME "=" NAME
+phis:           NAME "=" NAME
 
 
 // Terminals
