@@ -17,9 +17,9 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
 
             for vtx in _vertex.simplex:
                 # vtx_hs = Hn.hypernetwork[strip_special(vtx)]
-                vtx_hs = Hn.hypernetwork[vtx]
+                # vtx_hs = Hn.hypernetwork[vtx]
                 vtx_port = ""
-                vtx_lbl = ""
+                # vtx_lbl = ""
 
                 # if is_sequence(vtx):
                 #     vtx_lbl = "*" + vtx

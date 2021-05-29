@@ -54,13 +54,13 @@ def compile_hn(Hn, parser, hs_string):
                 if "WHERE" in at:
                     at = {"WHERE": [{"R": r}, at["WHERE"][0] if len(at["WHERE"]) == 1 else at["WHERE"]]}
 
-                # if isinstance(at, dict):
-                #     if "IMMUTABLE_ALPHA" in at:
-                #         res.append({"ALPHA": [at]})
-                #     else:
-                #         res.append(at)
-                # else:
-                res.append({"ALPHA": at})
+                if isinstance(at, dict):
+                    if "IMMUTABLE_ALPHA" in at:
+                        res.append({"ALPHA": [at]})
+                    else:
+                        res.append(at)
+                else:
+                    res.append({"ALPHA": at})
 
             return res
 
@@ -128,7 +128,6 @@ def compile_hn(Hn, parser, hs_string):
         def level(self, *tokens):
             if len(tokens) == 0:
                 return {'N': "N"}
-
             return {'N': "N" + "".join(tokens)}
 
         def psi(self, token):
