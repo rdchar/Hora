@@ -64,7 +64,7 @@ def gen_simplical_complex(hn, level=None, inc_parent_links=False, parent_links_o
                     edges.append((v1, v2))
 
     sc.add_edges_from(edges)
-    sc.remove_edges_from(sc.selfloop_edges())
+    # sc.remove_edges_from(sc.selfloop_edges())
 
     return parents, list(children), sc
 

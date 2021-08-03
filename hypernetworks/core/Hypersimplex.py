@@ -348,8 +348,7 @@ class Hypersimplex:
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
                 bres += ("; C(" + ", ".join(str(c) for c in self.C) + ")") if self.C else ""
                 bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
-                bres += ">"
-                bres += ("^" + self.N) if self.N else ""
+                bres += ">" + (("^" + self.N) if self.N else "")
 
             elif self.hstype == BETA:
                 bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""

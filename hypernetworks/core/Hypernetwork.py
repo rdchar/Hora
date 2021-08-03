@@ -6,7 +6,8 @@ from networkx import intersection
 from hypernetworks.core.Colouring import Colouring
 from hypernetworks.core.Traffic import Traffic
 from hypernetworks.utils.HTSearch import bottom_up
-from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInsertError
+from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInsertError, HnRMissMatch, \
+    HnTypeOrSimplexSizeMismatch
 from hypernetworks.core.HTTypes import Types
 from hypernetworks.core.Hypersimplex import NONE, VERTEX, Hypersimplex, BETA, ALPHA, str_to_hstype, PROPERTY,\
     IMMUTABLE_ALPHA
@@ -223,71 +224,7 @@ class Hypernetwork:
                     #     self._hypernetwork[v].partOf.remove(vertex)
         # End _remove_cyclic
 
-        if simplex is None:
-            simplex = []
-
-        if partOf is None:
-            partOf = set()
-
-        if vertex in self.hypernetwork:
-            if self.hypernetwork[vertex].hstype == BETA and self.hypernetwork[vertex].simplex != simplex and simplex:
-                # Add to BETA
-                if hstype == BETA:
-                    self.hypernetwork[vertex].simplex = \
-                        list(sorted(set(self.hypernetwork[vertex].simplex).union(set(simplex))))
-                    return
-
-                elif hstype in [ALPHA, VERTEX, PROPERTY, IMMUTABLE_ALPHA]:
-                    new_vertex = vertex + "@" + str(len(self.hypernetwork[vertex].simplex) + 1)
-                    partOf.add(vertex)
-                    self.hypernetwork[vertex].simplex.append(new_vertex)
-                    vertex = new_vertex
-
-                else:
-                    print("SOMETHING WENT WRONG!!")
-
-            elif self.hypernetwork[vertex].hstype in [ALPHA, IMMUTABLE_ALPHA]:
-                # Create a new BETA, move the simplex to a partOf the new BETA
-                if hstype not in [VERTEX, PROPERTY] and \
-                        condense_all_specials(simplex) != self.hypernetwork[vertex].simplex:
-                    self._handleHsUnionDups(vertex=vertex, hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N,
-                                            psi=psi, phi=phi, partOf=partOf, traffic=traffic, coloured=coloured)
-
-                else:
-                    # TODO why did I include the following?
-                    partOf.add(vertex)
-
-        # If the simplex of type hsTyoe is found then
-        #   replace the new details and all references
-        if simplex:
-            if vertex or vertex != "":
-                search = self.search(hstype=hstype, vertex=vertex, simplex=simplex)
-
-            else:
-                search = self.search(hstype=hstype, simplex=simplex)
-
-        else:
-            search = self.search(hstype=hstype, vertex=vertex)
-
-        if vertex == "" or not vertex:
-            if hstype not in [PROPERTY]:
-                vertex = "@Hs_{}@".format(self._counter)
-                self._counter += 1
-
-        if search:
-            for v in search:
-                if v[:4] == "@Hs_":
-                    # self._hypernetwork[v].simplex = [v if x == v else x for x in self._hypernetwork[v].simplex]
-                    self._hypernetwork[v].simplex = [x for x in self._hypernetwork[v].simplex]
-                    self._hypernetwork[v].vertex = v
-                    self._counter -= 1
-                    vertex = v
-
-                self._hypernetwork[vertex].update(R=R, t=t, C=C, B=B, N=N, psi=psi, phi=phi,
-                                                  traffic=traffic, coloured=coloured)
-
-        else:
-            # TODO added this to union the partOf, not sure if it is correct, needs testing
+        def _insert(partOf={}):
             if vertex in self._hypernetwork:
                 if hstype == BETA:
                     partOf = partOf.union(self._hypernetwork[vertex].partOf)
@@ -321,6 +258,112 @@ class Hypernetwork:
 
                 else:
                     self.add(vertex=v, hstype=VERTEX, partOf={vertex}, B=B, traffic=traffic, coloured=coloured)
+        # End _insert
+
+        if simplex is None:
+            simplex = []
+
+        if partOf is None:
+            partOf = set()
+
+        R_comparision = True
+
+        if vertex in self.hypernetwork:
+            if R and self._hypernetwork[vertex].R.name:
+                R_comparision = R == self._hypernetwork[vertex].R.name
+
+            # TODO new rules that need testing
+            if self.hypernetwork[vertex].hstype in [ALPHA, IMMUTABLE_ALPHA] \
+                    and self.hypernetwork[vertex].hstype == hstype:
+
+                if len(self.hypernetwork[vertex].simplex) != len(simplex):
+                    raise HnRMissMatch
+
+                if not R_comparision:
+                    raise HnRMissMatch
+
+                if self.hypernetwork[vertex].simplex != simplex:
+                    raise HnRMissMatch
+
+            if self.hypernetwork[vertex].hstype == BETA \
+                    and self.hypernetwork[vertex].simplex != simplex and simplex:
+                # Add to BETA
+                if hstype == BETA:
+                    if not R_comparision:
+                        raise HnRMissMatch
+
+                    self.hypernetwork[vertex].simplex = \
+                        list(sorted(set(self.hypernetwork[vertex].simplex).union(set(simplex))))
+
+                    _insert(partOf)
+                    return
+
+                elif hstype in [ALPHA, VERTEX, PROPERTY, IMMUTABLE_ALPHA]:
+                    print("HELLO 2")
+                    new_vertex = vertex + "@" + str(len(self.hypernetwork[vertex].simplex) + 1)
+                    partOf.add(vertex)
+                    self.hypernetwork[vertex].simplex.append(new_vertex)
+                    vertex = new_vertex
+
+                else:
+                    print("SOMETHING WENT WRONG!!")
+
+            elif self.hypernetwork[vertex].hstype in [ALPHA, IMMUTABLE_ALPHA]:
+                # Create a new BETA, move the simplex to a partOf the new BETA
+                if hstype not in [VERTEX, PROPERTY] and simplex != self.hypernetwork[vertex].simplex:
+                    self._handleHsUnionDups(vertex=vertex, hstype=hstype, simplex=simplex, R=R, t=t, C=C, B=B, N=N,
+                                            psi=psi, phi=phi, partOf=partOf, traffic=traffic, coloured=coloured)
+
+                else:
+                    # TODO why did I include the following?
+                    partOf.add(vertex)
+
+        if R:
+            search = self.search(hstype=hstype, R=R)
+            if search:
+                if hstype in [ALPHA, IMMUTABLE_ALPHA]:
+                    for v in search:
+                        if hstype != self._hypernetwork[v].hstype or \
+                                len(simplex) != len(self._hypernetwork[v].simplex):
+                            raise HnTypeOrSimplexSizeMismatch
+
+                elif hstype in [BETA]:
+                    for v in search:
+                        if hstype != self._hypernetwork[v].hstype:
+                            raise HnTypeOrSimplexSizeMismatch
+
+        # If the simplex of type hsTyoe is found then
+        #   replace the new details and all references
+        if simplex:
+            if vertex or vertex != "":
+                search = self.search(hstype=hstype, vertex=vertex, simplex=simplex)
+
+            else:
+                search = self.search(hstype=hstype, simplex=simplex)
+
+        else:
+            search = self.search(hstype=hstype, vertex=vertex)
+
+        if vertex == "" or not vertex:
+            if hstype not in [PROPERTY]:
+                vertex = "@Hs_{}@".format(self._counter)
+                self._counter += 1
+
+        if search:
+            for v in search:
+                if v[:4] == "@Hs_" and R_comparision:
+                    # self._hypernetwork[v].simplex = [v if x == v else x for x in self._hypernetwork[v].simplex]
+                    self._hypernetwork[v].simplex = [x for x in self._hypernetwork[v].simplex]
+                    self._hypernetwork[v].vertex = v
+                    self._counter -= 1
+                    vertex = v
+
+                self._hypernetwork[vertex].update(R=R, t=t, C=C, B=B, N=N, psi=psi, phi=phi,
+                                                  traffic=traffic, coloured=coloured)
+
+        else:
+            # TODO added this to union the partOf, not sure if it is correct, needs testing
+            _insert(partOf)  # TODO this is new and not fully tested
 
         for v in simplex:
             if isinstance(v, dict):

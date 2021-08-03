@@ -31,3 +31,11 @@ class HnImmutableType(HnErrors):
 
 class HnParseError(HnErrors):
     pass
+
+
+class HnRMissMatch(HnErrors):
+    pass
+
+
+class HnTypeOrSimplexSizeMismatch(HnErrors):
+    pass

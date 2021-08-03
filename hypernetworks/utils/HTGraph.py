@@ -60,7 +60,6 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
 
             v = "{" + _vertex.vertex \
                 + (("; t_" + str(_vertex.t)) if show_time and _vertex.t > -1 else "") \
-                + (("; " + _vertex.N) if show_level and _vertex.N != "" else "") \
                 + (("|R" + ("" if _vertex.R.name == " " else ("_" + _vertex.R.name)))
                    if show_rel and _vertex.R.name != "" else "") \
                 + "|{" + label + "}}"
