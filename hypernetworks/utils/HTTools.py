@@ -125,3 +125,35 @@ def get_sb_vertices(hn, *vertices):
                 sb_vertices.update({s: set([vertex])})
 
     return sb_vertices
+
+
+def get_subHn_by_semantic_boundary(hn, semantic_boundary, subHn):
+    def _insert(_name, _hs):
+        subHn.insert(vertex=_name, hstype=_hs.hstype, simplex=_hs.simplex,
+                     R=_hs.R, t=_hs.t, C=_hs.C, B=_hs.B, N=_hs.N,
+                     psi=_hs.psi, phi=_hs.phi, traffic=_hs.traffic, coloured=_hs.coloured)
+
+        temp_phis.add(_hs.phi)
+        temp_psis.add(_hs.psi)
+
+    temp_phis = set()
+    temp_psis = set()
+
+    for name in hn.hypernetwork:
+        hs = hn.hypernetwork[name]
+        if semantic_boundary in hs.B:
+            _insert(name, hs)
+
+            for vertex in hs.simplex:
+                v_hs = hn.hypernetwork[vertex]
+                _insert(vertex, v_hs)
+
+    for phi in temp_phis:
+        if phi:
+            subHn.phis[phi] = hn.phis[phi]
+
+    for psi in temp_psis:
+        if psi:
+            subHn.phis[psi] = hn.phis[psi]
+
+    return subHn

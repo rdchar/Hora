@@ -1,3 +1,7 @@
+import logging
+# Create the Logger
+loggers = logging.getLogger(__name__)
+
 __all__ = ["Hypernetwork",
            "Hypersimplex",
            "HTUtils",
@@ -7,3 +11,4 @@ __all__ = ["Hypernetwork",
            "HTMeronymy",
            "HTRelations",
            "HTTypes"]
+

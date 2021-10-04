@@ -40,6 +40,9 @@ class HsRelation:
         # self._content = "" if content else content
         self._reltype = reltype
 
+    def _updateR(self, R):
+        return HsRelation(R, reltype=R_BASIC) if isinstance(R, str) else R
+
     @property
     def reltype(self):
         return self._reltype
@@ -150,14 +153,11 @@ class Hypersimplex:
 
     @property
     def R(self):
-        # if self._R.reltype == BASIC:
-        #     return self._R.name
         return self._R
 
     @R.setter
     def R(self, value):
-        self._R = HsRelation(value, reltype=R_BASIC) if isinstance(value, str) else value
-        # self._R = HsRelation(value, reltype=BASIC, content=value) if isinstance(value, str) else value
+        self._R = self.R._updateR(value)
 
     @property
     def partOf(self):
@@ -189,7 +189,7 @@ class Hypersimplex:
 
     @B.setter
     def B(self, value):
-        self._B = value
+        self._B = self._B.union(value)
 
     @property
     def other(self):
@@ -270,7 +270,7 @@ class Hypersimplex:
             self.simplex = new_simplex
 
         if R:
-            self.R = R
+            self.R = self.R._updateR(R)
 
         if t >= 0:
             self.t = t
@@ -279,7 +279,7 @@ class Hypersimplex:
             self.C = C
 
         if B:
-            self.B = B
+            self.B = self.B.union(B)
 
         if other:
             self.other = other
@@ -299,11 +299,11 @@ class Hypersimplex:
             else:
                 self._partOf.union(partOf)
 
-        if not traffic == None:
-            self._traffic = traffic
+        if traffic is not None:
+            self._traffic = self._hypernetwork.traffic_upsert(self._traffic, traffic)
 
-        if not coloured == None:
-            self._coloured = coloured
+        if coloured is not None:
+            self._coloured = self._hypernetwork.coloured_upsert(self._coloured, coloured)
 
     def _dump(self):
         return "vertex: " + str(self.vertex) \
@@ -347,7 +347,7 @@ class Hypersimplex:
                 bres += ("; psi_" + str(self.psi)) if self.psi else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
                 bres += ("; C(" + ", ".join(str(c) for c in self.C) + ")") if self.C else ""
-                bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
+                bres += ("; B(" + ", ".join(self.B) + ")") if self.B != set() else ""
                 bres += ">" + (("^" + self.N) if self.N else "")
 
             elif self.hstype == BETA:

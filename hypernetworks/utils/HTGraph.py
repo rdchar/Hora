@@ -1,11 +1,18 @@
 import logging as log
+import re
+import textwrap
+
 from graphviz import Graph
 from hypernetworks.core.Hypersimplex import ALPHA, BETA, VERTEX, PROPERTY
 
 
+def split_camelcase(word, max):
+    split = " ".join(re.sub('([A-Z][a-z]+)', r' \1', re.sub('([A-Z]+)', r' \1', word)).split())
+    return textwrap.fill(split, max)
+
+
 def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show_level=False,
             show_time=False, view=True, fname="/tmp/Hn"):
-
     class temp:
         clusters = {}
         dot = Graph("Hn", strict=True)
@@ -16,22 +23,9 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
             first = True
 
             for vtx in _vertex.simplex:
-                # vtx_hs = Hn.hypernetwork[strip_special(vtx)]
-                # vtx_hs = Hn.hypernetwork[vtx]
                 vtx_port = ""
-                # vtx_lbl = ""
+                vtx_lbl = split_camelcase(vtx, 16)
 
-                # if is_sequence(vtx):
-                #     vtx_lbl = "*" + vtx
-                #     vtx_port = vtx
-                # if vtx_hs.is_immutable():
-                #     vtx_lbl = "!" + vtx
-                #     vtx_port = vtx
-                # elif vtx_hs.is_mandatory():
-                #     vtx_lbl = "[" + vtx + "]"
-                #     vtx_port = vtx
-                # else:
-                vtx_lbl = vtx
                 if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
                     vtx_port = vtx
 
@@ -58,46 +52,42 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
             elif _vertex.hstype == BETA:
                 temp.dot.attr('node', style='rounded', shape='record')
 
-            v = "{" + _vertex.vertex \
+            v = "{" + split_camelcase(_vertex.vertex, 15) \
                 + (("; t_" + str(_vertex.t)) if show_time and _vertex.t > -1 else "") \
-                + (("|R" + ("" if _vertex.R.name == " " else ("_" + _vertex.R.name)))
+                + (("|R" + ("" if _vertex.R.name == " " else ("_" + _vertex.R.name))
+                   + ("" if not _vertex.B else ("\\nB(" + ", ".join(_vertex.B) + ")")))
                    if show_rel and _vertex.R.name != "" else "") \
                 + "|{" + label + "}}"
 
             if show_level and _vertex.N:
-                temp.dot.node(_vertex.vertex, v)
+                temp.dot.node(name=_vertex.vertex, label=v)
 
                 if _vertex.N in temp.clusters.keys():
                     temp.clusters[_vertex.N].append(_vertex.vertex)
                 else:
                     temp.clusters.update({_vertex.N: [_vertex.vertex]})
             else:
-                temp.dot.node(_vertex.vertex, v)
+                temp.dot.node(name=_vertex.vertex, label=v)
 
         elif _vertex.hstype == VERTEX:
             temp.dot.attr('node', shape="ellipse")
-            temp.dot.node(_vertex.vertex, _vertex.vertex)
+            temp.dot.node(name=_vertex.vertex, label=split_camelcase(_vertex.vertex, 15))
 
             if show_level:
                 if "Soup" in temp.clusters.keys():
                     temp.clusters["Soup"].append(_vertex.vertex)
                 else:
                     temp.clusters.update({"Soup": [_vertex.vertex]})
-
     # End _add_nodes
 
     def _add_edges(_vertex):
         for vtx in _vertex.simplex:
-            # vtx_hs = Hn.hypernetwork[strip_special(vtx)]
             vtx_hs = Hn.hypernetwork[vtx]
             vtx_port = ""
 
-            # if is_sequence(vtx):
-            #     vtx_port = vtx
             if vtx_hs.is_immutable():
                 vtx_port = vtx
-            # elif vtx_hs.is_mandatory():
-            #     vtx_port = vtx
+
             else:
                 if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
                     vtx_port = vtx
@@ -154,11 +144,13 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
                 last_cluster_name = cluster_name
 
         cluster_name = "Soup"
+
         with temp.dot.subgraph(name=cluster_name) as sg:
             sg.node(cluster_name, shape="plaintext", fontsize="16")
             sg.attr(label=cluster_name, rank="same", ratio="fill")
             for v in temp.clusters[cluster_name]:
                 sg.node(v)
+
         temp.dot.edge(last_cluster_name, cluster_name)
 
     if direction:
@@ -166,6 +158,7 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
 
     temp.dot.format = 'png'
     temp.dot.render(fname, view=view)
+
     log.debug("... complete")
 
     return temp.dot.source

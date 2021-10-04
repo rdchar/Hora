@@ -1,3 +1,7 @@
+# Create the Logger
+import logging
+loggers = logging.getLogger(__name__)
+
 __all__ = ["HTAlgebra",
            "HTInOut",
            "HTMatrix",
