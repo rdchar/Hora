@@ -5,6 +5,7 @@ import numpy as np
 
 # TODO need to manage the decorators.
 from hypernetworks.core.HTErrors import HnSearchError, HnVertexNoFound
+from hypernetworks.core.Hypernetwork import Hypernetwork
 from hypernetworks.core.Hypersimplex import VERTEX, ALPHA, BETA
 
 
@@ -109,7 +110,7 @@ def to_matrix(Hn, vertex="", R=""):
     return M
 
 
-def from_matrix(Hn, M, vertex="", R="", replace=True):
+def from_matrix(M, vertex="", R="", replace=True):
     """
     :type M: numpy.ndarray
     """
@@ -147,7 +148,8 @@ def from_matrix(Hn, M, vertex="", R="", replace=True):
                         if isinstance(m[0], str):
                             temp.append(m[0])
                         else:
-                            temp.append([x for x in m[0]])
+                            temp.append([{"ALPHA": [x for x in m[0]]}])
+                            # temp.append([x for x in m[0]])
                     else:
                         temp.append([_from_matrix(np.array(m).T)])
 
@@ -167,6 +169,7 @@ def from_matrix(Hn, M, vertex="", R="", replace=True):
         return res
     # End _from_matrix
 
+    hn = Hypernetwork()
     temp = [_from_matrix(np.array(M).T)]
 
     if R:
@@ -174,7 +177,7 @@ def from_matrix(Hn, M, vertex="", R="", replace=True):
 
     if replace:
         try:
-            Hn.delete(vertex=vertex, R=R)
+            hn.delete(vertex=vertex, R=R)
 
         except HnVertexNoFound:
             print("Not found: " + R + " " + vertex)
@@ -183,7 +186,9 @@ def from_matrix(Hn, M, vertex="", R="", replace=True):
     if vertex:
         temp = [{"VAL": vertex}, temp[0] if isinstance(temp[0], list) else temp]
 
-    Hn.parse(temp)
+    hn.parse(temp)
+
+    return hn
 
 
 def matrix_to_string(M, vertex="", R=""):
@@ -376,45 +381,45 @@ def _split_into_unique(_M):
     # Dedup to force an ALPHA
     #   If the count of each vertex is equal for each column in the matrix,
     #   then it should be an Alpha.
-    alpha = False
-    for r in np.array(_res).T:
-        if isinstance(r, list):
-            break
-
-        (x, y) = r.shape
-        r = r.reshape((1, x * y))
-        vals = np.array(np.unique(r[0], return_counts=True))
-        count = np.unique(vals[1])
-
-        if len(count) != 1:
-            break
-        # The number of elements in the original matrix should be
-        # = to the count of the vertex in the flattened matrix.
-        alpha = int(list(count)[0]) == y
-
-        if not alpha:
-            break
-
-    if alpha:
-        _temp = []
-        oldlen = -1
-
-        for r1 in np.array(_res).T:
-            for r2 in r1:
-                x = np.unique(r2).tolist()
-
-                if _temp:
-                    for t in _temp:
-                        if oldlen == -1 or oldlen == len(t):
-                            oldlen = len(t)
-
-                            if x not in _temp:
-                                _temp.append(x)
-
-                else:
-                    _temp.append(x)
-
-        _res = [_temp]
+    # alpha = False
+    # for r in np.array(_res).T:
+    #     if isinstance(r, list):
+    #         break
+    #
+    #     (x, y) = r.shape
+    #     r = r.reshape((1, x * y))
+    #     vals = np.array(np.unique(r[0], return_counts=True))
+    #     count = np.unique(vals[1])
+    #
+    #     if len(count) != 1:
+    #         break
+    #     # The number of elements in the original matrix should be
+    #     # = to the count of the vertex in the flattened matrix.
+    #     alpha = int(list(count)[0]) == y
+    #
+    #     if not alpha:
+    #         break
+    #
+    # if alpha:
+    #     _temp = []
+    #     oldlen = -1
+    #
+    #     for r1 in np.array(_res).T:
+    #         for r2 in r1:
+    #             x = np.unique(r2).tolist()
+    #
+    #             if _temp:
+    #                 for t in _temp:
+    #                     if oldlen == -1 or oldlen == len(t):
+    #                         oldlen = len(t)
+    #
+    #                         if x not in _temp:
+    #                             _temp.append(x)
+    #
+    #             else:
+    #                 _temp.append(x)
+    #
+    #     _res = [_temp]
         # TODO: END FUDGE!
 
-    return np.array(_res)
+    return np.array(_res, dtype=object)

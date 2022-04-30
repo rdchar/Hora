@@ -1,6 +1,10 @@
 # Relation Types
 import copy
 
+HS_STANDARD = 0
+HS_HYPER_PN = 1
+HS_ACTIVITY = 2
+
 R_BASIC = 0
 LOGIC = 1
 ANN = 2
@@ -13,17 +17,20 @@ VERTEX = 0
 ALPHA = 1
 BETA = 2
 PROPERTY = 3
-IMMUTABLE_ALPHA = 4
+UNION_ALPHA = 4
+IMMUTABLE_ALPHA = 5
+SEQUENCE = 6
 
 # Special types
 NONE = -1
-IMMUTABLE = 0
+UNION = 1
+IMMUTABLE = 2
 
-HS_TYPE = ['NONE', 'VERTEX', 'ALPHA', 'BETA', 'PROPERTY', 'IMMUTABLE_ALPHA']
+HS_TYPE = ['NONE', 'VERTEX', 'ALPHA', 'BETA', 'PROPERTY', 'UNION_ALPHA', 'IMMUTABLE_ALPHA', 'SEQUENCE']
 hstype_to_str = lambda x: HS_TYPE[x + 1]
 str_to_hstype = lambda x: HS_TYPE.index(x) - 1
 
-SPECIAL_TYPE = ['NONE', 'IMMUTABLE']
+SPECIAL_TYPE = ['NONE', 'UNION', 'IMMUTABLE']
 special_to_str = lambda x: SPECIAL_TYPE[x + 1]
 str_to_special = lambda x: SPECIAL_TYPE.index(x) - 1
 
@@ -59,13 +66,12 @@ class HsRelation:
     def name(self, value):
         self._name = value
 
-    # @property
-    # def content(self):
-    #     return self._content
-    #
-    # @content.setter
-    # def content(self, _content):
-    #     self._content = _content
+    def is_equal(self, value):
+        # if not value:
+        #     return False
+        # if isinstance(value, str):
+        #     return self._name == value
+        return self._name == value._name
 
 
 class HsVertex:
@@ -91,10 +97,11 @@ class HsVertex:
 
 
 class Hypersimplex:
-    def __init__(self, _hn, vertex, hstype=VERTEX, simplex=None, R="", t=-1, C=None,
-                 B=None, N="", psi="", phi="", partOf=None, traffic=None, coloured=None):
+    def __init__(self, _hn, vertex, hs_class=HS_STANDARD, hstype=VERTEX, simplex=None, R="", t=-1, C=None,
+                 B=None, N="", psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
 
         self._hypernetwork = _hn
+        self._hs_class = hs_class
         self._simplex = []
         self._special = None
 
@@ -119,9 +126,23 @@ class Hypersimplex:
         self._other = []
         self._N = N
         self._psi = psi
+        self._psi_inv = psi_inv
         self._phi = phi
+        self._phi_inv = phi_inv
         self._traffic = traffic
         self._coloured = coloured
+
+    def _traffic_upsert(self, existing, new):
+        return new
+
+    def _coloured_upsert(self, existing, new):
+        return new
+
+    def _union_coloured(self, new):
+        return new
+
+    def _union_traffic(self, new):
+        return new
 
     @property
     def vertex(self):
@@ -134,6 +155,14 @@ class Hypersimplex:
             self._vertex.type = _vertex.type
         else:
             self._vertex.vertex = _vertex
+
+    @property
+    def hs_class(self):
+        return self._hs_class
+
+    @hs_class.setter
+    def hs_class(self, value):
+        self._hs_class = value
 
     @property
     def hstype(self):
@@ -216,12 +245,28 @@ class Hypersimplex:
         self._psi = value
 
     @property
+    def psi_inv(self):
+        return self._psi_inv
+
+    @psi_inv.setter
+    def psi_inv(self, value):
+        self._psi_inv = value
+
+    @property
     def phi(self):
         return self._phi
 
     @phi.setter
     def phi(self, value):
         self._phi = value
+
+    @property
+    def phi_inv(self):
+        return self._phi_inv
+
+    @phi_inv.setter
+    def phi_inv(self, value):
+        self._phi_inv = value
 
     @property
     def traffic(self):
@@ -254,11 +299,22 @@ class Hypersimplex:
     # def is_mandatory(self):
     #     return self._special == MANDATORY
 
+    def is_union(self):
+        return self._special == UNION
+
     def is_immutable(self):
         return self._special == IMMUTABLE
 
-    def update(self, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, other=None, N="",
-               psi="", phi="", partOf=None, traffic=None, coloured=None):
+    def update(self, vertex="", hs_class=HS_STANDARD, hstype=NONE, simplex=None,
+               R="", t=-1, C=None, B=None, other=None, N="",
+               psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
+
+        if vertex:
+            self.vertex = vertex
+
+        if hs_class != self._hs_class:
+            self._hs_class = hs_class
+
         if hstype != NONE:
             self.hstype = hstype
 
@@ -290,8 +346,14 @@ class Hypersimplex:
         if psi != "":
             self.psi = psi
 
+        if psi_inv != "":
+            self.psi_inv = psi_inv
+
         if phi:
             self.phi = phi
+
+        if phi_inv:
+            self.phi_inv = phi_inv
 
         if partOf:
             if None in self._partOf:
@@ -300,10 +362,78 @@ class Hypersimplex:
                 self._partOf.union(partOf)
 
         if traffic is not None:
-            self._traffic = self._hypernetwork.traffic_upsert(self._traffic, traffic)
+            self._traffic = self._traffic_upsert(self._traffic, traffic)
 
         if coloured is not None:
-            self._coloured = self._hypernetwork.coloured_upsert(self._coloured, coloured)
+            self._coloured = self._coloured_upsert(self._coloured, coloured)
+
+    def _handle_Hs_union_dups(self, dup=False, hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="",
+                              psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
+
+        if dup:
+            self._hypernetwork._add(vertex=self.vertex + "@1", hs_class=self.hs_class, hstype=self.hstype,
+                                    simplex=self.simplex, R=self.R, t=self.t, C=self.C, B=self.B, N=self.N,
+                                    psi=self.psi, psi_inv=self.psi_inv, phi=self.phi, phi_inv=self.phi_inv,
+                                    partOf=self.partOf.union({self.vertex}),
+                                    traffic=self.traffic, coloured=self.coloured)
+
+            self._hypernetwork._add(vertex=self.vertex + "@2", hs_class=hs_class, hstype=hstype, simplex=simplex,
+                                    R=R, t=t, C=C, B=B, N=N, psi=psi, psi_inv=psi_inv, phi=phi, phi_inv=phi_inv,
+                                    partOf=partOf.union({self.vertex}),
+                                    traffic=traffic, coloured=coloured)
+            # self._hypernetwork.hypernetwork.pop(self.vertex, None)
+
+            self.hstype = ALPHA
+            self.simplex = [self.vertex + "@1", self.vertex + "@2"]
+            if self.vertex in self.partOf:
+                self.partOf.remove(self.vertex)
+
+            return self.vertex + "@2"
+
+        return self.vertex
+
+    def _validate_alpha_R(self, simplex, R, R_comparision):
+        if len(self.simplex) != len(simplex):
+            return False
+
+        if not R_comparision and self.R.reltype == R_BASIC:
+            # logging.warn("%s - R=%s == %s", vertex, R, self._hypernetwork[vertex].R.name)
+            return False
+
+        if self.simplex != simplex:
+            # logging.warn("%s", vertex)
+            return False
+
+        return True
+
+    def _handle_alpha_diff_R(self, simplex=None, R=""):
+        return simplex, R
+
+    def _handle_hs_expansion(self, simplex=None, R=""):
+        if (isinstance(R, str) and R == self.R.name) or (not isinstance(R, str) and R.name == self.R.name):
+            # This finds the ordered list of common vertices in the simplex.
+            test_simplex = [i for i, j in zip(simplex, self.simplex) if i == j]
+
+            if self.simplex == test_simplex:
+                self.simplex = simplex
+
+            elif simplex == test_simplex:
+                simplex = self.simplex
+
+            self.R = R
+
+        return simplex, R
+
+    def _handle_alpha_union(self, hstype=ALPHA, simplex=None, R=""):
+        if (isinstance(R, str) and R == self.R.name) or (not isinstance(R, str) and R.name == self.R.name):
+            self.R = R
+            for vert in simplex:
+                if vert not in self.simplex:
+                    self.simplex.append(vert)
+
+            simplex = self.simplex
+
+        return hstype, simplex, R
 
     def _dump(self):
         return "vertex: " + str(self.vertex) \
@@ -322,7 +452,7 @@ class Hypersimplex:
         bres = ""
 
         if self.simplex:
-            if self.hstype == ALPHA:
+            if self.hstype in [ALPHA, UNION_ALPHA]:
                 bres = "<"
             elif self.hstype == BETA:
                 bres = "{"
@@ -342,7 +472,7 @@ class Hypersimplex:
 
             bres += ", ".join(new_simplex)
 
-            if self.hstype == ALPHA:
+            if self.hstype in [ALPHA, UNION_ALPHA]:
                 bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
                 bres += ("; psi_" + str(self.psi)) if self.psi else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""

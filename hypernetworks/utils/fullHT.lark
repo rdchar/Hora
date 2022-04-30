@@ -1,30 +1,43 @@
 ?start:         "hn:"? (assign? hn)* ("lambdas:" lambdas+)? ("psis:" psis+)? ("phis:" phis+)?
 
 hn:             hs
-              | "(" hn ")"
+//              | "(" hn ")"
 
 hs:             alpha
+              | union_alpha
               | immutable_alpha
+              | not_alpha
               | beta
+              | not_beta
               | empty_alpha
               | empty_beta
               | relation
 
+union_alpha:    "U" alpha
 immutable_alpha: "!" alpha
-alpha:          "<" a_simplex r? time? coordinate? boundary? psi? phi? where? ">" level?
-beta:           "{" b_simplex r? time? boundary? "}" level?
+not_alpha:      "&" alpha  // sould be '¬' option-L
+not_beta:       "&" beta
+alpha:          "<" a_simplex r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
+beta:           "{" b_simplex r? time? boundary? psi? psi_inv? phi? phi_inv? "}" level?
 empty_alpha:    "<>"
 empty_beta:     "{}"
 
 ?a_simplex:     a_vertex ("," a_vertex)*
 ?a_vertex:      vertex
+              | not_vertex
+              | sequence
               | WILDCARD
 
-?b_simplex:     vertex ("," vertex)*
+?b_simplex:     vertex ("," (vertex | not_vertex))*
 
-vertex:         (NAME | property | assign? hs) typed?
+not_vertex:     "¬" vertex
+vertex:         (NAME | property | not_property | assign? hs | assign sequence) typed?
+
+not_property:   "¬~" NAME
 property:       "~" NAME
 immutable:      "!" NAME "="
+sequence:       "(" vertex ("," vertex)* ")"
+empty_sequence: "()"
 
 assign:         NAME "="
 
@@ -34,6 +47,8 @@ coordinate:     ";" "C(" X ("," Y ("," Z)?)? ")"
 boundary:       ";" "B(" NAME ("," NAME)* ")"
 psi:            ";" "psi_" NAME
 phi:            ";" "phi_" NAME
+psi_inv:        ";" "psi-inv_" NAME
+phi_inv:        ";" "phi-inv_" NAME
 level:          "^N" LEVEL*
 
 typed:          "::" TYPE
@@ -42,7 +57,6 @@ vname:          "v_" NUMBER
 rname:          NAME
 
 neg:            "-" hn      // minus == add hn neg hn
-
 
 // Lambda functions for R
 lambdas:        assign lambda_expr ";"
@@ -74,7 +88,7 @@ phis:           NAME "=" NAME
 
 
 // Terminals
-NAME:           "-" | DECIMAL | (LETTER | DIGIT | "-" | "_" | "^" | "." | "&" | ":")+
+NAME:           "-" | DECIMAL | (LETTER | DIGIT | "-" | "_" | "^" | "." | "&" | ":" | "+")+
 NUMBER:         DIGIT+
 DECIMAL:        DIGIT+ "." DIGIT+
 TYPE:           NAME
@@ -85,6 +99,7 @@ WILDCARD:       "*"
 X:              DIGIT+
 Y:              DIGIT+
 Z:              DIGIT+
+NOT:            "¬"
 
 
 logic_and:      "\/\\" | "AND"

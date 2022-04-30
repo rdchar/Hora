@@ -60,15 +60,45 @@ def compile_hn(Hn, parser, hs_string):
                     else:
                         res.append(at)
                 else:
-                    res.append({"ALPHA": at})
+                    if len(at) == 1 and isinstance(at[0], dict):
+                        # TODO needs more work
+                        if "SEQUENCE" in at[0]:
+                            res.append({"ALPHA": [at]})
+                        elif "PROPERTY" in at[0]:
+                            res.append({"ALPHA": [at]})
+                        else:
+                            res.append({"ALPHA": [at]})
+                    else:
+                        res.append({"ALPHA": at})
 
             return res
 
         def beta(self, *tokens):
             return [bt if isinstance(bt, dict) else {"BETA": bt} for bt in tokens]
 
+        def union_alpha(self, *tokens):
+            new_tokens = {}
+            for token in tokens[0]:
+                for k, v in token.items():
+                    if k == "ALPHA":
+                        new_tokens.update({"UNION_ALPHA": v})
+                    else:
+                        new_tokens.update({k: v})
+
+            return [new_tokens]
+            # return {"UNION_ALPHA": tokens[0][0]["ALPHA"]}  # TODO Seems a bit of a hack
+
         def immutable_alpha(self, *tokens):
-            return {"IMMUTABLE_ALPHA": tokens[0][0]["ALPHA"]}  # TODO Seems a bit of a hack
+            new_tokens = {}
+            for token in tokens[0]:
+                for k, v in token.items():
+                    if k == "ALPHA":
+                        new_tokens.update({"IMMUTABLE_ALPHA": v})
+                    else:
+                        new_tokens.update({k: v})
+
+            return [new_tokens]
+            # return {"IMMUTABLE_ALPHA": tokens[0][0]["ALPHA"]}  # TODO Seems a bit of a hack
 
         def a_simplex(self, *tokens):
             return [e for e in tokens]
@@ -101,14 +131,40 @@ def compile_hn(Hn, parser, hs_string):
         def empty_beta(self):
             return {"EMPTY_BETA": set()}
 
-        def sequence(self, token):
-            return {"SEQ": str(token)}
+        def sequence(self, *tokens):
+            return [{"SEQUENCE": [bt for bt in tokens]}]
 
         # def immutable(self, token):
         #     return {"IMMUTABLE_ALPHA": str(token)}
 
         def property(self, token):
             return {"PROPERTY": str(token)}
+
+        def not_vertex(self, *tokens):
+            # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
+            return self.vertex(tokens)
+
+        def not_alpha(self, *tokens):
+            # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
+            new_tokens = {}
+            for token in tokens[0]:
+                for k, v in token.items():
+                    new_tokens.update({k: v})
+
+            return [new_tokens]
+
+        def not_beta(self, *tokens):
+            # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
+            new_tokens = {}
+            for token in tokens[0]:
+                for k, v in token.items():
+                    new_tokens.update({k: v})
+
+            return [new_tokens]
+
+        def not_property(self, token):
+            # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
+            return self.property(token)
 
         def r(self, *tokens):
             if len(tokens) == 0:
@@ -133,8 +189,14 @@ def compile_hn(Hn, parser, hs_string):
         def psi(self, token):
             return {'psi': str(token)}
 
+        def psi_inv(self, token):
+            return {'psi_inv': str(token)}
+
         def phi(self, token):
             return {'phi': str(token)}
+
+        def phi_inv(self, token):
+            return {'phi_inv': str(token)}
 
         # TODO doesn't currently do anything
         def typed(self, *tokens):

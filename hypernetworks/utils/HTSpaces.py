@@ -24,7 +24,7 @@ def get_space(hn, ignore_sb, shrink_beta, *vertex_list):
 
     s = ""
 
-    # TODO not keen on using this method, i.e. convert to tet and compile to get a ne Hn.
+    # TODO not keen on using this method, i.e. convert to text and compile to get a ne Hn.
     for f in shape:
         if hn.hypernetwork[f].hstype in [ALPHA, BETA]:
             s += str(hn.hypernetwork[f]) + "\n"

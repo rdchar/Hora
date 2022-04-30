@@ -39,3 +39,11 @@ class HnRMissMatch(HnErrors):
 
 class HnTypeOrSimplexSizeMismatch(HnErrors):
     pass
+
+
+class HnHsClassMismatchError(HnErrors):
+    pass
+
+
+class HnHsNotExistInHn(HnErrors):
+    pass
