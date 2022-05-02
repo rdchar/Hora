@@ -7,3 +7,5 @@ hs_expand_R = True
 hs_replace_same_vertex = False
 
 # TODO add load yaml to set these config parameters.
+
+hs_default_N = True

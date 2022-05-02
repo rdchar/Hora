@@ -78,7 +78,7 @@ class Hypernetwork:
         return len(self._hypernetwork) == 0
 
     def _create_hs(self, _hn, vertex, hs_class=HS_STANDARD, hstype=VERTEX, simplex=None,
-                   R="", t=-1, C=None, B=None, N="",
+                   R="", t=-1, C=None, B=None, N="N",
                    psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
 
         # TODO this should be injected at start of application.
@@ -149,7 +149,7 @@ class Hypernetwork:
             self.phi_invs[phi_inv] = None
 
 
-    def _add(self, vertex, hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="",
+    def _add(self, vertex, hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="N",
              psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
 
         if vertex in self._hypernetwork:
@@ -171,7 +171,7 @@ class Hypernetwork:
             if temp.B and not B:
                 B = temp.B.copy()
 
-            if temp.N != "" and N == "":
+            if temp.N and N == "":
                 N = temp.N
 
             if temp.psi != "" and psi == "":
@@ -291,7 +291,7 @@ class Hypernetwork:
         return semantic_boundaries
 
     def insert(self, vertex="", hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None,
-               N="", psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
+               N="N", psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
         def _remove_cyclic():
             temp = list(set(self._hypernetwork[vertex].simplex).intersection(self._hypernetwork[vertex].partOf))
 
@@ -569,8 +569,9 @@ class Hypernetwork:
         # return new_hn
         return res
 
-    # def update(self):
-    #     pass
+    def update(self, vertex="", hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None,
+               N="N", psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
+        pass
 
     # def preparse(self, hypernet):
     #     return
@@ -806,7 +807,7 @@ class Hypernetwork:
                     fail = True
 
             if N and not fail:
-                # if N == node.N or re.match(N, node.N):
+                # if == node.N or re.match(N, node.N):
                 if re.match(N, node.N):
                     found = True
                 else:
@@ -896,7 +897,7 @@ class Hypernetwork:
     def __str__(self):
         res = ""
 
-        for (key, hs) in self.hypernetwork.items():
+        for key, hs in self.hypernetwork.items():
             if hs.hstype not in [NONE, VERTEX, PROPERTY]:
                 res = res + str(hs) + "\n"
 

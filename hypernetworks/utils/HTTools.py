@@ -33,7 +33,7 @@ def is_mandatory(x):
     return x[:4] == "MAN@"
 
 
-def remove_outliers(hn, N="N", smallest_nary=2):
+def remove_outliers(hn, N="", smallest_nary=2):
     for vertex in hn.hypernetwork:
         hs = hn.hypernetwork[vertex]
 

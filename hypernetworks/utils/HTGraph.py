@@ -13,7 +13,7 @@ def split_camelcase(word, max):
 
 
 def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show_level=False,
-            show_time=False, view=True, fname="/tmp/Hn", split_camel=True):
+            show_time=False, view=True, fname="/tmp/Hn", split_camel=False):
     class temp:
         clusters = {}
         dot = Graph("Hn", strict=True)

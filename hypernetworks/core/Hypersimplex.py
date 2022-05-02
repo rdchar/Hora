@@ -1,6 +1,8 @@
 # Relation Types
 import copy
 
+from hypernetworks.core.HTConfig import hs_default_N
+
 HS_STANDARD = 0
 HS_HYPER_PN = 1
 HS_ACTIVITY = 2
@@ -98,7 +100,7 @@ class HsVertex:
 
 class Hypersimplex:
     def __init__(self, _hn, vertex, hs_class=HS_STANDARD, hstype=VERTEX, simplex=None, R="", t=-1, C=None,
-                 B=None, N="", psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
+                 B=None, N="N", psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
 
         self._hypernetwork = _hn
         self._hs_class = hs_class
@@ -124,7 +126,7 @@ class Hypersimplex:
         self._C = [] if C is None else C
         self._B = set() if B is None else B
         self._other = []
-        self._N = N
+        self._N = "N" if hs_default_N and not N else N
         self._psi = psi
         self._psi_inv = psi_inv
         self._phi = phi
@@ -234,7 +236,7 @@ class Hypersimplex:
 
     @N.setter
     def N(self, value):
-        self._N = value
+        self._N = "N" if hs_default_N and not value else value
 
     @property
     def psi(self):
@@ -306,7 +308,7 @@ class Hypersimplex:
         return self._special == IMMUTABLE
 
     def update(self, vertex="", hs_class=HS_STANDARD, hstype=NONE, simplex=None,
-               R="", t=-1, C=None, B=None, other=None, N="",
+               R="", t=-1, C=None, B=None, other=None, N="N",
                psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
 
         if vertex:
@@ -340,7 +342,7 @@ class Hypersimplex:
         if other:
             self.other = other
 
-        if N != "":
+        if N:
             self.N = N
 
         if psi != "":
@@ -367,7 +369,7 @@ class Hypersimplex:
         if coloured is not None:
             self._coloured = self._coloured_upsert(self._coloured, coloured)
 
-    def _handle_Hs_union_dups(self, dup=False, hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="",
+    def _handle_Hs_union_dups(self, dup=False, hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="N",
                               psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
 
         if dup:
