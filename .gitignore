@@ -146,3 +146,5 @@ pip-instructions.txt
 exp/
 .DS_Store
 examples/ITSM.ipynb
+examples/data
+examples/pictures/*
