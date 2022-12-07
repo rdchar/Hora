@@ -1,1 +1,0 @@
-http:put:/api/system/ods/booking/{}=<updateBookingDetails, getBookingJson; B(Job Booking)>
