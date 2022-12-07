@@ -1,9 +1,11 @@
+import copy
 import logging
 import re
 from pprint import pprint
 
 from networkx import intersection
 
+from hypernetworks.core.HTConfig import hs_override_hs_type
 from hypernetworks.utils.HTSearch import bottom_up
 from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInsertError, HnRMissMatch, \
     HnTypeOrSimplexSizeMismatch, HnHsNotExistInHn
@@ -23,8 +25,8 @@ class Hypernetwork:
 
     def __init__(self, name="Unnamed", hs_expansion=True):
         self._hs_expansion = hs_expansion
-
         self._hypernetwork = dict()
+        self._boundary_exclusions = dict()
         self._name = name
         self._types = Types()
         self._relations = dict()
@@ -48,6 +50,10 @@ class Hypernetwork:
     @property
     def name(self):
         return self._name
+
+    @property
+    def types(self):
+        return self._types
 
     @property
     def hypernetwork(self):
@@ -75,6 +81,13 @@ class Hypernetwork:
 
     @property
     def empty(self):
+        return len(self._hypernetwork) == 0
+
+    @property
+    def boundary_exclusions(self):
+        return self._boundary_exclusions
+
+    def is_empty(self):
         return len(self._hypernetwork) == 0
 
     def _create_hs(self, _hn, vertex, hs_class=HS_STANDARD, hstype=VERTEX, simplex=None,
@@ -156,7 +169,7 @@ class Hypernetwork:
             # Update an existing node
             temp = self._hypernetwork[vertex]
 
-            if temp.hstype not in [NONE, VERTEX, PROPERTY]:
+            if temp.hstype not in [NONE, VERTEX, PROPERTY] and not hs_override_hs_type:
                 hstype = temp.hstype
 
             if temp.simplex and not simplex:
@@ -212,6 +225,7 @@ class Hypernetwork:
             hs = self._create_hs(self, vertex=vertex, hs_class=hs_class, hstype=hstype, simplex=simplex,
                                  R=R, t=t, C=C, B=B, N=N, psi=psi, psi_inv=psi_inv, phi=phi, phi_inv=phi_inv,
                                  partOf=partOf, traffic=traffic, coloured=coloured)
+
             self._hypernetwork.update({vertex: hs})
 
         self._add_func_collections(R, psi, psi_inv, phi, phi_inv)
@@ -224,18 +238,15 @@ class Hypernetwork:
                     N=hs.N, psi=hs.psi, psi_inv=hs.psi_inv, phi=hs.phi, phi_inv=hs.phi_inv,
                     traffic=hs.traffic, coloured=hs.coloured)
 
-    def delete(self, vertex="", R="", del_children=False):
-        def _delete(_vertex, _parent=""):
-            # if _parent in self._hypernetwork[_vertex].partOf:
-            #     self._hypernetwork[_vertex].partOf.remove(_parent)
-
+    def delete(self, vertex="", R="", del_children=False, B=""):
+        def _delete_vertex(_vertex):
             for _vert in self._hypernetwork[_vertex].simplex:
-                if _vertex in self._hypernetwork[_vert].partOf:
-                    self._hypernetwork[_vert].partOf.remove(_vertex)
+                if _vert in self._hypernetwork:
+                    if _vertex in self._hypernetwork[_vert].partOf:
+                        self._hypernetwork[_vert].partOf.remove(_vertex)
 
                 if del_children:
-                    if len(self._hypernetwork[_vert].partOf) == 0:
-                        _delete(_vert, _vertex)
+                    _delete_vertex(_vert)
 
             # Removes all instances of the vertex.
             for _whole in self._hypernetwork[_vertex].partOf:
@@ -245,16 +256,100 @@ class Hypernetwork:
                         self._hypernetwork[_whole].simplex.remove(temp)
 
             del self._hypernetwork[_vertex]
-        # End _delete
+        # End _delete_vertex
+
+        def _find_B_peaks():
+            peaks = []
+
+            def _find_peak(_vertex):
+                if len(self._hypernetwork[_vertex].partOf) > 0:
+                    for whole in self._hypernetwork[_vertex].partOf:
+                        if B in self._hypernetwork[whole].B:
+                            _find_peak(whole)
+
+                        else:
+                            peaks.append(whole)
+
+                else:
+                    peaks.append(_vertex)
+
+            _find_peak(vertex)
+
+            return peaks
+        # End _find_B_peaks
+
+        def _delete_boundary():
+            def _delete_vertex_from_boundary(_vertex, _parent):
+                print("HELLO XXXX")
+                if B in self._hypernetwork[_vertex].B:
+                    print("\tHELLO 2", _vertex, "from", _parent, self._hypernetwork[_vertex].simplex)
+
+                    if _vertex in self._hypernetwork:
+                        if len(self._hypernetwork[_vertex].B) == 1:
+                            if _vertex == vertex or (B in self._hypernetwork[_parent].B and _parent == vertex):
+                                self._hypernetwork[_parent].simplex.remove(_vertex)
+
+                            if len(self._hypernetwork[_vertex].partOf) == 1:
+                                del self._hypernetwork[_vertex]
+
+                            else:
+                                print("\t\tHELLO 5", _vertex, "from", _parent)
+                                # self._hypernetwork[_parent].simplex.remove(_vertex)
+                                self._hypernetwork[_vertex].partOf.remove(_parent)
+
+                        else:
+                            print("\t\tHELLO 4", _vertex)
+                            self._hypernetwork[_vertex].B.remove(B)
+
+                else:
+                    print("\tHELLO 3", _vertex, "from", _parent, self._hypernetwork[_vertex].simplex)
+                    if _vertex == vertex:
+                        if _parent in self._hypernetwork and _vertex in self._hypernetwork[_parent].simplex:
+                            self._hypernetwork[_parent].simplex.remove(_vertex)
+            # End _delete_vertex_from_boundary
+
+            def _delete_from_boundary(_vertex, _parent):
+                if _vertex in self._hypernetwork:
+                    for _vert in self._hypernetwork[_vertex].simplex:
+                        print("HELLO 1", _vert, "from", _vertex, self._hypernetwork[_vertex].simplex)
+                        _delete_from_boundary(_vert, _vertex)
+
+                        if _vert in self._hypernetwork:
+                            print("\t\tHELLO 10", _vert, self._hypernetwork[_vert].B, B, self._hypernetwork[_vert].partOf)
+                            if del_children or B in self._hypernetwork[_vert].B:
+                                _delete_vertex_from_boundary(_vert, _vertex)
+            # End _delete_from_boundary
+
+            # peaks = _find_B_peaks()
+            peaks = self._hypernetwork[vertex].partOf
+
+            for peak in peaks:
+                _delete_from_boundary(vertex, peak)
+
+                if vertex in self._hypernetwork[peak].simplex:
+                    self._hypernetwork[peak].simplex.remove(vertex)
+
+                if vertex in self._hypernetwork:
+                    if B in self._hypernetwork[vertex].B:
+                        if len(self._hypernetwork[vertex].B) == 1:
+                            del self._hypernetwork[vertex]
+                        else:
+                            self._hypernetwork[vertex].B.remove(B)
+
+        # End _delete_boundary
 
         # TODO may need more work
         if R:
             vertices = self.search(R=R)
             for vert in vertices:
-                _delete(_vertex=vert)
+                _delete_vertex(_vertex=vert)
+
+        elif B:
+            if vertex and vertex in self._hypernetwork:
+                _delete_boundary()
 
         elif vertex and vertex in self._hypernetwork:
-            _delete(_vertex=vertex)
+            _delete_vertex(_vertex=vertex)
 
         else:
             raise HnVertexNoFound
@@ -291,7 +386,9 @@ class Hypernetwork:
         return semantic_boundaries
 
     def insert(self, vertex="", hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None,
-               N="N", psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
+               N="N", psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None,
+               boundary_exclusions=None):
+
         def _remove_cyclic():
             temp = list(set(self._hypernetwork[vertex].simplex).intersection(self._hypernetwork[vertex].partOf))
 
@@ -329,19 +426,26 @@ class Hypernetwork:
                         raise HnInsertError
 
             for i, v in enumerate(simplex):
+                child_B = B.union(self._hypernetwork[vertex].B) if B else self._hypernetwork[vertex].B
+
                 if isinstance(v, dict):
                     if "PROPERTY" in v:
-                        self._add(vertex=v["PROPERTY"], hs_class=hs_class, hstype=PROPERTY, partOf={vertex}, B=B,
+                        self._add(vertex=v["PROPERTY"], hs_class=hs_class, hstype=PROPERTY, partOf={vertex}, B=child_B,
                                   traffic=traffic, coloured=coloured)
                     else:
                         key = list(v.keys())[0]
 
-                        self._add(vertex=v[key], hs_class=hs_class, hstype=VERTEX, partOf={vertex}, B=B,
+                        self._add(vertex=v[key], hs_class=hs_class, hstype=VERTEX, partOf={vertex}, B=child_B,
                                   traffic=traffic, coloured=coloured)
 
                 else:
-                    self._add(vertex=v, hs_class=hs_class, hstype=VERTEX, partOf={vertex}, B=B,
-                              traffic=traffic, coloured=coloured)
+                    if hstype:
+                        self._add(vertex=v, hs_class=hs_class, partOf={vertex}, B=child_B,
+                                  traffic=traffic, coloured=coloured)
+
+                    else:
+                        self._add(vertex=v, hs_class=hs_class, hstype=VERTEX, partOf={vertex}, B=child_B,
+                                  traffic=traffic, coloured=coloured)
         # End _insert
 
         if simplex is None:
@@ -383,8 +487,9 @@ class Hypernetwork:
                     if not R_comparision:
                         raise HnRMissMatch
 
-                    self.hypernetwork[vertex].simplex = \
-                        list(sorted(set(self.hypernetwork[vertex].simplex).union(set(simplex))))
+                    simplex = list(sorted(set(self.hypernetwork[vertex].simplex).union(set(simplex))))
+                    # self.hypernetwork[vertex].simplex = \
+                    #     list(sorted(set(self.hypernetwork[vertex].simplex).union(set(simplex))))
 
                     _insert(partOf, hs_class=hs_class)
                     return
@@ -511,6 +616,10 @@ class Hypernetwork:
 
         # Remove cyclic references
         # _remove_cyclic()
+        if not boundary_exclusions:
+            boundary_exclusions = self._boundary_exclusions
+
+        self.apply_boundary_exclusions(boundary_exclusions)
 
         return vertex
 
@@ -537,37 +646,50 @@ class Hypernetwork:
 
         return self
 
+    def copy(self, _hn):
+        self._hs_expansion = _hn.hs_expansion
+
+        self._hypernetwork = {}
+        for name, hs in _hn.hypernetwork.items():
+            self._hypernetwork.update({name: copy.deepcopy(hs)})
+
+        self._boundary_exclusions = _hn.boundary_exclusions.copy()
+        self._name = _hn.name
+        self._types = copy.deepcopy(_hn.types)
+        self._relations = _hn.relations.copy()
+        self._psis = _hn.psis.copy()
+        self._psi_invs = _hn.psi_invs.copy()
+        self._phis = _hn.phis.copy()
+        self._phi_invs = _hn.phi_invs.copy()
+
+        return self
+
     # TODO Needs testing properly
-    def intersection(self, hn, inc_whole=False):
-        # temp = Hypernetwork()
-        # new_hn = Hypernetwork()
-        res = {}
+    def intersection(self, hn, inc_whole_beta=True):
+        new_hn = Hypernetwork()
 
-        for name in self.hypernetwork:
-            if name in hn.hypernetwork:
-                hs = self.hypernetwork[name]
-                res.update({name: hs})
+        for name, hs in self.hypernetwork.items():
+            simplex = []
+            if name in hn.hypernetwork and hs.R.is_equal(hn.hypernetwork[name].R):
+                if not inc_whole_beta and hs.hstype in [BETA]:
+                    for vertex in hs.simplex:
+                        if vertex in hn.hypernetwork:
+                            simplex.append(vertex)
 
-                # temp.insert(hs.vertex, hs_class=hs.hs_class, hstype=hs.hstype, simplex=hs.simplex,
-                #             R=hs.R, t=hs.t, C=hs.C, B=hs.B, psi=hs.psi, psi_inv=hs.psi_inv,
-                #             phi=hs.phi, phi_inv=hs.phi_inv,
-                #             traffic=hs.traffic, coloured=hs.coloured)
-                #
-                # print(name, temp.hypernetwork[name].simplex)
+                else:
+                    simplex = hs.simplex
 
-        # if inc_whole:
-        #     names = temp.soup
-        #     # new_hn = Hypernetwork()
-        #
-        #     for name in names:
-        #         bu = bottom_up(hn, False, name)
-        #         new_hn.union(bu)
-        #
-        # else:
-        #     return temp
-        #
-        # return new_hn
-        return res
+                new_hn.insert(hs.vertex, hs_class=hs.hs_class, hstype=hs.hstype, simplex=simplex,
+                              R=hs.R, t=hs.t, C=hs.C, B=hs.B, psi=hs.psi, psi_inv=hs.psi_inv,
+                              phi=hs.phi, phi_inv=hs.phi_inv,
+                              traffic=hs.traffic, coloured=hs.coloured)
+
+        self._hypernetwork.clear()
+
+        for name, hs in new_hn.hypernetwork.items():
+            self._hypernetwork.update({name: hs})
+
+        return new_hn
 
     def update(self, vertex="", hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None,
                N="N", psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
@@ -902,6 +1024,26 @@ class Hypernetwork:
                 res = res + str(hs) + "\n"
 
         return res
+
+    def remove_from_boundary(self, vertex, boundary):
+        def _next(next_hs):
+            for name in self._hypernetwork[next_hs].simplex:
+                _next(name)
+
+            self._hypernetwork[next_hs].remove_from_boundary(boundary)
+
+            if vertex not in self._boundary_exclusions:
+                self._boundary_exclusions.update({vertex: set()})
+
+            self._boundary_exclusions[vertex].add(boundary)
+
+        if vertex in self._hypernetwork:
+            _next(vertex)
+
+    def apply_boundary_exclusions(self, boundary_exclusions=None):
+        for vertex, exclusion in boundary_exclusions.items():
+            for boundary in exclusion:
+                self.remove_from_boundary(vertex, boundary)
 
     def test_str(self):
         def _test_str(vertex):

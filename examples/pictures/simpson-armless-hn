@@ -1,0 +1,148 @@
+strict graph Hn {
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	Kant [label=Kant]
+	node [shape=record style=solid]
+	"head-of-dept" [label="{head-of-dept\nB(phil-dept)|{<Kant> Kant}}"]
+	node [shape=record style=solid]
+	"head-of-dept":Kant -- Kant
+	node [shape=ellipse style=solid]
+	Kant [label=Kant]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	"Simp-head" [label="{Simp-head\nB(body)|{<> Simp-eyes | <> Simp-nose | <> Simp-mouth}}"]
+	node [shape=record style=solid]
+	"Simp-torso" [label="{Simp-torso\nB(body)|{<> Simp-chest | <> Simp-back}}"]
+	node [shape=record style=solid]
+	"Simp-rarm" [label="{Simp-rarm|R_arm\nB(body)|{<> Simp-rupper | <> Simp-rforearm | <> Simp-rhand}}"]
+	node [shape=record style=solid]
+	"Simp-arms" [label="{Simp-arms|R_arms\nB(body)|{<Simp-rarm> Simp-rarm}}"]
+	node [shape=record style=solid]
+	"Simp-body" [label="{Simp-body|R_body\nB(body)|{<Simp-head> Simp-head | <Simp-torso> Simp-torso | <Simp-arms> Simp-arms | <> Simp-legs}}"]
+	node [shape=ellipse style=solid]
+	Epistemology [label=Epistemology]
+	node [shape=record style=rounded]
+	"Simp-teaches" [label="{Simp-teaches\nB(phil-dept)|{<Epistemology> Epistemology}}"]
+	node [shape=record style=rounded]
+	"Simp-res" [label="{Simp-res\nB(phil-dept)|{<Epistemology> Epistemology}}"]
+	node [shape=record style=solid]
+	Simpson [label="{Simpson\nB(phil-dept, body)|{<Simp-body> Simp-body | <Simp-teaches> Simp-teaches | <Simp-res> Simp-res}}"]
+	node [shape=record style=solid]
+	"Des-body" [label="{Des-body|R_body\nB(body)|{<> Des-head | <> Des-torso | <> Des-arms | <> Des-legs}}"]
+	node [shape=ellipse style=solid]
+	Metaphysics [label=Metaphysics]
+	node [shape=ellipse style=solid]
+	Rationalism [label=Rationalism]
+	node [shape=record style=rounded]
+	"Des-teaches" [label="{Des-teaches\nB(phil-dept)|{<Metaphysics> Metaphysics | <Rationalism> Rationalism}}"]
+	node [shape=record style=rounded]
+	"Des-res" [label="{Des-res\nB(phil-dept, body)|{<Rationalism> Rationalism}}"]
+	node [shape=record style=solid]
+	Descartes [label="{Descartes\nB(phil-dept, body)|{<Des-body> Des-body | <Des-teaches> Des-teaches | <Des-res> Des-res}}"]
+	node [shape=record style=solid]
+	lecturers [label="{lecturers\nB(phil-dept)|{<Simpson> Simpson | <Descartes> Descartes}}"]
+	node [shape=record style=solid]
+	lecturers:Simpson -- Simpson
+	lecturers:Descartes -- Descartes
+	node [shape=record style=solid]
+	Simpson [label="{Simpson\nB(phil-dept, body)|{<Simp-body> Simp-body | <Simp-teaches> Simp-teaches | <Simp-res> Simp-res}}"]
+	node [shape=record style=solid]
+	Simpson:"Simp-body" -- "Simp-body"
+	Simpson:"Simp-teaches" -- "Simp-teaches"
+	Simpson:"Simp-res" -- "Simp-res"
+	node [shape=record style=solid]
+	Descartes [label="{Descartes\nB(phil-dept, body)|{<Des-body> Des-body | <Des-teaches> Des-teaches | <Des-res> Des-res}}"]
+	node [shape=record style=solid]
+	Descartes:"Des-body" -- "Des-body"
+	Descartes:"Des-teaches" -- "Des-teaches"
+	Descartes:"Des-res" -- "Des-res"
+	node [shape=record style=solid]
+	researchers [label="{researchers\nB(phil-dept)|{<Descartes> Descartes | <Kant> Kant | <Simpson> Simpson}}"]
+	node [shape=record style=solid]
+	researchers:Descartes -- Descartes
+	researchers:Kant -- Kant
+	researchers:Simpson -- Simpson
+	node [shape=record style=solid]
+	"head-of-dept" [label="{head-of-dept\nB(phil-dept)|{<Kant> Kant}}"]
+	node [shape=record style=rounded]
+	subjects [label="{subjects\nB(phil-dept)|{<Metaphysics> Metaphysics | <Epistemology> Epistemology | <Rationalism> Rationalism}}"]
+	node [shape=record style=solid]
+	lecturers [label="{lecturers\nB(phil-dept)|{<Simpson> Simpson | <Descartes> Descartes}}"]
+	node [shape=record style=solid]
+	researchers [label="{researchers\nB(phil-dept)|{<Descartes> Descartes | <Kant> Kant | <Simpson> Simpson}}"]
+	node [shape=record style=solid]
+	PhilDept [label="{PhilDept\nB(phil-dept)|{<head-of-dept> head-of-dept | <subjects> subjects | <lecturers> lecturers | <researchers> researchers}}"]
+	node [shape=record style=solid]
+	PhilDept:"head-of-dept" -- "head-of-dept"
+	PhilDept:subjects -- subjects
+	PhilDept:lecturers -- lecturers
+	PhilDept:researchers -- researchers
+	node [shape=record style=rounded]
+	subjects [label="{subjects\nB(phil-dept)|{<Metaphysics> Metaphysics | <Epistemology> Epistemology | <Rationalism> Rationalism}}"]
+	node [shape=record style=solid]
+	subjects:Metaphysics -- Metaphysics
+	subjects:Epistemology -- Epistemology
+	subjects:Rationalism -- Rationalism
+	node [shape=ellipse style=solid]
+	Metaphysics [label=Metaphysics]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	Epistemology [label=Epistemology]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	Rationalism [label=Rationalism]
+	node [shape=record style=solid]
+	node [shape=record style=rounded]
+	"Simp-teaches" [label="{Simp-teaches\nB(phil-dept)|{<Epistemology> Epistemology}}"]
+	node [shape=record style=solid]
+	"Simp-teaches":Epistemology -- Epistemology
+	node [shape=record style=rounded]
+	"Simp-res" [label="{Simp-res\nB(phil-dept)|{<Epistemology> Epistemology}}"]
+	node [shape=record style=solid]
+	"Simp-res":Epistemology -- Epistemology
+	node [shape=record style=solid]
+	"Simp-body" [label="{Simp-body|R_body\nB(body)|{<Simp-head> Simp-head | <Simp-torso> Simp-torso | <Simp-arms> Simp-arms | <> Simp-legs}}"]
+	node [shape=record style=solid]
+	"Simp-body":"Simp-head" -- "Simp-head"
+	"Simp-body":"Simp-torso" -- "Simp-torso"
+	"Simp-body":"Simp-arms" -- "Simp-arms"
+	node [shape=record style=rounded]
+	"Des-teaches" [label="{Des-teaches\nB(phil-dept)|{<Metaphysics> Metaphysics | <Rationalism> Rationalism}}"]
+	node [shape=record style=solid]
+	"Des-teaches":Metaphysics -- Metaphysics
+	"Des-teaches":Rationalism -- Rationalism
+	node [shape=record style=rounded]
+	"Des-res" [label="{Des-res\nB(phil-dept, body)|{<Rationalism> Rationalism}}"]
+	node [shape=record style=solid]
+	"Des-res":Rationalism -- Rationalism
+	node [shape=record style=solid]
+	"Des-body" [label="{Des-body|R_body\nB(body)|{<> Des-head | <> Des-torso | <> Des-arms | <> Des-legs}}"]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	"Simp-arms" [label="{Simp-arms|R_arms\nB(body)|{<Simp-rarm> Simp-rarm}}"]
+	node [shape=record style=solid]
+	"Simp-arms":"Simp-rarm" -- "Simp-rarm"
+	node [shape=record style=solid]
+	"Simp-rarm" [label="{Simp-rarm|R_arm\nB(body)|{<> Simp-rupper | <> Simp-rforearm | <> Simp-rhand}}"]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	"Simp-head" [label="{Simp-head\nB(body)|{<> Simp-eyes | <> Simp-nose | <> Simp-mouth}}"]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	"Simp-torso" [label="{Simp-torso\nB(body)|{<> Simp-chest | <> Simp-back}}"]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+	node [shape=record style=solid]
+}

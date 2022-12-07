@@ -1,6 +1,8 @@
-from copy import deepcopy
-
 from hypernetworks.core.HTUtils import of_hstype
+# from hypernetworks.core.Hypernetwork import Hypernetwork
+from hypernetworks.core.Hypersimplex import SEQUENCE
+
+from copy import deepcopy
 
 
 def passbyval(func):
@@ -127,15 +129,18 @@ def get_sb_vertices(hn, *vertices):
     return sb_vertices
 
 
-def get_subHn_by_semantic_boundary(hn, semantic_boundary, subHn):
+def get_subHn_by_semantic_boundary(hn, semantic_boundary, subHn=None):
     def _insert(_name, _hs):
         subHn.insert(vertex=_name, hs_class=_hs.hs_class, hstype=_hs.hstype, simplex=_hs.simplex,
                      R=_hs.R, t=_hs.t, C=_hs.C, B=_hs.B, N=_hs.N,
                      psi=_hs.psi, psi_inv=_hs.psi_inv, phi=_hs.phi, phi_inv=_hs.phi_inv,
-                     traffic=_hs.traffic, coloured=_hs.coloured)
+                     traffic=_hs.traffic, coloured=_hs.coloured, boundary_exclusions=hn._boundary_exclusions)
 
         temp_phis.add(_hs.phi)
         temp_psis.add(_hs.psi)
+
+    # if not subHn:
+    #     subHn = Hypernetwork()
 
     temp_phis = set()
     temp_phi_invs = set()
@@ -146,10 +151,9 @@ def get_subHn_by_semantic_boundary(hn, semantic_boundary, subHn):
     for name, hs in hn.hypernetwork.items():
         if semantic_boundary in hs.B:
             _insert(name, hs)
-
-            for vertex in hs.simplex:
-                v_hs = hn.hypernetwork[vertex]
-                _insert(vertex, v_hs)
+            # for vertex in hs.simplex:
+            #     v_hs = hn.hypernetwork[vertex]
+            #     _insert(vertex, v_hs)
 
     for phi in temp_phis:
         if phi:

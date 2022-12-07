@@ -1,0 +1,2 @@
+http-get--api-v1-mpxn----jobtypes----tasks=<getJobTasksApi, outboundApiCommon; B(Job Booking)>
+getJobTasksApi=<http:get:/api/system/ods/jobTypes; B(Job Booking)>

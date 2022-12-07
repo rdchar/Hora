@@ -1,0 +1,5 @@
+http:get:/api/v1/mpxn/{}/booking/{}/jobs=<checkWhetherAppointerByBookingId, http:get:/api/system/ods/booking/{}/jobs, outboundApiCommon; B(Job Booking)>
+checkWhetherAppointerByBookingId=<getBookingApi, checkIsAppointedResult; B(Job Booking)>
+getBookingApi=<http:get:/api/system/ods/booking/{}; B(Job Booking)>
+http:get:/api/system/ods/booking/{}=<getBookingJson; B(Job Booking)>
+http:get:/api/system/ods/booking/{}/jobs=<getJobsForBooking; B(Job Booking)>

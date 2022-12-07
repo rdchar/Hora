@@ -46,22 +46,27 @@ def what_is_it(hn, ignore_sb=False, *vertex_list):
         for pth in path:
             if len(pth) == 1:
                 groups.update({pth[0]: [[pth[0]]]})
+
             else:
                 if pth[0] not in groups:
                     groups.update({pth[0]: [pth[1:]]})
+
                 else:
                     groups[pth[0]].append(pth[1:])
 
     for k, group in groups.items():
         temp = set()
+
         for grp in group:
             temp.update(grp)
 
         if len(objects) == 0:
             objects = temp.copy()
+
         else:
             objects = objects.intersection(temp)
 
+    print(objects)
     return list(objects)
 
 

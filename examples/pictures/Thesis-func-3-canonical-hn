@@ -1,0 +1,165 @@
+strict graph Hn {
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	categorisation [label=categorisation]
+	node [shape=ellipse style=solid]
+	containment [label=containment]
+	node [shape=ellipse style=solid]
+	relational [label=relational]
+	node [shape=ellipse style=solid]
+	Hn [label=Hn]
+	node [shape=ellipse style=solid]
+	Hs [label=Hs]
+	node [shape=ellipse style=solid]
+	simplex [label=simplex]
+	node [shape=ellipse style=solid]
+	vertex [label=vertex]
+	node [shape=ellipse style=solid]
+	binary [label=binary]
+	node [shape=ellipse style=solid]
+	"n-ary" [label="n-ary"]
+	node [shape=ellipse style=solid]
+	DL [label=DL]
+	node [shape=ellipse style=solid]
+	"lambda-calc" [label="lambda-calc"]
+	node [shape=ellipse style=solid]
+	logical [label=logical]
+	node [shape=ellipse style=solid]
+	multilevel [label=multilevel]
+	node [shape=ellipse style=solid]
+	"alpha-aggregation" [label="alpha-aggregation"]
+	node [shape=ellipse style=solid]
+	"beta-aggregation" [label="beta-aggregation"]
+	node [shape=record style=rounded]
+	Rel [label="{Rel\nB(Design, HT, Canonical-Language, Orchestration, Structure, Behaviour, Ontology)|{<binary> binary | <n-ary> n-ary | <DL> DL | <lambda-calc> lambda-calc | <logical> logical | <multilevel> multilevel | <alpha-aggregation> alpha-aggregation | <beta-aggregation> beta-aggregation}}"]
+	node [shape=ellipse style=solid]
+	time [label=time]
+	node [shape=ellipse style=solid]
+	boundary [label=boundary]
+	node [shape=ellipse style=solid]
+	property [label=property]
+	node [shape=record style=rounded]
+	"HT-elements" [label="{HT-elements\nB(Design, HT, Canonical-Language, Orchestration, Structure, Ontology)|{<Hn> Hn | <Hs> Hs | <simplex> simplex | <vertex> vertex | <Rel> Rel | <time> time | <alpha-aggregation> alpha-aggregation | <beta-aggregation> beta-aggregation | <boundary> boundary | <property> property}}"]
+	node [shape=ellipse style=solid]
+	polygons [label=polygons]
+	node [shape=record style=rounded]
+	multidimensional [label="{multidimensional\nB(Design, HT, Canonical-Language, Structure, Model, Ontology)|{<n-ary> n-ary | <polygons> polygons}}"]
+	node [shape=ellipse style=solid]
+	heterarchy [label=heterarchy]
+	node [shape=ellipse style=solid]
+	hierarchy [label=hierarchy]
+	node [shape=record style=rounded]
+	taxonomy [label="{taxonomy\nB(Design, HT, Canonical-Language, Structure, Model, OO, FO, Ontology)|{<hierarchy> hierarchy | <beta-aggregation> beta-aggregation}}"]
+	node [shape=record style=solid]
+	"HT-structure" [label="{HT-structure\nB(Structure, Design, HT, Canonical-Language, Ontology)|{<categorisation> categorisation | <containment> containment | <relational> relational | <HT-elements> HT-elements | <multilevel> multilevel | <multidimensional> multidimensional | <heterarchy> heterarchy | <hierarchy> hierarchy | <n-ary> n-ary | <taxonomy> taxonomy | <HT-elements> HT-elements}}"]
+	node [shape=record style=solid]
+	"HT-structure":categorisation -- categorisation
+	"HT-structure":containment -- containment
+	"HT-structure":relational -- relational
+	"HT-structure":"HT-elements" -- "HT-elements"
+	"HT-structure":multilevel -- multilevel
+	"HT-structure":multidimensional -- multidimensional
+	"HT-structure":heterarchy -- heterarchy
+	"HT-structure":hierarchy -- hierarchy
+	"HT-structure":"n-ary" -- "n-ary"
+	"HT-structure":taxonomy -- taxonomy
+	"HT-structure":"HT-elements" -- "HT-elements"
+	node [shape=ellipse style=solid]
+	categorisation [label=categorisation]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	containment [label=containment]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	relational [label=relational]
+	node [shape=record style=solid]
+	node [shape=record style=rounded]
+	"HT-elements" [label="{HT-elements\nB(Design, HT, Canonical-Language, Orchestration, Structure, Ontology)|{<Hn> Hn | <Hs> Hs | <simplex> simplex | <vertex> vertex | <Rel> Rel | <time> time | <alpha-aggregation> alpha-aggregation | <beta-aggregation> beta-aggregation | <boundary> boundary | <property> property}}"]
+	node [shape=record style=solid]
+	"HT-elements":Hn -- Hn
+	"HT-elements":Hs -- Hs
+	"HT-elements":simplex -- simplex
+	"HT-elements":vertex -- vertex
+	"HT-elements":Rel -- Rel
+	"HT-elements":time -- time
+	"HT-elements":"alpha-aggregation" -- "alpha-aggregation"
+	"HT-elements":"beta-aggregation" -- "beta-aggregation"
+	"HT-elements":boundary -- boundary
+	"HT-elements":property -- property
+	node [shape=ellipse style=solid]
+	multilevel [label=multilevel]
+	node [shape=record style=solid]
+	node [shape=record style=rounded]
+	multidimensional [label="{multidimensional\nB(Design, HT, Canonical-Language, Structure, Model, Ontology)|{<n-ary> n-ary | <polygons> polygons}}"]
+	node [shape=record style=solid]
+	multidimensional:"n-ary" -- "n-ary"
+	multidimensional:polygons -- polygons
+	node [shape=ellipse style=solid]
+	heterarchy [label=heterarchy]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	hierarchy [label=hierarchy]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	"n-ary" [label="n-ary"]
+	node [shape=record style=solid]
+	node [shape=record style=rounded]
+	taxonomy [label="{taxonomy\nB(Design, HT, Canonical-Language, Structure, Model, OO, FO, Ontology)|{<hierarchy> hierarchy | <beta-aggregation> beta-aggregation}}"]
+	node [shape=record style=solid]
+	taxonomy:hierarchy -- hierarchy
+	taxonomy:"beta-aggregation" -- "beta-aggregation"
+	node [shape=ellipse style=solid]
+	polygons [label=polygons]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	"beta-aggregation" [label="beta-aggregation"]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	vertex [label=vertex]
+	node [shape=record style=solid]
+	node [shape=record style=rounded]
+	Rel [label="{Rel\nB(Design, HT, Canonical-Language, Orchestration, Structure, Behaviour, Ontology)|{<binary> binary | <n-ary> n-ary | <DL> DL | <lambda-calc> lambda-calc | <logical> logical | <multilevel> multilevel | <alpha-aggregation> alpha-aggregation | <beta-aggregation> beta-aggregation}}"]
+	node [shape=record style=solid]
+	Rel:binary -- binary
+	Rel:"n-ary" -- "n-ary"
+	Rel:DL -- DL
+	Rel:"lambda-calc" -- "lambda-calc"
+	Rel:logical -- logical
+	Rel:multilevel -- multilevel
+	Rel:"alpha-aggregation" -- "alpha-aggregation"
+	Rel:"beta-aggregation" -- "beta-aggregation"
+	node [shape=ellipse style=solid]
+	binary [label=binary]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	DL [label=DL]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	"lambda-calc" [label="lambda-calc"]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	logical [label=logical]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	"alpha-aggregation" [label="alpha-aggregation"]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	Hn [label=Hn]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	Hs [label=Hs]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	simplex [label=simplex]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	time [label=time]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	boundary [label=boundary]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	property [label=property]
+	node [shape=record style=solid]
+	rankdir=LR
+}

@@ -69,10 +69,9 @@ class HsRelation:
         self._name = value
 
     def is_equal(self, value):
-        # if not value:
-        #     return False
-        # if isinstance(value, str):
-        #     return self._name == value
+        if value == ' ':
+            return self._name == value
+
         return self._name == value._name
 
 
@@ -119,12 +118,12 @@ class Hypersimplex:
             for v in simplex:
                 self._simplex.append(v)
 
-        self._partOf = set() if partOf is None else partOf
+        self._partOf = set() if partOf is None else partOf.copy()
         self._hstype = VERTEX if hstype == NONE else hstype
         self._R = HsRelation(R, reltype=R_BASIC) if isinstance(R, str) else R
         self._t = t
         self._C = [] if C is None else C
-        self._B = set() if B is None else B
+        self._B = set() if B is None else B.copy()
         self._other = []
         self._N = "N" if hs_default_N and not N else N
         self._psi = psi
@@ -155,6 +154,7 @@ class Hypersimplex:
         if isinstance(_vertex, HsVertex):
             self._vertex.vertex = _vertex.vertex
             self._vertex.type = _vertex.type
+
         else:
             self._vertex.vertex = _vertex
 
@@ -297,7 +297,7 @@ class Hypersimplex:
     # # def is_sequence(self):
     # #     return
     # #     return self._special == SEQUENCE
-    # #
+
     # def is_mandatory(self):
     #     return self._special == MANDATORY
 
@@ -368,6 +368,14 @@ class Hypersimplex:
 
         if coloured is not None:
             self._coloured = self._coloured_upsert(self._coloured, coloured)
+
+    def remove_from_boundary(self, b):
+        if b in self.B:
+            if self.vertex not in self._hypernetwork._boundary_exclusions:
+                self._hypernetwork._boundary_exclusions.update({self.vertex: set()})
+
+            self._hypernetwork._boundary_exclusions[self.vertex].add(b)
+            self.B.remove(b)
 
     def _handle_Hs_union_dups(self, dup=False, hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="N",
                               psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
@@ -456,8 +464,10 @@ class Hypersimplex:
         if self.simplex:
             if self.hstype in [ALPHA, UNION_ALPHA]:
                 bres = "<"
-            elif self.hstype == BETA:
+            elif self.hstype in [BETA]:
                 bres = "{"
+            elif self.hstype in [SEQUENCE]:
+                bres = "("
             else:
                 bres = ""
 
@@ -474,15 +484,19 @@ class Hypersimplex:
 
             bres += ", ".join(new_simplex)
 
-            if self.hstype in [ALPHA, UNION_ALPHA]:
+            if self.hstype in [ALPHA, UNION_ALPHA, SEQUENCE]:
                 bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
                 bres += ("; psi_" + str(self.psi)) if self.psi else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
                 bres += ("; C(" + ", ".join(str(c) for c in self.C) + ")") if self.C else ""
                 bres += ("; B(" + ", ".join(self.B) + ")") if self.B != set() else ""
-                bres += ">" + (("^" + self.N) if self.N else "")
 
-            elif self.hstype == BETA:
+                if self.hstype in [SEQUENCE]:
+                    bres += ")" + (("^" + self.N) if self.N else "")
+                else:
+                    bres += ">" + (("^" + self.N) if self.N else "")
+
+            elif self.hstype in [BETA]:
                 bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
                 bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
                 bres += "}" + (("^" + self.N) if self.N else "")

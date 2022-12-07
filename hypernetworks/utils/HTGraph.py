@@ -13,10 +13,12 @@ def split_camelcase(word, max):
 
 
 def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show_level=False,
-            show_time=False, view=True, fname="/tmp/Hn", split_camel=False):
+            show_time=False, show_prop=True, view=True, fname="/tmp/Hn", split_camel=False, lookup={}):
     class temp:
         clusters = {}
         dot = Graph("Hn", strict=True)
+        node_visited = []
+        edge_visited = []
 
     def _add_nodes(_vertex):
         if _vertex.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
@@ -26,12 +28,14 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
             for vtx in _vertex.simplex:
                 vtx_port = ""
                 vtx_lbl = split_camelcase(vtx, 16) if split_camel else vtx
+                # if lookup:
+                #     vtx_lbl = lookup[vtx_lbl]
 
                 if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype not in [PROPERTY]:
                     vtx_port = vtx
 
                 if first:
-                    if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype in [PROPERTY]:
+                    if show_prop and vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype in [PROPERTY]:
                         label += "~" + vtx_lbl
                     elif vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype in [SEQUENCE]:
                         label += "<" + vtx_port + "> " + "(" + vtx_lbl + ")"
@@ -40,7 +44,7 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
 
                     first = False
                 else:
-                    if vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype in [PROPERTY]:
+                    if show_prop and vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype in [PROPERTY]:
                         label += " | ~" + vtx_lbl
                     elif vtx in Hn.hypernetwork and Hn.hypernetwork[vtx].hstype in [SEQUENCE]:
                         label += " | <" + vtx_port + "> " + "(" + vtx_lbl + ")"
@@ -49,7 +53,9 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
 
                 # TODO feels a bit contrived
                 if vtx_port:
-                    _add_nodes(Hn.hypernetwork[vtx_port])
+                    if vtx_port not in temp.node_visited:
+                        temp.node_visited.append(vtx_port)
+                        _add_nodes(Hn.hypernetwork[vtx_port])
 
             if _vertex.hstype in [ALPHA, UNION_ALPHA]:
                 temp.dot.attr('node', style='solid', shape='record')
@@ -58,11 +64,17 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
             elif _vertex.hstype == SEQUENCE:
                 temp.dot.attr('node', style='dashed', shape='record')
 
+            # if lookup:
+            #     temp_name = lookup[_vertex.vertex]
+            # else:
+            #     temp_name = _vertex.vertex
+
             v = "{" + (split_camelcase(_vertex.vertex, 15) if split_camel else _vertex.vertex) \
                 + (("; t_" + str(_vertex.t)) if show_time and _vertex.t > -1 else "") \
                 + (("|R" + ("" if _vertex.R.name == " " else ("_" + _vertex.R.name))
                    + ("" if not _vertex.B else ("\\nB(" + ", ".join(_vertex.B) + ")")))
-                   if show_rel and _vertex.R.name != "" else "") \
+                   if show_rel and _vertex.R.name != "" else
+                   ("" if not _vertex.B else ("\\nB(" + ", ".join(_vertex.B) + ")"))) \
                 + "|{" + label + "}}"
 
             if show_level and _vertex.N:
@@ -102,14 +114,18 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
 
             if _vertex.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
                 if vtx_port:
+                    # temp.dot.node(vtx_port, "HELLI")
                     temp.dot.edge(_vertex.vertex + ":" + vtx_port, vtx_port)
 
             elif _vertex.hstype == VERTEX:
+                # temp.dot.node(vtx_port, "HELLI")
                 temp.dot.edge(vtx_port, _vertex.vertex)
 
             # TODO feels a bit contrived
             if vtx_port:
-                _add_edges(Hn.hypernetwork[vtx_port])
+                if vtx_port not in temp.node_visited:
+                    temp.edge_visited.append(vtx_port)
+                    _add_edges(Hn.hypernetwork[vtx_port])
     # End _add_edges
 
     temp.dot.attr('node', style='solid', shape='record')

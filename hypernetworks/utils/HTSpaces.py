@@ -12,6 +12,7 @@ def get_space(hn, ignore_sb, shrink_beta, *vertex_list):
     paths = get_paths(hn, ignore_sb, *vertex_list)
     shape = set()
     parser = load_parser()
+    print(paths)
 
     for key, val in paths.items():
         path = paths.get(key)
@@ -28,6 +29,8 @@ def get_space(hn, ignore_sb, shrink_beta, *vertex_list):
     for f in shape:
         if hn.hypernetwork[f].hstype in [ALPHA, BETA]:
             s += str(hn.hypernetwork[f]) + "\n"
+
+    s = s.replace("^N", "")
 
     new_hn = Hypernetwork()
 

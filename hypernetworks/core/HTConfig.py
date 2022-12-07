@@ -9,3 +9,6 @@ hs_replace_same_vertex = False
 # TODO add load yaml to set these config parameters.
 
 hs_default_N = True
+
+hs_override_hs_type = True
+

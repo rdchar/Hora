@@ -1,0 +1,1 @@
+!startsub TESTAlice -> Bob: Authentication RequestBob --> Alice: Authentication Response!endsub

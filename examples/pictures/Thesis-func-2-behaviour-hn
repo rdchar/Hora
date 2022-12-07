@@ -1,0 +1,121 @@
+strict graph Hn {
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	methods [label=methods]
+	node [shape=ellipse style=solid]
+	internal [label=internal]
+	node [shape=record style=solid]
+	"OO-behaviour" [label="{OO-behaviour\nB(OO, Design, Behaviour)|{<methods> methods | <internal> internal}}"]
+	node [shape=ellipse style=solid]
+	"functional-schema" [label="functional-schema"]
+	node [shape=record style=solid]
+	"FM-behaviour" [label="{FM-behaviour\nB(Design, Behaviour, FM)|{<functional-schema> functional-schema | <internal> internal}}"]
+	node [shape=ellipse style=solid]
+	Hn [label=Hn]
+	node [shape=ellipse style=solid]
+	Hs [label=Hs]
+	node [shape=ellipse style=solid]
+	binary [label=binary]
+	node [shape=ellipse style=solid]
+	"n-ary" [label="n-ary"]
+	node [shape=ellipse style=solid]
+	DL [label=DL]
+	node [shape=ellipse style=solid]
+	"lambda-calc" [label="lambda-calc"]
+	node [shape=ellipse style=solid]
+	logical [label=logical]
+	node [shape=ellipse style=solid]
+	multilevel [label=multilevel]
+	node [shape=ellipse style=solid]
+	"alpha-aggregation" [label="alpha-aggregation"]
+	node [shape=ellipse style=solid]
+	"beta-aggregation" [label="beta-aggregation"]
+	node [shape=record style=rounded]
+	Rel [label="{Rel\nB(Design, HT, Canonical-Language, Structure, Behaviour, Ontology)|{<binary> binary | <n-ary> n-ary | <DL> DL | <lambda-calc> lambda-calc | <logical> logical | <multilevel> multilevel | <alpha-aggregation> alpha-aggregation | <beta-aggregation> beta-aggregation}}"]
+	node [shape=ellipse style=solid]
+	external [label=external]
+	node [shape=record style=solid]
+	"HT-behaviour" [label="{HT-behaviour\nB(Design, HT, Behaviour)|{<Hn> Hn | <Hs> Hs | <Rel> Rel | <external> external}}"]
+	node [shape=record style=rounded]
+	Behaviour [label="{Behaviour\nB(Behaviour, Design)|{<OO-behaviour> OO-behaviour | <FM-behaviour> FM-behaviour | <HT-behaviour> HT-behaviour}}"]
+	node [shape=record style=solid]
+	Behaviour:"OO-behaviour" -- "OO-behaviour"
+	Behaviour:"FM-behaviour" -- "FM-behaviour"
+	Behaviour:"HT-behaviour" -- "HT-behaviour"
+	node [shape=record style=solid]
+	"OO-behaviour" [label="{OO-behaviour\nB(OO, Design, Behaviour)|{<methods> methods | <internal> internal}}"]
+	node [shape=record style=solid]
+	"OO-behaviour":methods -- methods
+	"OO-behaviour":internal -- internal
+	node [shape=record style=solid]
+	"FM-behaviour" [label="{FM-behaviour\nB(Design, Behaviour, FM)|{<functional-schema> functional-schema | <internal> internal}}"]
+	node [shape=record style=solid]
+	"FM-behaviour":"functional-schema" -- "functional-schema"
+	"FM-behaviour":internal -- internal
+	node [shape=record style=solid]
+	"HT-behaviour" [label="{HT-behaviour\nB(Design, HT, Behaviour)|{<Hn> Hn | <Hs> Hs | <Rel> Rel | <external> external}}"]
+	node [shape=record style=solid]
+	"HT-behaviour":Hn -- Hn
+	"HT-behaviour":Hs -- Hs
+	"HT-behaviour":Rel -- Rel
+	"HT-behaviour":external -- external
+	node [shape=ellipse style=solid]
+	methods [label=methods]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	internal [label=internal]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	"functional-schema" [label="functional-schema"]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	Hn [label=Hn]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	Hs [label=Hs]
+	node [shape=record style=solid]
+	node [shape=record style=rounded]
+	Rel [label="{Rel\nB(Design, HT, Canonical-Language, Structure, Behaviour, Ontology)|{<binary> binary | <n-ary> n-ary | <DL> DL | <lambda-calc> lambda-calc | <logical> logical | <multilevel> multilevel | <alpha-aggregation> alpha-aggregation | <beta-aggregation> beta-aggregation}}"]
+	node [shape=record style=solid]
+	Rel:binary -- binary
+	Rel:"n-ary" -- "n-ary"
+	Rel:DL -- DL
+	Rel:"lambda-calc" -- "lambda-calc"
+	Rel:logical -- logical
+	Rel:multilevel -- multilevel
+	Rel:"alpha-aggregation" -- "alpha-aggregation"
+	Rel:"beta-aggregation" -- "beta-aggregation"
+	node [shape=ellipse style=solid]
+	external [label=external]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	multilevel [label=multilevel]
+	node [shape=record style=solid]
+	node [shape=record style=rounded]
+	behaviour [label="{behaviour\nB(Behaviour)|{<internal> internal | <external> external}}"]
+	node [shape=record style=solid]
+	behaviour:internal -- internal
+	behaviour:external -- external
+	node [shape=ellipse style=solid]
+	binary [label=binary]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	"n-ary" [label="n-ary"]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	DL [label=DL]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	"lambda-calc" [label="lambda-calc"]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	logical [label=logical]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	"alpha-aggregation" [label="alpha-aggregation"]
+	node [shape=record style=solid]
+	node [shape=ellipse style=solid]
+	"beta-aggregation" [label="beta-aggregation"]
+	node [shape=record style=solid]
+	rankdir=LR
+}

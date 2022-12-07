@@ -1,0 +1,4 @@
+http:post:/api/system/mobility-dispatch/{}=<log-incoming-payload, vm:mobility-api-async-create-queue; B(Job Booking)>
+vm:mobility-api-async-create-queue=<asyncCreateFlow; B(Job Booking)>
+asyncCreateFlow=<jms:mobility-api-create-rest-queue; B(Job Booking)>
+jms:mobility-api-create-rest-queue=<influxUdp; B(Job Booking)>

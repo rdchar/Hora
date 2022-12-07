@@ -15,7 +15,7 @@ hs:             alpha
 
 union_alpha:    "U" alpha
 immutable_alpha: "!" alpha
-not_alpha:      "&" alpha  // sould be '¬' option-L
+not_alpha:      "&" alpha  // should be '¬' option-L
 not_beta:       "&" beta
 alpha:          "<" a_simplex r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
 beta:           "{" b_simplex r? time? boundary? psi? psi_inv? phi? phi_inv? "}" level?
@@ -31,13 +31,15 @@ empty_beta:     "{}"
 ?b_simplex:     vertex ("," (vertex | not_vertex))*
 
 not_vertex:     "¬" vertex
-vertex:         (NAME | property | not_property | assign? hs | assign sequence) typed?
+vertex:         (NAME | property | not_property | assign? hs | assign sequence) level? typed?
 
 not_property:   "¬~" NAME
 property:       "~" NAME
 immutable:      "!" NAME "="
 sequence:       "(" vertex ("," vertex)* ")"
 empty_sequence: "()"
+
+level:          "`N" LEVEL
 
 assign:         NAME "="
 
@@ -49,9 +51,10 @@ psi:            ";" "psi_" NAME
 phi:            ";" "phi_" NAME
 psi_inv:        ";" "psi-inv_" NAME
 phi_inv:        ";" "phi-inv_" NAME
-level:          "^N" LEVEL*
 
 typed:          "::" TYPE
+
+
 
 vname:          "v_" NUMBER
 rname:          NAME
@@ -93,7 +96,7 @@ NUMBER:         DIGIT+
 DECIMAL:        DIGIT+ "." DIGIT+
 TYPE:           NAME
 N:              "N"
-LEVEL:          ("+" | "-") (NUMBER | LETTER)
+LEVEL:          "+" NUMBER | "-" NUMBER
 PRED:           NAME
 WILDCARD:       "*"
 X:              DIGIT+

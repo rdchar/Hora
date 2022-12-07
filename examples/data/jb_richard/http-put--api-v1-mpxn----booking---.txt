@@ -1,0 +1,11 @@
+http:put:/api/v1/mpxn/{}/booking/{}=<updateBooking, outboundApiCommon; B(Job Booking)>
+updateBooking=<checkWhetherAppointerByBookingId, updateBookingDetails, getBookingJson, isBookingDispatched, isBookingMobility, http:put:/api/system/mobility-dispatch/{}, getCognitoDataForBooking, http:put:/api/system/cognito/bookings/{}; B(Job Booking)>
+checkWhetherAppointerByBookingId=<getBookingApi, checkIsAppointedResult; B(Job Booking)>
+getBookingApi=<http:get:/api/system/ods/booking/{}; B(Job Booking)>
+http:get:/api/system/ods/booking/{}=<getBookingJson; B(Job Booking)>
+isBookingDispatched=<http:get:/api/system/service-power/jobs/{}; B(Job Booking)>
+isBookingMobility=<http:get:/api/system/mobility-dispatch/{}; B(Job Booking)>
+http:put:/api/system/mobility-dispatch/{}=<log-incoming-payload; B(Job Booking)>
+http:put:/api/system/cognito/bookings/{}=<setSourceSystem, setImmpJobId, getJobFile, checkOdsReturnCode; B(Job Booking)>
+setSourceSystem=<http:get:/api/system/ods/booking/{}; B(Job Booking)>
+checkOdsReturnCode=<logOdsReturnCode; B(Job Booking)>

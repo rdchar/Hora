@@ -1,0 +1,9 @@
+http-post--api-v1-mpxn----jobtypes=<setFuelRestApi, checkWhetherAppointedByMpxn, getDualFuelLink, outboundApiCommon; B(Job Booking)>
+setFuelRestApi=<setFuel; B(Job Booking)>
+checkWhetherAppointedByMpxn=<checkWhetherAppointedByMpan, checkWhetherAppointedByMprn, checkIsAppointedResult; B(Job Booking)>
+checkWhetherAppointedByMpan=<filterByInstance, setElecData; B(Job Booking)>
+filterByInstance=<getAppointments; B(Job Booking)>
+checkWhetherAppointedByMprn=<getGasPortfolioData; B(Job Booking)>
+getGasPortfolioData=<getBulbGasPortfolioData, getSperlGasPortfolioData; B(Job Booking)>
+getDualFuelLink=<getDualFuelLinkApi, checkWhetherAppointedByMprn, checkWhetherAppointedByMpan; B(Job Booking)>
+getDualFuelLinkApi=<getMpxn; B(Job Booking)>
