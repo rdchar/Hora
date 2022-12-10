@@ -12,8 +12,8 @@ def split_camelcase(word, max):
     return textwrap.fill(split, max)
 
 
-def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show_level=False,
-            show_time=False, show_prop=True, view=True, fname="/tmp/Hn", split_camel=False, lookup={}):
+def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show_level=False, show_boundary=True,
+            show_time=False, show_prop=True, view=True, fname="/tmp/Hn", split_camel=False, lookup={}, svg=False):
     class temp:
         clusters = {}
         dot = Graph("Hn", strict=True)
@@ -72,9 +72,9 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
             v = "{" + (split_camelcase(_vertex.vertex, 15) if split_camel else _vertex.vertex) \
                 + (("; t_" + str(_vertex.t)) if show_time and _vertex.t > -1 else "") \
                 + (("|R" + ("" if _vertex.R.name == " " else ("_" + _vertex.R.name))
-                   + ("" if not _vertex.B else ("\\nB(" + ", ".join(_vertex.B) + ")")))
+                   + ("" if not _vertex.B or not show_boundary else ("\\nB(" + ", ".join(_vertex.B) + ")")))
                    if show_rel and _vertex.R.name != "" else
-                   ("" if not _vertex.B else ("\\nB(" + ", ".join(_vertex.B) + ")"))) \
+                   ("" if not _vertex.B or not show_boundary else ("\\nB(" + ", ".join(_vertex.B) + ")"))) \
                 + "|{" + label + "}}"
 
             if show_level and _vertex.N:
@@ -185,6 +185,10 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
     temp.dot.render(fname, view=view)
     # texcode = dot2tex.dot2tex(temp.dot.source, format='tikz', texmode='math')
     # print(texcode)
+
+    if svg:
+        temp.dot.format = 'svg'
+        temp.dot.render(fname, view=view)
 
     log.debug("... complete")
 

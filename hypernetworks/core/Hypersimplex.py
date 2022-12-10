@@ -50,7 +50,7 @@ class HsRelation:
         self._reltype = reltype
 
     def _updateR(self, R):
-        return HsRelation(R, reltype=R_BASIC) if isinstance(R, str) else R
+        return HsRelation(R, reltype=R_BASIC) if isinstance(R, str) else copy.deepcopy(R)
 
     @property
     def reltype(self):
@@ -69,7 +69,7 @@ class HsRelation:
         self._name = value
 
     def is_equal(self, value):
-        if value == ' ':
+        if value == ' ' or isinstance(value, str):
             return self._name == value
 
         return self._name == value._name
@@ -120,7 +120,7 @@ class Hypersimplex:
 
         self._partOf = set() if partOf is None else partOf.copy()
         self._hstype = VERTEX if hstype == NONE else hstype
-        self._R = HsRelation(R, reltype=R_BASIC) if isinstance(R, str) else R
+        self._R = HsRelation(R, reltype=R_BASIC) if isinstance(R, str) else copy.deepcopy(R)
         self._t = t
         self._C = [] if C is None else C
         self._B = set() if B is None else B.copy()
