@@ -220,7 +220,13 @@ class Hypersimplex:
 
     @B.setter
     def B(self, value):
-        self._B = self._B.union(value)
+        if isinstance(value, str):
+            self._B.add(value)
+        else:
+            self._B = self._B.union(value)
+
+    def clear_B(self):
+        self._B = set()
 
     @property
     def other(self):

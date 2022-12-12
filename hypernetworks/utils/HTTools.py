@@ -129,7 +129,7 @@ def get_sb_vertices(hn, *vertices):
     return sb_vertices
 
 
-def get_subHn_by_semantic_boundary(hn, semantic_boundary, subHn=None):
+def get_subHn_by_semantic_boundary(hn, boundary, subHn):
     def _insert(_name, _hs):
         subHn.insert(vertex=_name, hs_class=_hs.hs_class, hstype=_hs.hstype, simplex=_hs.simplex,
                      R=_hs.R, t=_hs.t, C=_hs.C, B=_hs.B, N=_hs.N,
@@ -149,7 +149,7 @@ def get_subHn_by_semantic_boundary(hn, semantic_boundary, subHn=None):
     temp_relations = set()
 
     for name, hs in hn.hypernetwork.items():
-        if semantic_boundary in hs.B:
+        if boundary in hs.B:
             _insert(name, hs)
             # for vertex in hs.simplex:
             #     v_hs = hn.hypernetwork[vertex]
