@@ -13,7 +13,8 @@ def split_camelcase(word, max):
 
 
 def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show_level=False, show_boundary=True,
-            show_time=False, show_prop=True, view=True, fname="/tmp/Hn", split_camel=False, lookup={}, svg=False):
+            show_time=False, show_prop=True, show_vertex=True,
+            view=True, fname="/tmp/Hn", split_camel=False, lookup={}, svg=False):
     class temp:
         clusters = {}
         dot = Graph("Hn", strict=True)
@@ -87,16 +88,17 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
             else:
                 temp.dot.node(name=_vertex.vertex, label=v)
 
-        elif _vertex.hstype == VERTEX:
-            temp.dot.attr('node', style='solid', shape="ellipse")
-            temp.dot.node(name=_vertex.vertex,
-                          label=split_camelcase(_vertex.vertex, 15) if split_camel else _vertex.vertex)
+        elif _vertex.hstype in [VERTEX]:
+            if show_vertex or len(_vertex.partOf) > 1:
+                temp.dot.attr('node', style='solid', shape="ellipse")
+                temp.dot.node(name=_vertex.vertex,
+                              label=split_camelcase(_vertex.vertex, 15) if split_camel else _vertex.vertex)
 
-            if show_level:
-                if "Soup" in temp.clusters.keys():
-                    temp.clusters["Soup"].append(_vertex.vertex)
-                else:
-                    temp.clusters.update({"Soup": [_vertex.vertex]})
+                if show_level:
+                    if "Soup" in temp.clusters.keys():
+                        temp.clusters["Soup"].append(_vertex.vertex)
+                    else:
+                        temp.clusters.update({"Soup": [_vertex.vertex]})
     # End _add_nodes
 
     def _add_edges(_vertex):
@@ -114,12 +116,15 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
 
             if _vertex.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
                 if vtx_port:
-                    # temp.dot.node(vtx_port, "HELLI")
-                    temp.dot.edge(_vertex.vertex + ":" + vtx_port, vtx_port)
+                    if vtx_hs.hstype in [VERTEX]:
+                        if show_vertex or len(vtx_hs.partOf) > 1:
+                            temp.dot.edge(_vertex.vertex + ":" + vtx_port, vtx_port)
+                    else:
+                        temp.dot.edge(_vertex.vertex + ":" + vtx_port, vtx_port)
 
-            elif _vertex.hstype == VERTEX:
-                # temp.dot.node(vtx_port, "HELLI")
-                temp.dot.edge(vtx_port, _vertex.vertex)
+            elif _vertex.hstype in [VERTEX]:
+                if show_vertex or len(_vertex.partOf) > 1:
+                    temp.dot.edge(vtx_port, _vertex.vertex)
 
             # TODO feels a bit contrived
             if vtx_port:
