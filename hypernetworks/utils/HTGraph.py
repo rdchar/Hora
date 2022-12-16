@@ -14,7 +14,7 @@ def split_camelcase(word, max):
 
 def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show_level=False, show_boundary=True,
             show_time=False, show_prop=True, show_vertex=True,
-            view=True, fname="/tmp/Hn", split_camel=False, lookup={}, svg=False):
+            view=True, fname="/tmp/Hn", split_camel=False, lookup={}, svg=False, png=True):
     class temp:
         clusters = {}
         dot = Graph("Hn", strict=True)
@@ -186,8 +186,9 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
     if direction:
         temp.dot.attr(rankdir=direction)
 
-    temp.dot.format = 'png'
-    temp.dot.render(fname, view=view)
+    if png:
+        temp.dot.format = 'png'
+        temp.dot.render(fname, view=view)
     # texcode = dot2tex.dot2tex(temp.dot.source, format='tikz', texmode='math')
     # print(texcode)
 
