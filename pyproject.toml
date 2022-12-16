@@ -1,5 +1,5 @@
 [build-system]
-requires = [ "setuptools", "wheel"]
+requires = [ "setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tools.setuptools]
@@ -8,15 +8,16 @@ packages = [
     "hypernetworks.core",
     "hypernetworks.utils",
 ]
+[tools.setuptools.package-data]
+lark = ["fullHT.lark"]
 
 [project]
 name = "Hora"
 description = "Hypernetwork Theory library."
-long-description = file: README.md
 requires-python = ">=3.7"
 version = "0.1.0"
-license = "MIT"
-url = "https://github.com/rdchar/Hora"
+readme = "README.md"
+
 dependencies = [
     "numpy==1.21.2",
     "graphviz==0.17", 
@@ -28,7 +29,10 @@ dependencies = [
     "Flask==2.0.1", 
     "Flask-Cors~=3.0.9"
 ]
-
 authors = [
-    { name="Richard Charlesworth", email="" }
+    { name="Richard Charlesworth", email="richard@example.com" }
 ]
+
+[project.scripts]
+hnLoader = "hypernetwork.bin.hnLoader:hn_Loader"
+hnServer = "hypernetwork.bin.hnServer:main"
