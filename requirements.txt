@@ -1,6 +1,6 @@
 # Requirements
 
-numpy==1.21.2
+numpy==1.22.0
 graphviz==0.20.1
 # graphviz==0.17
 networkx==2.6.3
