@@ -15,6 +15,7 @@ def split_camelcase(word, max):
 def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show_level=False, show_boundary=True,
             show_time=False, show_prop=True, show_vertex=True,
             view=True, fname="/tmp/Hn", split_camel=False, lookup={}, svg=False, png=True):
+
     class temp:
         clusters = {}
         dot = Graph("Hn", strict=True)
@@ -151,6 +152,7 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
 
     if temp.clusters:
         new_cluster = []
+
         for cluster in temp.clusters:
             if cluster == "N":
                 new_cluster.append(0)
@@ -158,9 +160,10 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
                 new_cluster.append(int(cluster[1:]))
 
         last_cluster_name = ""
+        new_cluster = [int(x) for x in new_cluster]
 
         for i, n in enumerate(reversed(sorted(new_cluster))):
-            cluster_name = "N" + ("" if n == 0 else "{0:+}".format(n))
+            cluster_name = (("N" if int(n) == 0 else "N+" + str(n)) if int(n) >= 0 else "N" + str(n))
             cluster = temp.clusters[cluster_name]
 
             with temp.dot.subgraph(name=cluster_name) as sg:
@@ -189,8 +192,6 @@ def draw_hn(Hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
     if png:
         temp.dot.format = 'png'
         temp.dot.render(fname, view=view)
-    # texcode = dot2tex.dot2tex(temp.dot.source, format='tikz', texmode='math')
-    # print(texcode)
 
     if svg:
         temp.dot.format = 'svg'

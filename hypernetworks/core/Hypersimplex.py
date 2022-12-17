@@ -498,14 +498,14 @@ class Hypersimplex:
                 bres += ("; B(" + ", ".join(self.B) + ")") if self.B != set() else ""
 
                 if self.hstype in [SEQUENCE]:
-                    bres += ")" + (("`" + self.N) if self.N else "")
+                    bres += ")" + (("^" + self.N) if self.N else "")
                 else:
-                    bres += ">" + (("`" + self.N) if self.N else "")
+                    bres += ">" + (("^" + self.N) if self.N else "")
 
             elif self.hstype in [BETA]:
                 bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
                 bres += ("; B(" + ", ".join(self.B) + ")") if self.B else ""
-                bres += "}" + (("`" + self.N) if self.N else "")
+                bres += "}" + (("^" + self.N) if self.N else "")
 
             else:
                 bres = ""

@@ -182,11 +182,9 @@ def compile_hn(Hn, parser, hs_string):
         def boundary(self, *tokens):
             return {'B': {str(t) for t in tokens}}
 
-        def level(self, token):
-            if len(token) == 1:
-                return {'N': "N"}
-
-            return {'N': "N" + token}
+        def level(self, *tokens):
+            token = tokens[1]
+            return {'N': (("N" if int(token) == 0 else "N+" + str(token)) if int(token) >= 0 else "N" + str(token))}
 
         def psi(self, token):
             return {'psi': str(token)}

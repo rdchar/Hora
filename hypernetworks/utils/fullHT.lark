@@ -39,7 +39,7 @@ immutable:      "!" NAME "="
 sequence:       "(" vertex ("," vertex)* ")"
 empty_sequence: "()"
 
-level:          "`N" LEVEL
+level:          N "(" LEVEL ")"
 
 assign:         NAME "="
 
@@ -95,14 +95,16 @@ NAME:           "-" | DECIMAL | (LETTER | DIGIT | "-" | "_" | "^" | "." | "&" | 
 NUMBER:         DIGIT+
 DECIMAL:        DIGIT+ "." DIGIT+
 TYPE:           NAME
-N:              "N"
-LEVEL:          "+" NUMBER | "-" NUMBER
+N:              "^N"
 PRED:           NAME
 WILDCARD:       "*"
 X:              DIGIT+
 Y:              DIGIT+
 Z:              DIGIT+
 NOT:            "¬"
+LEVEL:          "+" DIGIT+
+              | "-" DIGIT+
+              | DIGIT+
 
 
 logic_and:      "\/\\" | "AND"
