@@ -105,6 +105,7 @@ NOT:            "¬"
 LEVEL:          "+" DIGIT+
               | "-" DIGIT+
               | DIGIT+
+              | "Soup"
 
 
 logic_and:      "\/\\" | "AND"
