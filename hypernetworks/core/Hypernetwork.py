@@ -638,7 +638,7 @@ class Hypernetwork:
                 coloured = hs.coloured
 
             self.insert(vertex=name, hs_class=hs.hs_class, hstype=hs.hstype, simplex=hs.simplex,
-                        R=hs.R, t=hs.t, C=hs.C, B=hs.B,
+                        R=hs.R, t=hs.t, C=hs.C, B=hs.B, N=hs.N,
                         psi=hs.psi, psi_inv=hs.psi_inv, phi=hs.phi, phi_inv=hs.phi_inv,
                         traffic=traffic, coloured=coloured)
 

@@ -184,7 +184,7 @@ def compile_hn(Hn, parser, hs_string):
 
         def level(self, *tokens):
             token = tokens[1]
-            return {'N': (("N" if int(token) == 0 else "N+" + str(token)) if int(token) >= 0 else "N" + str(token))}
+            return {'N': (("N" if int(token) == 0 else "N+" + str(token)) if int(token) < 0 else "N" + str(token))}
 
         def psi(self, token):
             return {'psi': str(token)}
