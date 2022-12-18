@@ -14,9 +14,8 @@ def split_camelcase(word, max):
     return textwrap.fill(split, max)
 
 
-def draw_hn(hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show_levels=False,
-            show_boundary=True, show_time=False, show_prop=True, show_vertex=True,
-            view=True, fname="/tmp/Hn", split_camel=False, svg=False, png=True):
+def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=True, show_time=False,
+            show_prop=True, show_vertex=True, view=True, fname="/tmp/Hn", split_camel=False, svg=False, png=True):
 
     G = Graph("Hn", strict=True)
     node_visited = []
@@ -123,35 +122,29 @@ def draw_hn(hn, direction="", R="", vertex="", N="", A=None, show_rel=True, show
 
         log.debug("Generating Graph ...")
 
-        if any([R, N, A, vertex]):
-            vertices = hn.search(R=R, N=N, A=A, vertex=vertex)
-            for vert in vertices:
-                _add_hs(G, hn.hypernetwork[vert])
-                _add_edges(hn.hypernetwork[vert])
-        else:
-            for vert, hs in hn.hypernetwork.items():
-                if show_levels:
-                    # level_name = "Soup" if hs.hstype in [VERTEX] else hs.N
-                    level_name = hs.N
+        for vert, hs in hn.hypernetwork.items():
+            if show_levels:
+                # level_name = "Soup" if hs.hstype in [VERTEX] else hs.N
+                level_name = hs.N
 
-                    if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
-                        with G.subgraph(name="cluster_" + level_name, edge_attr={"labelloc": "c", "len": "10"}) as SG:
-                            SG.attr(label=level_name)
-                            _add_hs(SG, hs)
+                if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
+                    with G.subgraph(name="cluster_" + level_name, edge_attr={"labelloc": "c", "len": "10"}) as SG:
+                        SG.attr(label=level_name)
+                        _add_hs(SG, hs)
 
-                    if hs.hstype in [VERTEX]:
-                        with G.subgraph(name="cluster_" + level_name, edge_attr={"labelloc": "c", "len": "10"}) as SG:
-                            SG.attr(label=level_name)
-                            _add_vertex(SG, hs)
+                if hs.hstype in [VERTEX]:
+                    with G.subgraph(name="cluster_" + level_name, edge_attr={"labelloc": "c", "len": "10"}) as SG:
+                        SG.attr(label=level_name)
+                        _add_vertex(SG, hs)
 
-                else:
-                    if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
-                        _add_hs(G, hs)
+            else:
+                if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
+                    _add_hs(G, hs)
 
-                    if hs.hstype in [VERTEX]:
-                        _add_vertex(G, hs)
+                if hs.hstype in [VERTEX]:
+                    _add_vertex(G, hs)
 
-                _add_edges(hs)
+            _add_edges(hs)
 
     if show_levels:
         levels = {"Soup"}
