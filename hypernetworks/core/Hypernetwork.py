@@ -184,7 +184,7 @@ class Hypernetwork:
             if temp.B and not B:
                 B = temp.B.copy()
 
-            if temp.N and N == "":
+            if temp.N and N == "N":
                 N = temp.N
 
             if temp.psi != "" and psi == "":
@@ -258,69 +258,65 @@ class Hypernetwork:
             del self._hypernetwork[_vertex]
         # End _delete_vertex
 
-        def _find_B_peaks():
+        def _delete_whole_boundary():
+            temp = copy.deepcopy(self._hypernetwork)
             peaks = []
 
-            def _find_peak(_vertex):
-                if len(self._hypernetwork[_vertex].partOf) > 0:
-                    for whole in self._hypernetwork[_vertex].partOf:
-                        if B in self._hypernetwork[whole].B:
-                            _find_peak(whole)
+            for name, hs in temp.items():
+                if B in hs.B:
+                    for parent in hs.partOf:
+                        if parent in self._hypernetwork:
+                            if len(hs.B) <= 1:
+                                self._hypernetwork[parent].simplex.remove(name)
 
-                        else:
-                            peaks.append(whole)
+                    if len(hs.B) == 1:
+                        if name in self._hypernetwork:
+                            del self._hypernetwork[name]
 
-                else:
-                    peaks.append(_vertex)
-
-            _find_peak(vertex)
+                    else:
+                        self._hypernetwork[name].B.remove(B)
 
             return peaks
-        # End _find_B_peaks
+        # End _delete_whole_boundary
 
         def _delete_boundary():
             def _delete_vertex_from_boundary(_vertex, _parent):
-                print("HELLO XXXX")
-                if B in self._hypernetwork[_vertex].B:
-                    print("\tHELLO 2", _vertex, "from", _parent, self._hypernetwork[_vertex].simplex)
+                if _vertex in self._hypernetwork:
+                    hs = self._hypernetwork[_vertex]
 
-                    if _vertex in self._hypernetwork:
-                        if len(self._hypernetwork[_vertex].B) == 1:
-                            if _vertex == vertex or (B in self._hypernetwork[_parent].B and _parent == vertex):
-                                self._hypernetwork[_parent].simplex.remove(_vertex)
-
-                            if len(self._hypernetwork[_vertex].partOf) == 1:
-                                del self._hypernetwork[_vertex]
-
-                            else:
-                                print("\t\tHELLO 5", _vertex, "from", _parent)
-                                # self._hypernetwork[_parent].simplex.remove(_vertex)
-                                self._hypernetwork[_vertex].partOf.remove(_parent)
+                    if B in hs.B:
+                        if len(hs.B) == 1 and len(hs.partOf) == 1:
+                            del self._hypernetwork[_vertex]
 
                         else:
-                            print("\t\tHELLO 4", _vertex)
-                            self._hypernetwork[_vertex].B.remove(B)
+                            if len(self._hypernetwork[_vertex].partOf) == 1:
+                                self._hypernetwork[_vertex].B.remove(B)
 
-                else:
-                    print("\tHELLO 3", _vertex, "from", _parent, self._hypernetwork[_vertex].simplex)
-                    if _vertex == vertex:
-                        if _parent in self._hypernetwork and _vertex in self._hypernetwork[_parent].simplex:
-                            self._hypernetwork[_parent].simplex.remove(_vertex)
-            # End _delete_vertex_from_boundary
+                    else:
+                        parents = set()
+                        for parent in hs.partOf:
+                            if parent in self._hypernetwork:
+                                if B in self._hypernetwork[parent].B and len(self._hypernetwork[parent].B) == 1:
+                                    parents.add(parent)
+
+                        self._hypernetwork[_vertex].partOf = self._hypernetwork[_vertex].partOf.difference(parents)
+            # End delete_from_boundary
 
             def _delete_from_boundary(_vertex, _parent):
                 if _vertex in self._hypernetwork:
-                    for _vert in self._hypernetwork[_vertex].simplex:
-                        print("HELLO 1", _vert, "from", _vertex, self._hypernetwork[_vertex].simplex)
-                        _delete_from_boundary(_vert, _vertex)
+                    for vert in self._hypernetwork[_vertex].simplex:
+                        hs = self._hypernetwork[vert]
 
-                        if _vert in self._hypernetwork:
-                            print("\t\tHELLO 10", _vert, self._hypernetwork[_vert].B, B, self._hypernetwork[_vert].partOf)
-                            if del_children or B in self._hypernetwork[_vert].B:
-                                _delete_vertex_from_boundary(_vert, _vertex)
+                        if B in hs.B:
+                            _delete_from_boundary(vert, _vertex)
+
+                        _delete_vertex_from_boundary(vert, _vertex)
+
+                    for vert in self._hypernetwork[_vertex].simplex:
+                        if vert not in self._hypernetwork:
+                            self._hypernetwork[_vertex].simplex.remove(vert)
             # End _delete_from_boundary
 
-            # peaks = _find_B_peaks()
             peaks = self._hypernetwork[vertex].partOf
 
             for peak in peaks:
@@ -335,7 +331,6 @@ class Hypernetwork:
                             del self._hypernetwork[vertex]
                         else:
                             self._hypernetwork[vertex].B.remove(B)
-
         # End _delete_boundary
 
         # TODO may need more work
@@ -347,6 +342,8 @@ class Hypernetwork:
         elif B:
             if vertex and vertex in self._hypernetwork:
                 _delete_boundary()
+            else:
+                _delete_whole_boundary()
 
         elif vertex and vertex in self._hypernetwork:
             _delete_vertex(_vertex=vertex)
@@ -707,7 +704,7 @@ class Hypernetwork:
             hs_t = -1
             hs_C = []
             hs_B = set()
-            hs_N = ""
+            hs_N = "N"
             hs_psi = ""
             hs_psi_inv = ""
             hs_phi = ""
@@ -868,7 +865,7 @@ class Hypernetwork:
 
         return name
 
-    def search(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="", partOf=None):
+    def search(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="N", partOf=None):
         res = []
 
         for node in self._hypernetwork.values():
@@ -950,7 +947,7 @@ class Hypernetwork:
 
         return res
 
-    def get_subHn(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="", partOf=None):
+    def get_subHn(self, vertex="", hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="N", partOf=None):
         class temp:
             Hn = None
 
