@@ -199,7 +199,6 @@ def get_subHn_by_level(hn, level, subHn):
 
     for name, hs in hn.hypernetwork.items():
         if level == hs.N:
-            print(level, hs.N, name, hs)
             _insert(name, hs)
             # for vertex in hs.simplex:
             #     v_hs = hn.hypernetwork[vertex]
