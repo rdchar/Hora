@@ -37,10 +37,10 @@ def get_search_paths(hn, ignore_sb=False, *vertex_list):
     return paths
 
 
-def what_is_it(hn, ignore_sb=False, *vertex_list):
+def what_is_it(hn, ignore_boundary=False, *vertex_list):
     objects = set()
     groups = {}
-    paths = get_search_paths(hn, ignore_sb, *vertex_list)
+    paths = get_search_paths(hn, ignore_boundary, *vertex_list)
 
     for path in paths:
         for pth in path:
@@ -66,7 +66,6 @@ def what_is_it(hn, ignore_sb=False, *vertex_list):
         else:
             objects = objects.intersection(temp)
 
-    print(objects)
     return list(objects)
 
 

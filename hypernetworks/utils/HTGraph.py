@@ -1,9 +1,11 @@
 import logging as log
 import re
 import textwrap
+import networkx as nx
 # import dot2tex
 
 from graphviz import Graph
+import matplotlib.pyplot as plt
 
 from hypernetworks.core.Hypernetwork import Hypernetwork
 from hypernetworks.core.Hypersimplex import ALPHA, UNION_ALPHA, BETA, VERTEX, PROPERTY, SEQUENCE
@@ -20,6 +22,15 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
     G = Graph("Hn", strict=True)
     node_visited = []
     edge_visited = []
+
+    def _set_shape(hs):
+        if hs.hstype in [ALPHA, UNION_ALPHA]:
+            G.attr('node', style='solid', shape='record')
+        elif hs.hstype in [BETA]:
+            G.attr('node', style='rounded', shape='record')
+        elif hs.hstype in [SEQUENCE]:
+            G.attr('node', style='dashed', shape='record')
+    # End _set_shape
 
     def _add_hs(_G, hs):
         label = ""
@@ -56,12 +67,7 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
                 if vtx_port not in node_visited:
                     node_visited.append(vtx_port)
 
-            if hs.hstype in [ALPHA, UNION_ALPHA]:
-                _G.attr('node', style='solid', shape='record')
-            elif hs.hstype == BETA:
-                _G.attr('node', style='rounded', shape='record')
-            elif hs.hstype == SEQUENCE:
-                _G.attr('node', style='dashed', shape='record')
+            _set_shape(hs)
 
             v = "{" + (split_camelcase(hs.vertex, 15) if split_camel else hs.vertex) \
                 + (("; t_" + str(hs.t)) if show_time and hs.t > -1 else "") \
@@ -81,7 +87,7 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
     # End _add_vertex
 
     def _add_edges(hs):
-        G.attr('node', style='solid', shape='record')
+        _set_shape(hs)
 
         for vtx in hs.simplex:
             vtx_hs = hn.hypernetwork[vtx]
@@ -95,6 +101,9 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
                     vtx_port = vtx
 
             if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
+                _set_shape(hs)
+                _set_shape(hn.hypernetwork[vtx_port])
+
                 if vtx_port:
                     if vtx_hs.hstype in [VERTEX]:
                         if show_vertex or len(vtx_hs.partOf) > 1:
@@ -114,8 +123,9 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
                     _add_edges(hn.hypernetwork[vtx_port])
     # End _add_edges
 
-    def _draw_hn(subHn):
+    def _draw_hn():
         G.attr('node', style='solid', shape='record')
+
         if not hn:
             print("WARNING: Hn empty cannot generate graph.")
             return None
@@ -129,12 +139,13 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
 
                 if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
                     with G.subgraph(name="cluster_" + level_name, edge_attr={"labelloc": "c", "len": "10"}) as SG:
-                        SG.attr(label=level_name)
+                        SG.node(level_name, style="invisible", height="0", width="0", label="")
+                        SG.attr(label=level_name, rank="same")
                         _add_hs(SG, hs)
 
                 if hs.hstype in [VERTEX]:
                     with G.subgraph(name="cluster_" + level_name, edge_attr={"labelloc": "c", "len": "10"}) as SG:
-                        SG.attr(label=level_name)
+                        SG.attr(label=level_name, rank="same")
                         _add_vertex(SG, hs)
 
             else:
@@ -162,10 +173,10 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
                 if hs.hstype in [VERTEX]:
                     subHn.insert(hs)
 
-            _draw_hn(subHn)
+            _draw_hn()
 
     else:
-        _draw_hn(hn)
+        _draw_hn()
 
     if direction:
         G.attr(rankdir=direction)
@@ -179,5 +190,28 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
         G.render(fname, view=view)
 
     log.debug("... complete")
+
+    return G.source
+
+
+def draw_graph_from_hn(hn, fname="/tmp/Hn", direction="", engine="fdp", view=False, svg=False, png=True):
+    G = Graph("test", engine=engine, strict=True)
+    if direction:
+        G.attr(rankdir=direction)
+
+    for name, hs in hn.hypernetwork.items():
+        for vertex in hs.simplex:
+            G.edge(name, vertex)
+
+    if png:
+        G.format = 'png'
+        G.render(fname, view=view)
+
+    if svg:
+        G.format = 'svg'
+        G.render(fname, view=view)
+
+    G.format = 'png'
+    G.render(fname, view=view)
 
     return G.source
