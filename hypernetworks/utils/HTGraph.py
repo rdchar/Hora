@@ -102,9 +102,9 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
 
             if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
                 _set_shape(hs)
-                _set_shape(hn.hypernetwork[vtx_port])
 
                 if vtx_port:
+                    _set_shape(hn.hypernetwork[vtx_port])
                     if vtx_hs.hstype in [VERTEX]:
                         if show_vertex or len(vtx_hs.partOf) > 1:
                             G.edge(hs.vertex + ":" + vtx_port, vtx_port)
@@ -156,6 +156,7 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
                     _add_vertex(G, hs)
 
             _add_edges(hs)
+    # End _draw_hn
 
     if show_levels:
         levels = {"Soup"}
@@ -210,8 +211,5 @@ def draw_graph_from_hn(hn, fname="/tmp/Hn", direction="", engine="fdp", view=Fal
     if svg:
         G.format = 'svg'
         G.render(fname, view=view)
-
-    G.format = 'png'
-    G.render(fname, view=view)
 
     return G.source

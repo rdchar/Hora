@@ -1,0 +1,10 @@
+@startuml
+customer -> web_app: visit-bank
+web_app --> customer: visit-bank-ret
+customer -> spa: view-account-spa
+spa -> api: make-spa-api-call
+api -> database: read-db
+database --> api: read-db-ret
+api --> spa: make-spa-api-call-ret
+spa --> customer: view-account-spa-ret
+@enduml

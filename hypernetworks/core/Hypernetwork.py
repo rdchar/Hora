@@ -161,7 +161,6 @@ class Hypernetwork:
         if phi_inv:
             self.phi_invs[phi_inv] = None
 
-
     def _add(self, vertex, hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="N",
              psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
 
@@ -266,7 +265,7 @@ class Hypernetwork:
                 if B in hs.B:
                     for parent in hs.partOf:
                         if parent in self._hypernetwork:
-                            if len(hs.B) <= 1:
+                            if len(hs.B) <= 1 and name in self._hypernetwork[parent].simplex:
                                 self._hypernetwork[parent].simplex.remove(name)
 
                     if len(hs.B) == 1:
@@ -620,7 +619,6 @@ class Hypernetwork:
 
         return vertex
 
-    # TODO Needs testing properly
     def union(self, _hn):
         for name, hs in _hn.hypernetwork.items():
             # hs = _hn.hypernetwork[name]
@@ -661,7 +659,6 @@ class Hypernetwork:
 
         return self
 
-    # TODO Needs testing properly
     def intersection(self, hn, inc_whole_beta=True):
         new_hn = Hypernetwork()
 
@@ -724,8 +721,14 @@ class Hypernetwork:
                 if hs_k == "VAL":
                     _hypersimplex.hs_name = hs_v
 
+                elif hs_k in ["V"]:
+                    # _hypersimplex.hs_type = str_to_hstype(hs_k)
+                    _hypersimplex.hs_simplex.append(self.parse(hs_v))
+
                 elif hs_k in ["VERTEX", "PROPERTY"]:
                     _hypersimplex.hs_type = str_to_hstype(hs_k)
+                    _hypersimplex.hs_name = hs_v[0]["V"]
+                    _hypersimplex.hs_N = hs_v[1]["N"]
 
                 elif hs_k in ["ALPHA", "BETA", "UNION_ALPHA", "IMMUTABLE_ALPHA", "SEQUENCE"]:
                     _hypersimplex.hs_type = str_to_hstype(hs_k)
@@ -824,9 +827,6 @@ class Hypernetwork:
 
         name = ""
         _clear()
-
-        # pprint(hypernet)
-        # self.preparse(hypernet)
 
         for hn in hypernet:
             if isinstance(hn, dict):

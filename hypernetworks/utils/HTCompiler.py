@@ -112,16 +112,23 @@ def compile_hn(Hn, parser, hs_string):
 
         def vertex(self, *tokens):
             res = []
+
             for tk in tokens:
                 if isinstance(tk, dict):
                     if "PROPERTY" in tk:
                         res = tk
                     else:
                         res.append(tk)
+
                 elif isinstance(tk, list):
                     res.append(tk[0])  # TODO Need to test this properly
+
                 else:
-                    res = str(tk)  # TODO need to add functionality for typed
+                    if len(tokens) == 1:
+                        res = str(tk)  # TODO need to add functionality for typed
+                    elif len(tokens) == 2:
+                        res = [{"VERTEX": [{"V": tokens[0][0]}, {"N": tokens[1]["N"]}]}]
+
                     break
 
             return res
@@ -183,8 +190,11 @@ def compile_hn(Hn, parser, hs_string):
             return {'B': {str(t) for t in tokens}}
 
         def level(self, *tokens):
-            token = tokens[1]
-            return {'N': ("N" if int(token) == 0 else ("N+" + str(token) if int(token) > 0 else "N" + str(token)))}
+            if len(tokens) == 1:
+                return {"N": "N"}
+
+            token = int(tokens[1])
+            return {'N': ("N" if token == 0 else ("N+" + str(token) if token > 0 else "N" + str(token)))}
 
         def psi(self, token):
             return {'psi': str(token)}
