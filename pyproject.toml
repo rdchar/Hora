@@ -1,0 +1,38 @@
+[build-system]
+requires = [ "setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tools.setuptools]
+packages = [
+    "hypernetworks",
+    "hypernetworks.core",
+    "hypernetworks.utils",
+]
+[tools.setuptools.package-data]
+"" = ["fullHT.lark"]
+
+[project]
+name = "Hora"
+description = "Hypernetwork Theory library."
+requires-python = ">=3.7"
+version = "0.1.0"
+readme = "README.md"
+
+dependencies = [
+    "numpy==1.21.2",
+    "graphviz==0.17", 
+    "networkx==2.6.3",
+    "lark-parser==0.12.0", 
+    "click==8.0.1", 
+    "pymongo==3.12.0", 
+    "rdflib==6.0.1", 
+    "Flask==2.0.1", 
+    "Flask-Cors~=3.0.9"
+]
+authors = [
+    { name="Richard Charlesworth", email="richard@example.com" }
+]
+
+[project.scripts]
+hnLoader = "hypernetwork.bin.hnLoader:hn_Loader"
+hnServer = "hypernetwork.bin.hnServer:main"
