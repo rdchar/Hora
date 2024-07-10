@@ -148,9 +148,9 @@ def compile_hn(Hn, parser, hs_string):
         def property(self, token):
             return {"PROPERTY": str(token)}
 
-        def not_vertex(self, *tokens):
+        def not_vertex(self, token):
             # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
-            return self.vertex(tokens)
+            return {"NOT_VERTEX": "¬" + str(token)}
 
         def not_alpha(self, *tokens):
             # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.

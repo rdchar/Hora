@@ -8,7 +8,7 @@ from graphviz import Graph
 import matplotlib.pyplot as plt
 
 from hypernetworks.core.Hypernetwork import Hypernetwork
-from hypernetworks.core.Hypersimplex import ALPHA, UNION_ALPHA, BETA, VERTEX, PROPERTY, SEQUENCE
+from hypernetworks.core.Hypersimplex import ALPHA, UNION_ALPHA, BETA, VERTEX, NOT_VERTEX, PROPERTY, SEQUENCE
 
 
 def split_camelcase(word, max):
@@ -16,10 +16,30 @@ def split_camelcase(word, max):
     return textwrap.fill(split, max)
 
 
-def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=True, show_time=False,
-            show_prop=True, show_vertex=True, view=True, fname="/tmp/Hn", split_camel=False, svg=False, png=True):
+def get_hs_type_symbol(hs, show_hstype=True):
+    if show_hstype:
+        if hs.hstype in [ALPHA]:
+            return "_𝛼"
+        elif hs.hstype in [BETA]:
+            return "_β"
 
-    G = Graph("Hn", strict=True)
+    return ""
+
+
+def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=True, show_time=False, strict=True,
+            show_prop=True, show_vertex=True, show_psi=True, view=True, fname="/tmp/Hn", split_camel=False,
+            svg=False, png=True, show_hstype=False, fiddle_order=False, engine="dot"):
+
+    G = Graph("Hn", strict=strict, engine=engine)
+
+    if fiddle_order:
+        with G.subgraph(name='cluster0') as SG:
+            SG.attr(color="white")
+            SG.attr('node', style='solid', shape='record', rankdir="LR", rank="same")
+            SG.node("Company-Before", "{Company-Before|R_company-before|{<Division-1-0> Division-1 | <Division-2-Before-1> Division-2-Before | <Sponsorship-2> Sponsorship}}")
+            SG.node("Company-After", "{Company-After|R_company-after|{<Division-1-0> Division-1 | <Division-2-After-1> Division-2-After}}")
+            # SG.edge("Company-Before", "Company-After", color="white")
+
     node_visited = []
     edge_visited = []
 
@@ -34,33 +54,41 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
 
     def _add_hs(_G, hs):
         label = ""
+        vtx_port = ""
         first = True
+        pos = 0
 
         for vtx in hs.simplex:
             vtx_hs = hn.hypernetwork[vtx]
-            vtx_port = ""
             vtx_lbl = split_camelcase(vtx, 16) if split_camel else vtx
 
             if vtx in hn.hypernetwork and vtx_hs.hstype not in [PROPERTY]:
-                vtx_port = vtx
+                vtx_port = vtx + "-" + str(pos)
+            if vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
+                vtx_port = "not-" + vtx[1:] + "-" + str(pos)
 
             if first:
                 if show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [PROPERTY]:
-                    label += "~" + vtx_lbl
+                    label += "_" + vtx_lbl + "_"
+                # elif show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
+                #     label += vtx_lbl[1:]
                 elif vtx in hn.hypernetwork and vtx_hs.hstype in [SEQUENCE]:
                     label += "<" + vtx_port + "> " + "(" + vtx_lbl + ")"
                 else:
-                    label += "<" + vtx_port + "> " + vtx_lbl
+                    label += "<" + vtx_port + "> " + vtx_lbl + get_hs_type_symbol(vtx_hs, show_hstype=show_hstype)
 
                 first = False
 
             else:
                 if show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [PROPERTY]:
-                    label += " | ~" + vtx_lbl
+                    label += " | _" + vtx_lbl + "_"
+                # elif show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
+                #     label += " | " + vtx_lbl
+                #     print(vtx_lbl[1:])
                 elif vtx in hn.hypernetwork and vtx_hs.hstype in [SEQUENCE]:
                     label += " | <" + vtx_port + "> " + "(" + vtx_lbl + ")"
                 else:
-                    label += " | <" + vtx_port + "> " + vtx_lbl
+                    label += " | <" + vtx_port + "> " + vtx_lbl + get_hs_type_symbol(vtx_hs, show_hstype=show_hstype)
 
             # TODO feels a bit contrived
             if vtx_port:
@@ -70,14 +98,19 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
             _set_shape(hs)
 
             v = "{" + (split_camelcase(hs.vertex, 15) if split_camel else hs.vertex) \
+                + get_hs_type_symbol(hs, show_hstype) \
                 + (("; t_" + str(hs.t)) if show_time and hs.t > -1 else "") \
-                + (("|R" + ("" if hs.R.name == " " else ("_" + hs.R.name))
+                + (("|R" if hs.R.name == " " or hs.R.name == "" else ("|R_" + hs.R.name)
                    + ("" if not hs.B or not show_boundary else ("\\nB(" + ", ".join(hs.B) + ")")))
-                   if show_rel and hs.R.name != "" else
-                   ("" if not hs.B or not show_boundary else ("\\nB(" + ", ".join(hs.B) + ")"))) \
+                   if show_rel else
+                   ("" if not hs.B or not show_boundary else ("\\nB(" + ", ".join(hs.B) + ")"))
+                   ) \
+                + ("" if hs.psi == "" or not show_psi else "\\nΨ_" + hs.psi) \
                 + "|{" + label + "}}"
 
             _G.node(name=hs.vertex, label=v)
+
+            pos += 1
     # End _add_hs
 
     def _add_vertex(_G, hs):
@@ -88,6 +121,7 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
 
     def _add_edges(hs):
         _set_shape(hs)
+        pos = 0
 
         for vtx in hs.simplex:
             vtx_hs = hn.hypernetwork[vtx]
@@ -99,28 +133,43 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
             else:
                 if vtx in hn.hypernetwork and vtx_hs.hstype not in [PROPERTY]:
                     vtx_port = vtx
+                if vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
+                    vtx_port = "not-" + vtx[1:]
 
             if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
                 _set_shape(hs)
 
                 if vtx_port:
-                    _set_shape(hn.hypernetwork[vtx_port])
+                    if vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
+                        _set_shape(hn.hypernetwork[vtx])
+                    else:
+                        _set_shape(hn.hypernetwork[vtx_port])
+
                     if vtx_hs.hstype in [VERTEX]:
                         if show_vertex or len(vtx_hs.partOf) > 1:
-                            G.edge(hs.vertex + ":" + vtx_port, vtx_port)
+                            G.edge(hs.vertex + ":" + vtx_port + "-" + str(pos), vtx_port)
                     else:
-                        G.edge(hs.vertex + ":" + vtx_port, vtx_port)
+                        if vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
+                            G.edge(hs.vertex + ":" + vtx_port + "-" + str(pos), vtx)
+                        else:
+                            G.edge(hs.vertex + ":" + vtx_port + "-" + str(pos), vtx_port)
 
-            elif hs.hstype in [VERTEX]:
+            elif hs.hstype in [VERTEX, NOT_VERTEX]:
                 if show_vertex or len(hs.partOf) > 1:
                     G.attr('node', style='solid', shape="ellipse")
-                    G.edge(vtx_port, hs.vertex)
+
+                    if vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
+                        G.edge(vtx_port + "-" + str(pos), vtx)
+                    else:
+                        G.edge(vtx_port + "-" + str(pos), hs.vertex)
 
             # TODO feels a bit contrived
             if vtx_port:
                 if vtx_port not in node_visited:
                     edge_visited.append(vtx_port)
                     _add_edges(hn.hypernetwork[vtx_port])
+
+            pos += 1
     # End _add_edges
 
     def _draw_hn():
@@ -179,16 +228,23 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
     else:
         _draw_hn()
 
+    # if fiddle_order:
+    #     with G.subgraph(name='cluster0') as SG:
+    #         SG.attr(rankdir='LR')
+    #         SG.node("Company-Before")
+    #         SG.node("Company-After")
+    #         SG.edge("Company-Before", "Company-After")
+
     if direction:
         G.attr(rankdir=direction)
 
     if png:
         G.format = 'png'
-        G.render(fname, view=view)
+        G.render(fname, view=view, cleanup=True)
 
     if svg:
         G.format = 'svg'
-        G.render(fname, view=view)
+        G.render(fname, view=view, cleanup=True)
 
     log.debug("... complete")
 

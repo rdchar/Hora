@@ -15,8 +15,10 @@ hs:             alpha
 
 union_alpha:    "U" alpha
 immutable_alpha: "!" alpha
-not_alpha:      "&" alpha  // should be '¬' option-L
+// not_alpha:      "&" alpha  // should be '¬' option-L
 not_beta:       "&" beta
+
+not_alpha:      "¬<" a_simplex r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
 alpha:          "<" a_simplex r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
 beta:           "{" b_simplex r? time? boundary? psi? psi_inv? phi? phi_inv? "}" level?
 empty_alpha:    "<>"
@@ -28,7 +30,7 @@ empty_beta:     "{}"
               | sequence
               | WILDCARD
 
-?b_simplex:     vertex ("," (vertex | not_vertex))*
+?b_simplex:     (vertex | not_vertex) ("," (vertex | not_vertex))*
 
 not_vertex:     "¬" vertex
 vertex:         (NAME | property | not_property | assign? hs | assign sequence) level? typed?
@@ -91,7 +93,7 @@ phis:           NAME "=" NAME
 
 
 // Terminals
-NAME:           "-" | DECIMAL | (LETTER | DIGIT | "-" | "_" | "^" | "." | "&" | ":" | "+")+
+NAME:           "ς" | "-" | DECIMAL | (LETTER | DIGIT | "-" | "_" | "^" | "." | "&" | ":" | "+")+
 NUMBER:         DIGIT+
 DECIMAL:        DIGIT+ "." DIGIT+
 TYPE:           NAME

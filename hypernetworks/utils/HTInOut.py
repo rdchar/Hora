@@ -138,8 +138,9 @@ def from_YAML(data):
         psi = d["psi"] if "psi" in d else ""
         N = d["N"] if "N" in d else ""
 
-        hn.load_hs(Hypersimplex(_hn=hn, vertex=vertex, hstype=hstype, simplex=simplex,
-                                partOf=partOf, R=R, t=t, C=C, B=B, psi=psi, N=N))
+        hn.insert(vertex=vertex, hstype=hstype, simplex=simplex, partOf=partOf, R=R, t=t, C=C, B=B, psi=psi, N=N)
+        # hn.load_hs(Hypersimplex(_hn=hn, vertex=vertex, hstype=hstype, simplex=simplex,
+        #                         partOf=partOf, R=R, t=t, C=C, B=B, psi=psi, N=N))
 
     return hn
 

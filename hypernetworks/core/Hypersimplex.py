@@ -16,19 +16,21 @@ R_TRANSITION = 4
 # Node type
 NONE = -1
 VERTEX = 0
-ALPHA = 1
-BETA = 2
-PROPERTY = 3
-UNION_ALPHA = 4
-IMMUTABLE_ALPHA = 5
-SEQUENCE = 6
+NOT_VERTEX = 1
+ALPHA = 2
+BETA = 3
+PROPERTY = 4
+UNION_ALPHA = 5
+IMMUTABLE_ALPHA = 6
+SEQUENCE = 7
 
 # Special types
 NONE = -1
 UNION = 1
 IMMUTABLE = 2
 
-HS_TYPE = ['NONE', 'VERTEX', 'ALPHA', 'BETA', 'PROPERTY', 'UNION_ALPHA', 'IMMUTABLE_ALPHA', 'SEQUENCE']
+HS_TYPE = ['NONE', 'VERTEX', 'NOT_VERTEX', 'ALPHA', 'BETA', 'PROPERTY', 'UNION_ALPHA', 'IMMUTABLE_ALPHA', 'SEQUENCE']
+
 hstype_to_str = lambda x: HS_TYPE[x + 1]
 str_to_hstype = lambda x: HS_TYPE.index(x) - 1
 
@@ -69,7 +71,8 @@ class HsRelation:
         self._name = value
 
     def is_equal(self, value):
-        if value == ' ' or isinstance(value, str):
+        # if value == ' ' and isinstance(value, str):
+        if isinstance(value, str):
             return self._name == value
 
         return self._name == value._name
@@ -383,6 +386,9 @@ class Hypersimplex:
             self._hypernetwork._boundary_exclusions[self.vertex].add(b)
             self.B.remove(b)
 
+    def add_to_boundary(self, b):
+        self.B = self.B.union({b})
+
     def _handle_Hs_union_dups(self, dup=False, hs_class=HS_STANDARD, hstype=NONE, simplex=None, R="", t=-1, C=None, B=None, N="N",
                               psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
 
@@ -492,7 +498,7 @@ class Hypersimplex:
 
             if self.hstype in [ALPHA, UNION_ALPHA, SEQUENCE]:
                 bres += "; R" + (("" if self.R.name == " " else "_") + self.R.name) if self.R.name else ""
-                bres += ("; psi_" + str(self.psi)) if self.psi else ""
+                bres += ("; Ψ_" + str(self.psi)) if self.psi else ""
                 bres += ("; t_" + str(self.t)) if self.t >= 0 else ""
                 bres += ("; C(" + ", ".join(str(c) for c in self.C) + ")") if self.C else ""
                 bres += ("; B(" + ", ".join(self.B) + ")") if self.B != set() else ""
