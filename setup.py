@@ -1,4 +1,6 @@
-from setuptools import setup, command
+# from setuptools import setup, command
+from setuptools import setup
+from setuptools.command.install_scripts import install_scripts
 import os
 import shutil
 
@@ -8,9 +10,10 @@ def strip_comments(l):
 def reqs(*f):
     return list(filter(None, [strip_comments(l) for l in open(os.path.join(os.getcwd(), *f)).readlines()]))
 
-class py_install(command.install_scripts.install_scripts):
+class py_install(install_scripts):
+# class py_install(command.install_scripts.install_scripts):
     def run(self):
-        command.install_scripts.install_scripts.run(self)
+        install_scripts.run(self)
         for script in self.get_outputs():
             if script.endswith(".py"):
                 shutil.move(script, script[:-3])
