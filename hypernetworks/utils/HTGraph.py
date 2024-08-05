@@ -8,7 +8,7 @@ from graphviz import Graph
 import matplotlib.pyplot as plt
 
 from hypernetworks.core.Hypernetwork import Hypernetwork
-from hypernetworks.core.Hypersimplex import ALPHA, UNION_ALPHA, BETA, VERTEX, NOT_VERTEX, PROPERTY, SEQUENCE
+from hypernetworks.core.Hypersimplex import ALPHA, UNION_ALPHA, BETA, VERTEX, ANTI_VERTEX, PROPERTY, SEQUENCE
 
 
 def split_camelcase(word, max):
@@ -50,6 +50,11 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
             G.attr('node', style='rounded', shape='record')
         elif hs.hstype in [SEQUENCE]:
             G.attr('node', style='dashed', shape='record')
+        elif hs.hstype in [VERTEX]:
+            G.attr('node', style='solid', shape="ellipse")
+        elif hs.hstype in [ANTI_VERTEX]:
+            G.attr('node', style='dashed', shape="ellipse")
+
     # End _set_shape
 
     def _add_hs(_G, hs):
@@ -58,65 +63,80 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
         first = True
         pos = 0
 
-        for vtx in hs.simplex:
-            vtx_hs = hn.hypernetwork[vtx]
-            vtx_lbl = split_camelcase(vtx, 16) if split_camel else vtx
+        if hs.simplex:
+            for vtx in hs.simplex:
+                vtx_hs = hn.hypernetwork[vtx]
+                vtx_lbl = split_camelcase(vtx, 16) if split_camel else vtx
 
-            if vtx in hn.hypernetwork and vtx_hs.hstype not in [PROPERTY]:
-                vtx_port = vtx + "-" + str(pos)
-            if vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
-                vtx_port = "not-" + vtx[1:] + "-" + str(pos)
+                if vtx in hn.hypernetwork and vtx_hs.hstype not in [PROPERTY]:
+                    vtx_port = vtx + "-" + str(pos)
 
-            if first:
-                if show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [PROPERTY]:
-                    label += "_" + vtx_lbl + "_"
-                # elif show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
-                #     label += vtx_lbl[1:]
-                elif vtx in hn.hypernetwork and vtx_hs.hstype in [SEQUENCE]:
-                    label += "<" + vtx_port + "> " + "(" + vtx_lbl + ")"
+                if first:
+                    if show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [PROPERTY]:
+                        label += "_" + vtx_lbl + "_"
+                    elif vtx in hn.hypernetwork and vtx_hs.hstype in [ANTI_VERTEX]:
+                        label += "<" + vtx_port + "> ~" + vtx_lbl
+                    elif vtx in hn.hypernetwork and vtx_hs.hstype in [SEQUENCE]:
+                        label += "<" + vtx_port + "> " + "(" + vtx_lbl + ")"
+                    else:
+                        label += "<" + vtx_port + "> " + vtx_lbl + \
+                                 get_hs_type_symbol(vtx_hs, show_hstype=show_hstype)
+
+                    first = False
+
                 else:
-                    label += "<" + vtx_port + "> " + vtx_lbl + get_hs_type_symbol(vtx_hs, show_hstype=show_hstype)
+                    if show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [PROPERTY]:
+                        label += " | _" + vtx_lbl + "_"
+                    elif vtx in hn.hypernetwork and vtx_hs.hstype in [ANTI_VERTEX]:
+                        label += " | <" + vtx_port + "> ~" + vtx_lbl
+                    elif vtx in hn.hypernetwork and vtx_hs.hstype in [SEQUENCE]:
+                        label += " | <" + vtx_port + "> " + "(" + vtx_lbl + ")"
+                    else:
+                        label += " | <" + vtx_port + "> " + vtx_lbl + \
+                                 get_hs_type_symbol(vtx_hs, show_hstype=show_hstype)
 
-                first = False
+                # TODO feels a bit contrived
+                if vtx_port:
+                    if vtx_port not in node_visited:
+                        node_visited.append(vtx_port)
 
-            else:
-                if show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [PROPERTY]:
-                    label += " | _" + vtx_lbl + "_"
-                # elif show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
-                #     label += " | " + vtx_lbl
-                #     print(vtx_lbl[1:])
-                elif vtx in hn.hypernetwork and vtx_hs.hstype in [SEQUENCE]:
-                    label += " | <" + vtx_port + "> " + "(" + vtx_lbl + ")"
-                else:
-                    label += " | <" + vtx_port + "> " + vtx_lbl + get_hs_type_symbol(vtx_hs, show_hstype=show_hstype)
+                _set_shape(hs)
 
-            # TODO feels a bit contrived
-            if vtx_port:
-                if vtx_port not in node_visited:
-                    node_visited.append(vtx_port)
+                v = "{" + (split_camelcase(hs.vertex, 15) if split_camel else hs.vertex) \
+                    + get_hs_type_symbol(hs, show_hstype) \
+                    + (("; t_" + str(hs.t)) if show_time and hs.t > -1 else "") \
+                    + (("|R" if hs.R.name == " " or hs.R.name == "" else ("|R_" + hs.R.name)
+                       + ("" if not hs.B or not show_boundary else ("\\nB(" + ", ".join(hs.B) + ")")))
+                       if show_rel else
+                       ("" if not hs.B or not show_boundary else ("\\nB(" + ", ".join(hs.B) + ")"))
+                       ) \
+                    + ("" if hs.psi == "" or not show_psi else "\\nΨ_" + hs.psi) \
+                    + "|{" + label + "}}"
 
+                _G.node(name=hs.vertex, label=v)
+
+                pos += 1
+        else:
             _set_shape(hs)
 
             v = "{" + (split_camelcase(hs.vertex, 15) if split_camel else hs.vertex) \
                 + get_hs_type_symbol(hs, show_hstype) \
                 + (("; t_" + str(hs.t)) if show_time and hs.t > -1 else "") \
                 + (("|R" if hs.R.name == " " or hs.R.name == "" else ("|R_" + hs.R.name)
-                   + ("" if not hs.B or not show_boundary else ("\\nB(" + ", ".join(hs.B) + ")")))
+                                                                     + ("" if not hs.B or not show_boundary else (
+                        "\\nB(" + ", ".join(hs.B) + ")")))
                    if show_rel else
                    ("" if not hs.B or not show_boundary else ("\\nB(" + ", ".join(hs.B) + ")"))
-                   ) \
-                + ("" if hs.psi == "" or not show_psi else "\\nΨ_" + hs.psi) \
-                + "|{" + label + "}}"
+                   ) + ("" if hs.psi == "" or not show_psi else "\\nΨ_" + hs.psi) + "}"
 
             _G.node(name=hs.vertex, label=v)
 
-            pos += 1
     # End _add_hs
 
     def _add_vertex(_G, hs):
         if show_vertex or len(hs.partOf) > 1:
             _G.node(name=hs.vertex, label=split_camelcase(hs.vertex, 15) if split_camel else hs.vertex,
-                    style='solid', shape="ellipse")
+                    style='solid' if hs.hstype in [VERTEX] else "dashed", shape="ellipse")
     # End _add_vertex
 
     def _add_edges(hs):
@@ -133,33 +153,26 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
             else:
                 if vtx in hn.hypernetwork and vtx_hs.hstype not in [PROPERTY]:
                     vtx_port = vtx
-                if vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
-                    vtx_port = "not-" + vtx[1:]
 
             if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
                 _set_shape(hs)
 
                 if vtx_port:
-                    if vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
-                        _set_shape(hn.hypernetwork[vtx])
-                    else:
-                        _set_shape(hn.hypernetwork[vtx_port])
+                    _set_shape(hn.hypernetwork[vtx_port])
 
-                    if vtx_hs.hstype in [VERTEX]:
+                    if vtx_hs.hstype in [VERTEX, ANTI_VERTEX]:
                         if show_vertex or len(vtx_hs.partOf) > 1:
                             G.edge(hs.vertex + ":" + vtx_port + "-" + str(pos), vtx_port)
                     else:
-                        if vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
-                            G.edge(hs.vertex + ":" + vtx_port + "-" + str(pos), vtx)
-                        else:
-                            G.edge(hs.vertex + ":" + vtx_port + "-" + str(pos), vtx_port)
+                        G.edge(hs.vertex + ":" + vtx_port + "-" + str(pos), vtx_port)
 
-            elif hs.hstype in [VERTEX, NOT_VERTEX]:
+            elif hs.hstype in [VERTEX, ANTI_VERTEX]:
                 if show_vertex or len(hs.partOf) > 1:
-                    G.attr('node', style='solid', shape="ellipse")
+                    _set_shape(hn.hypernetwork[vtx])
+                    # G.attr('node', style='solid', shape="ellipse")
 
-                    if vtx in hn.hypernetwork and vtx_hs.hstype in [NOT_VERTEX]:
-                        G.edge(vtx_port + "-" + str(pos), vtx)
+                    if vtx in hn.hypernetwork and vtx_hs.hstype in [ANTI_VERTEX]:
+                        G.edge(vtx_port + "-" + str(pos), "~" + vtx)
                     else:
                         G.edge(vtx_port + "-" + str(pos), hs.vertex)
 
@@ -192,7 +205,7 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
                         SG.attr(label=level_name, rank="same")
                         _add_hs(SG, hs)
 
-                if hs.hstype in [VERTEX]:
+                if hs.hstype in [VERTEX, ANTI_VERTEX]:
                     with G.subgraph(name="cluster_" + level_name, edge_attr={"labelloc": "c", "len": "10"}) as SG:
                         SG.attr(label=level_name, rank="same")
                         _add_vertex(SG, hs)
@@ -201,7 +214,7 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
                 if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
                     _add_hs(G, hs)
 
-                if hs.hstype in [VERTEX]:
+                if hs.hstype in [VERTEX, ANTI_VERTEX]:
                     _add_vertex(G, hs)
 
             _add_edges(hs)
@@ -217,10 +230,10 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
             subHn = Hypernetwork()
 
             for name, hs in hn.hypernetwork.items():
-                if hs.N == level and hs.hstype not in [VERTEX]:
+                if hs.N == level and hs.hstype not in [VERTEX, ANTI_VERTEX]:
                     subHn.insert(hs)
 
-                if hs.hstype in [VERTEX]:
+                if hs.hstype in [VERTEX, ANTI_VERTEX]:
                     subHn.insert(hs)
 
             _draw_hn()

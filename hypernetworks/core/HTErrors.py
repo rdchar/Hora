@@ -1,5 +1,5 @@
 
-class HnErrors(BaseException):
+class HnErrors(Exception):
     """Base class"""
     pass
 
@@ -33,7 +33,7 @@ class HnParseError(HnErrors):
     pass
 
 
-class HnRMissMatch(HnErrors):
+class HnRMismatch(HnErrors):
     pass
 
 

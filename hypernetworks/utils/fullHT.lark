@@ -1,42 +1,43 @@
 ?start:         "hn:"? (assign? hn)* ("lambdas:" lambdas+)? ("psis:" psis+)? ("phis:" phis+)?
 
-hn:             hs
+hn:             hs | vert
 //              | "(" hn ")"
 
 hs:             alpha
               | union_alpha
               | immutable_alpha
-              | not_alpha
+//              | not_alpha
               | beta
-              | not_beta
-              | empty_alpha
-              | empty_beta
+//              | not_beta
+//              | empty_alpha
+//              | empty_beta
               | relation
 
 union_alpha:    "U" alpha
 immutable_alpha: "!" alpha
 // not_alpha:      "&" alpha  // should be '¬' option-L
-not_beta:       "&" beta
+// not_beta:       "&" beta
 
-not_alpha:      "¬<" a_simplex r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
-alpha:          "<" a_simplex r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
-beta:           "{" b_simplex r? time? boundary? psi? psi_inv? phi? phi_inv? "}" level?
-empty_alpha:    "<>"
-empty_beta:     "{}"
+// not_alpha:      "~<" a_simplex? r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
+alpha:          "<" a_simplex? r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
+beta:           "{" b_simplex? r? time? boundary? psi? psi_inv? phi? phi_inv? "}" level?
+// empty_alpha:    "<>"
+// empty_beta:     "{}"
 
 ?a_simplex:     a_vertex ("," a_vertex)*
 ?a_vertex:      vertex
-              | not_vertex
+              | anti_vertex
               | sequence
               | WILDCARD
 
-?b_simplex:     (vertex | not_vertex) ("," (vertex | not_vertex))*
+?b_simplex:     (vertex | anti_vertex) ("," (vertex | anti_vertex))*
 
-not_vertex:     "¬" vertex
-vertex:         (NAME | property | not_property | assign? hs | assign sequence) level? typed?
+anti_vertex:    "~" NAME
+vertex:         (NAME | property | anti_property | assign? hs | assign sequence) level? typed?
+vert:           NAME level?
 
-not_property:   "¬~" NAME
-property:       "~" NAME
+anti_property:  "~%" NAME
+property:       "%" NAME
 immutable:      "!" NAME "="
 sequence:       "(" vertex ("," vertex)* ")"
 empty_sequence: "()"
@@ -55,8 +56,6 @@ psi_inv:        ";" "psi-inv_" NAME
 phi_inv:        ";" "phi-inv_" NAME
 
 typed:          "::" TYPE
-
-
 
 vname:          "v_" NUMBER
 rname:          NAME
@@ -103,16 +102,14 @@ WILDCARD:       "*"
 X:              DIGIT+
 Y:              DIGIT+
 Z:              DIGIT+
-NOT:            "¬"
+// NOT:            "~"
 LEVEL:          "+" DIGIT+
               | "-" DIGIT+
               | DIGIT+
               | "Soup"
 
-
 logic_and:      "\/\\" | "AND"
 logic_or:       "\\/"  | "OR"
-
 
 COMMENT:        /#.*/
 %ignore WS

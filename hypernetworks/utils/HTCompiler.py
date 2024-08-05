@@ -5,7 +5,7 @@ import lark
 
 __HN_LARK__ = "./fullHT.lark"
 
-from hypernetworks.core.HTErrors import HnParseError
+from hypernetworks.core.HTErrors import HnParseError, HnRMismatch
 from hypernetworks.utils.HTAnalysis import check_all_vertices_count
 
 
@@ -16,7 +16,7 @@ def load_parser():
     return parser
 
 
-def compile_hn(Hn, parser, hs_string):
+def compile_hn(Hn, parser, hs_string, boundary_percolation=True):
     @lark.v_args(inline=True)
     class HnTransformer(lark.Transformer):
         def start(self, *tokens):
@@ -27,6 +27,7 @@ def compile_hn(Hn, parser, hs_string):
                         res.append(ht2)
                 else:
                     res.append(ht)
+
             return res
 
         def rel(self, *tokens):
@@ -47,6 +48,14 @@ def compile_hn(Hn, parser, hs_string):
         def alpha(self, *tokens):
             res = []
             r = ""
+            has_simplex = False
+
+            for t in list(tokens):
+                if isinstance(t, list):
+                    has_simplex = True
+
+            if not has_simplex:
+                res.append({"ALPHA": []})
 
             for at in tokens:
                 if "R" in at and isinstance(at, dict):
@@ -75,7 +84,17 @@ def compile_hn(Hn, parser, hs_string):
             return res
 
         def beta(self, *tokens):
-            return [bt if isinstance(bt, dict) else {"BETA": bt} for bt in tokens]
+            has_simplex = False
+            res = [bt if isinstance(bt, dict) else {"BETA": bt} for bt in tokens]
+
+            for t in list(tokens):
+                if isinstance(t, list):
+                    has_simplex = True
+
+            if not has_simplex:
+                res.append({"BETA": []})
+
+            return res
 
         def union_alpha(self, *tokens):
             new_tokens = {}
@@ -109,6 +128,12 @@ def compile_hn(Hn, parser, hs_string):
 
         def a_vertex(self, token):
             return token if isinstance(token, dict) or isinstance(token, list) else str(token)
+
+        def vert(self, *tokens):
+            if len(tokens) == 1:
+                return [{"VERTEX": [{"V": tokens[0][0]}, {"N": "N"}]}]
+
+            return [{"VERTEX": [{"V": tokens[0][0]}, {"N": tokens[1]["N"]}]}]
 
         def vertex(self, *tokens):
             res = []
@@ -148,29 +173,33 @@ def compile_hn(Hn, parser, hs_string):
         def property(self, token):
             return {"PROPERTY": str(token)}
 
-        def not_vertex(self, token):
-            # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
-            return {"NOT_VERTEX": "¬" + str(token)}
+        def anti_vertex(self, *tokens):
+            vertex = str(tokens[0])
 
-        def not_alpha(self, *tokens):
-            # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
-            new_tokens = {}
-            for token in tokens[0]:
-                for k, v in token.items():
-                    new_tokens.update({k: v})
+            if len(tokens) == 1:
+                return [{"ANTI_VERTEX": [{"V": vertex}, {"N": "N"}]}]
 
-            return [new_tokens]
+            return [{"ANTI_VERTEX": [{"V": vertex}, {"N": tokens[1]["N"]}]}]
 
-        def not_beta(self, *tokens):
-            # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
-            new_tokens = {}
-            for token in tokens[0]:
-                for k, v in token.items():
-                    new_tokens.update({k: v})
+        # def not_alpha(self, *tokens):
+        #     # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
+        #     new_tokens = {}
+        #     for token in tokens[0]:
+        #         for k, v in token.items():
+        #             new_tokens.update({k: v})
+        #
+        #     return [new_tokens]
+        #
+        # def not_beta(self, *tokens):
+        #     # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
+        #     new_tokens = {}
+        #     for token in tokens[0]:
+        #         for k, v in token.items():
+        #             new_tokens.update({k: v})
+        #
+        #     return [new_tokens]
 
-            return [new_tokens]
-
-        def not_property(self, token):
+        def anti_property(self, token):
             # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
             return self.property(token)
 
@@ -281,24 +310,32 @@ def compile_hn(Hn, parser, hs_string):
         # print(tree.pretty())
         transformer = HnTransformer()
         hs = transformer.transform(tree)
-        Hn.parse(hs)
+        Hn.parse(hs, boundary_percolation)
 
         # Validate the Hn for consistency.
         vertex_comparison = check_all_vertices_count(Hn)
         if len(vertex_comparison) > 0:
             print("WARNING:", ", ".join(vertex_comparison), "failed the vertex check!")
 
+    except HnRMismatch as err:
+        # print("ERROR: Mismatched R")
+        Hn.clear()
+        # traceback.print_exc()
+        raise HnRMismatch(err)
+
     except lark.exceptions.UnexpectedToken:
         print("ERROR: lark exception Unexpected Token")
-        traceback.print_exc()
+        Hn.clear()
+        # traceback.print_exc()
         raise HnParseError
 
     except:
-        traceback.print_exc()
-        raise HnParseError
+        Hn.clear()
+        # print(Hn)
+        # traceback.print_exc()
+        raise
 
-    finally:
-        return Hn
+    return Hn
 
 
 def load_ht(fname):
