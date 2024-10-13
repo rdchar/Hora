@@ -8,7 +8,7 @@ from networkx import intersection
 from hypernetworks.core.HTConfig import hs_override_hs_type
 from hypernetworks.core.HTErrors import HnVertexNoFound, HnUnknownHsType, HnInsertError, HnRMismatch, HnHsNotExistInHn
 from hypernetworks.core.HTTypes import Types
-from hypernetworks.core.Hypersimplex import NONE, ALPHA, BETA, VERTEX, ANTI_VERTEX, PROPERTY, \
+from hypernetworks.core.Hypersimplex import NONE, ALPHA, BETA, VERTEX, ANTI_VERTEX, PROPERTY, ANTI_PROPERTY, \
     UNION_ALPHA, IMMUTABLE_ALPHA, SEQUENCE, HS_HYPER_PN, HS_STANDARD, HS_ACTIVITY, \
     Hypersimplex, str_to_hstype, hstype_to_str
 from hypernetworks.utils.HTPaths import get_peaks
@@ -180,7 +180,7 @@ class Hypernetwork:
             # Update an existing node
             temp = self._hypernetwork[vertex]
 
-            if temp.hstype not in [NONE, VERTEX, ANTI_VERTEX, PROPERTY] and not hs_override_hs_type:
+            if temp.hstype not in [NONE, VERTEX, ANTI_VERTEX, PROPERTY, ANTI_PROPERTY] and not hs_override_hs_type:
                 hstype = temp.hstype
 
             if temp.simplex and not simplex:
@@ -220,6 +220,10 @@ class Hypernetwork:
                 coloured = temp.coloured
 
             if temp.hstype == PROPERTY:
+                # TODO not sure it is correct
+                hstype = temp.hstype
+
+            if temp.hstype == ANTI_PROPERTY:
                 # TODO not sure it is correct
                 hstype = temp.hstype
 
@@ -457,6 +461,8 @@ class Hypernetwork:
             for i, v in enumerate(simplex):
                 if "PROPERTY" in v:
                     self._hypernetwork[vertex].simplex[i] = v["PROPERTY"]
+                if "ANTI_PROPERTY" in v:
+                    self._hypernetwork[vertex].simplex[i] = v["ANTI_PROPERTY"]
                 elif "ANTI_VERTEX" in v:
                     self._hypernetwork[vertex].simplex[i] = v["ANTI_VERTEX"]
 
@@ -478,6 +484,10 @@ class Hypernetwork:
                 if isinstance(v, dict):
                     if "PROPERTY" in v:
                         self._add(vertex=v["PROPERTY"], hs_class=hs_class, hstype=PROPERTY, partOf={vertex}, B=child_B,
+                                  traffic=traffic, coloured=coloured)
+                    if "ANTI_PROPERTY" in v:
+                        self._add(vertex=v["ANTI_PROPERTY"], hs_class=hs_class, hstype=ANTI_PROPERTY, partOf={vertex},
+                                  B=child_B,
                                   traffic=traffic, coloured=coloured)
                     elif "ANTI_VERTEX" in v:
                         self._add(vertex=v["ANTI_VERTEX"], hs_class=hs_class, hstype=ANTI_VERTEX, partOf={vertex},
@@ -509,7 +519,7 @@ class Hypernetwork:
         R_equal = True
         do_search = True
 
-        if hstype in [PROPERTY]:
+        if hstype in [PROPERTY, ANTI_PROPERTY]:
             if vertex in self.hypernetwork:
                 self._hypernetwork[vertex].update(vertex=vertex, hstype=hstype, R=R, t=t, C=C, B=B, N=N,
                                                   psi=psi, psi_inv=psi_inv, phi=phi, phi_inv=phi_inv,
@@ -551,7 +561,7 @@ class Hypernetwork:
                     _insert(partOf, hs_class=hs_class)
                     return
 
-                elif hstype in [ALPHA, VERTEX, ANTI_VERTEX, PROPERTY, UNION_ALPHA, IMMUTABLE_ALPHA, SEQUENCE]:
+                elif hstype in [ALPHA, VERTEX, ANTI_VERTEX, PROPERTY, ANTI_PROPERTY, UNION_ALPHA, IMMUTABLE_ALPHA, SEQUENCE]:
                     new_vertex = vertex + "@" + str(len(self.hypernetwork[vertex].simplex) + 1)
                     partOf.add(vertex)
                     self.hypernetwork[vertex].simplex.append(new_vertex)
@@ -575,7 +585,7 @@ class Hypernetwork:
                     (hstype, simplex, R) = self.hypernetwork[vertex]._handle_alpha_union(hstype=hstype,
                                                                                          simplex=simplex, R=R)
 
-                if hstype not in [VERTEX, ANTI_VERTEX, PROPERTY] and simplex != self.hypernetwork[vertex].simplex:
+                if hstype not in [VERTEX, ANTI_VERTEX, PROPERTY, ANTI_PROPERTY] and simplex != self.hypernetwork[vertex].simplex:
                     vertex = self.hypernetwork[vertex]._handle_Hs_union_dups(hstype=hstype, simplex=simplex,
                                                                              R=R, t=t, C=C, B=B, N=N,
                                                                              psi=psi, psi_inv=psi_inv,
@@ -594,8 +604,14 @@ class Hypernetwork:
                             B = self._hypernetwork[vertex].B.union(B)
 
                     partOf.add(vertex)
-            elif self.hypernetwork[vertex].hstype in [PROPERTY]:
+            elif self.hypernetwork[vertex].hstype in [PROPERTY, ANTI_PROPERTY]:
                 self._hypernetwork[vertex].update(vertex=vertex, hstype=hstype, hs_class=hs_class,
+                                                  R=R, t=t, C=C, B=B, N=N,
+                                                  psi=psi, psi_inv=psi_inv, phi=phi, phi_inv=phi_inv,
+                                                  traffic=traffic, coloured=coloured)
+                
+            elif self._hypernetwork[vertex].hstype in [VERTEX] and hstype in [ALPHA, UNION_ALPHA, BETA]:
+                self._hypernetwork[vertex].update(vertex=vertex, hstype=hstype, hs_class=hs_class, simplex=simplex,
                                                   R=R, t=t, C=C, B=B, N=N,
                                                   psi=psi, psi_inv=psi_inv, phi=phi, phi_inv=phi_inv,
                                                   traffic=traffic, coloured=coloured)
@@ -620,6 +636,7 @@ class Hypernetwork:
         # If the simplex of type hsTyoe is found then
         #   replace the new details and all references
         search = []
+
         if do_search:
             if simplex:
                 if vertex or vertex != "":
@@ -628,11 +645,11 @@ class Hypernetwork:
                     search = self.search(hstype=hstype, simplex=simplex)
 
             else:
-                if hstype not in [PROPERTY]:
+                if hstype not in [PROPERTY, ANTI_PROPERTY]:
                     search = self.search(hstype=hstype, vertex=vertex)
 
         if vertex == "" or not vertex:
-            if hstype not in [PROPERTY]:
+            if hstype not in [PROPERTY, ANTI_PROPERTY]:
                 vertex = "@Hs_{}@".format(self._counter)
                 self._counter += 1
 
@@ -660,7 +677,7 @@ class Hypernetwork:
 
         else:
             # TODO added this to union the partOf, not sure if it is correct, needs testing
-            if hstype not in [PROPERTY]:
+            if hstype not in [PROPERTY, ANTI_PROPERTY]:
                 _insert(partOf, hs_class=hs_class)  # TODO this is new and not fully tested
 
         for v in simplex:
@@ -778,10 +795,10 @@ class Hypernetwork:
                 return hs1
 
             if not hstype_equal and not sigma_equal and R_equal:
-                if hs1.hstype in [VERTEX, PROPERTY] and hs2.hstype in [ALPHA, UNION_ALPHA, BETA]:
+                if hs1.hstype in [VERTEX, PROPERTY, ANTI_PROPERTY] and hs2.hstype in [ALPHA, UNION_ALPHA, BETA]:
                     return hs2
 
-                if (hs1.hstype in [ALPHA, UNION_ALPHA, BETA]) and hs2.hstype in [VERTEX, PROPERTY]:
+                if (hs1.hstype in [ALPHA, UNION_ALPHA, BETA]) and hs2.hstype in [VERTEX, PROPERTY, ANTI_PROPERTY]:
                     return hs1
 
                 if hs1.hstype in [ALPHA, UNION_ALPHA] and hs2.hstype in [BETA]:
@@ -882,7 +899,12 @@ class Hypernetwork:
                     # _hypersimplex.hs_type = str_to_hstype(hs_k)
                     _hypersimplex.hs_simplex.append(self.parse(hs_v))
 
-                elif hs_k in ["VERTEX", "ANTI_VERTEX", "PROPERTY"]:
+                elif hs_k in ["PROPERTY", "ANTI_PROPERTY"]:
+                    _hypersimplex.hs_type = str_to_hstype(hs_k)
+                    _hypersimplex.hs_name = hs_v
+                    _hypersimplex.hs_N = "N"
+
+                elif hs_k in ["VERTEX", "ANTI_VERTEX"]:
                     _hypersimplex.hs_type = str_to_hstype(hs_k)
                     _hypersimplex.hs_name = hs_v[0]["V"]
                     _hypersimplex.hs_N = hs_v[1]["N"]
@@ -1043,7 +1065,7 @@ class Hypernetwork:
                     fail = True
 
             if (simplex and not fail) or (simplex and vertex != node.vertex):
-                if hstype in [VERTEX, ANTI_VERTEX, PROPERTY]:
+                if hstype in [VERTEX, ANTI_VERTEX, PROPERTY, ANTI_PROPERTY]:
                     if node.simplex == simplex:
                         found = True
                     else:
@@ -1116,7 +1138,7 @@ class Hypernetwork:
             Hn = None
 
         def _get_subHn(_hs):
-            if _hs.hstype not in [VERTEX, ANTI_VERTEX, PROPERTY]:
+            if _hs.hstype not in [VERTEX, ANTI_VERTEX, PROPERTY, ANTI_PROPERTY]:
                 for v in _hs.simplex:
                     h = self.hypernetwork[v]
                     _get_subHn(h)
@@ -1141,7 +1163,7 @@ class Hypernetwork:
                 for v in self._hypernetwork[_vertex].simplex:
                     _res = _res.union(_get_vertices(v))
 
-            elif self._hypernetwork[_vertex].hstype in [VERTEX, ANTI_VERTEX, PROPERTY]:
+            elif self._hypernetwork[_vertex].hstype in [VERTEX, ANTI_VERTEX, PROPERTY, ANTI_PROPERTY]:
                 _res.add(self._hypernetwork[_vertex].vertex)
 
             else:
@@ -1181,7 +1203,7 @@ class Hypernetwork:
         res = ""
 
         for key, hs in self.hypernetwork.items():
-            if hs.hstype not in [NONE, VERTEX, ANTI_VERTEX, PROPERTY]:
+            if hs.hstype not in [NONE, VERTEX, ANTI_VERTEX, PROPERTY, ANTI_PROPERTY]:
                 res = res + str(hs) + "\n"
 
         return res
@@ -1254,7 +1276,7 @@ class Hypernetwork:
                 else:
                     _res += "}"
 
-            elif simplex.hstype in [VERTEX, ANTI_VERTEX, PROPERTY]:
+            elif simplex.hstype in [VERTEX, ANTI_VERTEX, PROPERTY, ANTI_PROPERTY]:
                 return simplex.vertex
 
             return _res

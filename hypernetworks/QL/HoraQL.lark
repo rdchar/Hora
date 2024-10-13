@@ -1,0 +1,69 @@
+start: query
+
+query: "SELECT" value_clause optional_boundaries? optional_where? optional_hints?
+
+value_clause: value_list | "ALL"
+value_list: value ("," value)*
+value: rollup_value | CNAME
+
+rollup_value: "ROLLUP" "(" CNAME ")"  // Handle ROLLUP(value) syntax
+
+optional_boundaries: "WITHIN" boundary_expression
+
+boundary_expression: boundary_or_expr
+
+boundary_or_expr: boundary_and_expr
+        | boundary_or_expr "OR" boundary_and_expr
+
+boundary_and_expr: boundary_not_expr
+        | boundary_and_expr "AND" boundary_not_expr
+
+boundary_not_expr: boundary_clause
+        | "NOT" boundary_not_expr
+        | "(" boundary_expression ")"
+
+boundary_clause: within_clause
+
+within_clause: boundary_list
+
+boundary_list: boundary_name ("," boundary_name)*
+boundary_name: CNAME  // Boundary names are now identifiers
+
+optional_where: "WHERE" expression
+
+expression: or_expr
+
+or_expr: and_expr
+        | or_expr "OR" and_expr
+
+and_expr: not_expr
+        | and_expr "AND" not_expr
+
+not_expr: comparison
+        | "NOT" not_expr
+        | "(" expression ")"
+
+comparison: comparison_equal
+            | comparison_notequal
+            | comparison_in
+            | comparison_notin
+
+comparison_equal: "R" "==" CNAME
+comparison_notequal: "R" "!=" CNAME  // R == value or R != value
+comparison_in: "R IN" cname_list       // list of values IN R
+comparison_notin: "R NOT IN" cname_list   // list of values NOT IN R
+
+cname_list: "[" CNAME ("," CNAME)* "]"
+
+optional_hints: "HINTS" hint_list
+hint_list: hint ("," hint)*
+hint: TRAVERSE_BETA | BRANCH_ONLY | PARTS_ONLY | WHOLES_ONLY
+
+TRAVERSE_BETA: "TRAVERSE_BETA"
+BRANCH_ONLY: "BRANCH_ONLY"
+PARTS_ONLY: "PARTS_ONLY"
+WHOLES_ONLY:  "WHOLES_ONLY"
+
+CNAME: /[a-zA-Z_][a-zA-Z0-9_]*/
+%import common.WS
+%ignore WS

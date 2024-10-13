@@ -201,7 +201,7 @@ def compile_hn(Hn, parser, hs_string, boundary_percolation=True):
 
         def anti_property(self, token):
             # TODO add NOT to the result.  This will mean chasing through the token to capture NOT.
-            return self.property(token)
+            return {"ANTI_PROPERTY": str(token)}
 
         def r(self, *tokens):
             if len(tokens) == 0:

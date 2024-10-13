@@ -30,7 +30,8 @@ NONE = -1
 UNION = 1
 IMMUTABLE = 2
 
-HS_TYPE = ['NONE', 'VERTEX', 'ANTI_VERTEX', 'ALPHA', 'BETA', 'PROPERTY', 'UNION_ALPHA', 'IMMUTABLE_ALPHA', 'SEQUENCE']
+HS_TYPE = ['NONE', 'VERTEX', 'ANTI_VERTEX', 'ALPHA', 'BETA', 'PROPERTY', 'ANTI_PROPERTY',
+           'UNION_ALPHA', 'IMMUTABLE_ALPHA', 'SEQUENCE']
 
 hstype_to_str = lambda x: HS_TYPE[x + 1]
 str_to_hstype = lambda x: HS_TYPE.index(x) - 1
@@ -490,7 +491,8 @@ class Hypersimplex:
                 #     new_simplex.append("*" + v)
                 #
                 # else:
-                if v in self._hypernetwork.hypernetwork and self._hypernetwork.hypernetwork[v].hstype == PROPERTY:
+                if v in self._hypernetwork.hypernetwork and \
+                        self._hypernetwork.hypernetwork[v].hstype in [PROPERTY, ANTI_PROPERTY]:
                     new_simplex.append("~" + v)
                 else:
                     new_simplex.append(v)

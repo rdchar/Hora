@@ -8,7 +8,8 @@ from graphviz import Graph
 import matplotlib.pyplot as plt
 
 from hypernetworks.core.Hypernetwork import Hypernetwork
-from hypernetworks.core.Hypersimplex import ALPHA, UNION_ALPHA, BETA, VERTEX, ANTI_VERTEX, PROPERTY, SEQUENCE
+from hypernetworks.core.Hypersimplex import ALPHA, UNION_ALPHA, BETA, VERTEX, \
+    ANTI_VERTEX, PROPERTY, ANTI_PROPERTY, SEQUENCE
 
 
 def split_camelcase(word, max):
@@ -68,12 +69,14 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
                 vtx_hs = hn.hypernetwork[vtx]
                 vtx_lbl = split_camelcase(vtx, 16) if split_camel else vtx
 
-                if vtx in hn.hypernetwork and vtx_hs.hstype not in [PROPERTY]:
+                if vtx in hn.hypernetwork and vtx_hs.hstype not in [PROPERTY, ANTI_PROPERTY]:
                     vtx_port = vtx + "-" + str(pos)
 
                 if first:
                     if show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [PROPERTY]:
                         label += "_" + vtx_lbl + "_"
+                    elif show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [ANTI_PROPERTY]:
+                        label += "~_" + vtx_lbl + "_"
                     elif vtx in hn.hypernetwork and vtx_hs.hstype in [ANTI_VERTEX]:
                         label += "<" + vtx_port + "> ~" + vtx_lbl
                     elif vtx in hn.hypernetwork and vtx_hs.hstype in [SEQUENCE]:
@@ -87,6 +90,8 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
                 else:
                     if show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [PROPERTY]:
                         label += " | _" + vtx_lbl + "_"
+                    elif show_prop and vtx in hn.hypernetwork and vtx_hs.hstype in [ANTI_PROPERTY]:
+                        label += " | ~_" + vtx_lbl + "_"
                     elif vtx in hn.hypernetwork and vtx_hs.hstype in [ANTI_VERTEX]:
                         label += " | <" + vtx_port + "> ~" + vtx_lbl
                     elif vtx in hn.hypernetwork and vtx_hs.hstype in [SEQUENCE]:
@@ -151,7 +156,7 @@ def draw_hn(hn, direction="", show_rel=True, show_levels=False, show_boundary=Tr
                 vtx_port = vtx
 
             else:
-                if vtx in hn.hypernetwork and vtx_hs.hstype not in [PROPERTY]:
+                if vtx in hn.hypernetwork and vtx_hs.hstype not in [PROPERTY, ANTI_PROPERTY]:
                     vtx_port = vtx
 
             if hs.hstype in [ALPHA, UNION_ALPHA, BETA, SEQUENCE]:
