@@ -601,7 +601,10 @@ class Hypernetwork:
 
                     if self._hypernetwork[vertex].B != B:  # TODO B
                         if B:
-                            B = self._hypernetwork[vertex].B.union(B)
+                            if boundary_percolation:
+                                B = self._hypernetwork[vertex].B.union(B)
+                            else:
+                                B = self._hypernetwork[vertex].B
 
                     partOf.add(vertex)
             elif self.hypernetwork[vertex].hstype in [PROPERTY, ANTI_PROPERTY]:

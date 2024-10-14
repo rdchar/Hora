@@ -16,7 +16,7 @@ def load_parser():
     return parser
 
 
-def compile_hn(Hn, parser, hs_string, boundary_percolation=True):
+def compile_hn(Hn, parser, hs_string, boundary_percolation=False):
     @lark.v_args(inline=True)
     class HnTransformer(lark.Transformer):
         def start(self, *tokens):
