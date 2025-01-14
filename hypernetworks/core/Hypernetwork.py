@@ -249,13 +249,13 @@ class Hypernetwork:
 
         self._add_func_collections(R, psi, psi_inv, phi, phi_inv)
 
-    def insert_hs(self, vertex="", hs=None):
+    def insert_hs(self, vertex="", hs=None, boundary_percolation=True):
         if vertex:
             vertex = hs.vertex
 
         self.insert(vertex, hstype=hs.hstype, simplex=hs.simplex, R=hs.R, t=hs.t, C=hs.C, B=hs.B,
                     N=hs.N, psi=hs.psi, psi_inv=hs.psi_inv, phi=hs.phi, phi_inv=hs.phi_inv,
-                    traffic=hs.traffic, coloured=hs.coloured)
+                    traffic=hs.traffic, coloured=hs.coloured, boundary_percolation=boundary_percolation)
 
     def delete(self, vertex="", R="", del_children=False, B=""):
         def _delete_vertex(_vertex):
@@ -778,7 +778,7 @@ class Hypernetwork:
 
         return self
 
-    def meet(self, hn, inc_whole_beta=True):
+    def meet(self, hn, inc_whole_beta=True, boundary_percolation=False):
         def _compare(hs1, hs2):
             hstype_equal = hs1.hstype == hs1.hstype
             sigma_equal = hs1.simplex == hs2.simplex
@@ -835,7 +835,8 @@ class Hypernetwork:
                     new_hn.insert(hs.vertex, hs_class=hs.hs_class, hstype=hs.hstype, simplex=simplex,
                                   R=hs.R, t=hs.t, C=hs.C, B=B, psi=hs.psi, psi_inv=hs.psi_inv,
                                   phi=hs.phi, phi_inv=hs.phi_inv,
-                                  traffic=hs.traffic, coloured=hs.coloured)
+                                  traffic=hs.traffic, coloured=hs.coloured, 
+                                  boundary_percolation=boundary_percolation)
 
         self._hypernetwork.clear()
 
@@ -844,7 +845,7 @@ class Hypernetwork:
 
         return new_hn
 
-    def minus(self, hn, boundary_percolation=True):
+    def minus(self, hn, boundary_percolation=False, ignore_boundary=False):
         new_hn = Hypernetwork()
 
         for name, hs in self.hypernetwork.items():

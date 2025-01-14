@@ -18,7 +18,7 @@ immutable_alpha: "!" alpha
 // not_alpha:      "&" alpha  // should be '¬' option-L
 // not_beta:       "&" beta
 
-// not_alpha:      "~<" a_simplex? r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
+// not_alpha:    "~<" a_simplex? r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
 alpha:          "<" a_simplex? r? time? coordinate? boundary? psi? psi_inv? phi? phi_inv? where? ">" level?
 beta:           "{" b_simplex? r? time? boundary? psi? psi_inv? phi? phi_inv? "}" level?
 // empty_alpha:    "<>"

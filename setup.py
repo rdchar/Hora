@@ -28,9 +28,9 @@ setup(
     long_description_content_type='text/x-rst',
     long_description="""Hypernetwork Theory library.""",
     install_requires=reqs('requirements.txt'),
-    packages=['hypernetworks', 'hypernetworks/core', 'hypernetworks/utils'],
+    packages=['hypernetworks', 'hypernetworks/core', 'hypernetworks/utils', 'hypernetworks/QL'],
     cmdclass={"install_scripts": py_install},
-    package_data={'': ['fullHT.lark']},
+    package_data={'': ['fullHT.lark', 'HoraQL.lark']},
     include_package_data=True,
     zip_safe=False
 )
