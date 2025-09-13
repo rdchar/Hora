@@ -12,7 +12,6 @@ def get_space(hn, ignore_sb, shrink_beta, *vertex_list):
     paths = get_paths(hn, ignore_sb, *vertex_list)
     shape = set()
     parser = load_parser()
-    print(paths)
 
     for key, val in paths.items():
         path = paths.get(key)

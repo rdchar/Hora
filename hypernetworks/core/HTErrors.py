@@ -37,6 +37,10 @@ class HnRMismatch(HnErrors):
     pass
 
 
+class HnHsTypeMismatch(HnErrors):
+    pass
+
+
 class HnTypeOrSimplexSizeMismatch(HnErrors):
     pass
 

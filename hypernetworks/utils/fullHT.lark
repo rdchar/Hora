@@ -55,7 +55,7 @@ phi:            ";" "phi_" NAME
 psi_inv:        ";" "psi-inv_" NAME
 phi_inv:        ";" "phi-inv_" NAME
 
-typed:          "::" TYPE
+typed:          "$" TYPE
 
 vname:          "v_" NUMBER
 rname:          NAME
@@ -102,7 +102,7 @@ WILDCARD:       "*"
 X:              DIGIT+
 Y:              DIGIT+
 Z:              DIGIT+
-// NOT:            "~"
+// NOT:         "~"
 LEVEL:          "+" DIGIT+
               | "-" DIGIT+
               | DIGIT+

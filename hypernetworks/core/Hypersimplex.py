@@ -103,7 +103,7 @@ class HsVertex:
 
 
 class Hypersimplex:
-    def __init__(self, _hn, vertex, hs_class=HS_STANDARD, hstype=VERTEX, simplex=None, R="", t=-1, C=None,
+    def __init__(self, _hn, vertex, named="", hs_class=HS_STANDARD, hstype=VERTEX, simplex=None, R="", t=-1, C=None,
                  B=None, N="N", psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
 
         self._hypernetwork = _hn
@@ -117,7 +117,10 @@ class Hypersimplex:
         else:
             self._special = NONE
 
+        if named: print("WARNING: Cannot create a named vertex:", named+"$"+vertex)
+
         self._vertex = HsVertex(vertex)
+        self._named = named
 
         if simplex:
             for v in simplex:
@@ -162,6 +165,14 @@ class Hypersimplex:
 
         else:
             self._vertex.vertex = _vertex
+
+    @property
+    def named(self):
+        return self._named
+    
+    @named.setter
+    def named(self, value):
+        self._named = value
 
     @property
     def hs_class(self):
@@ -318,12 +329,15 @@ class Hypersimplex:
     def is_immutable(self):
         return self._special == IMMUTABLE
 
-    def update(self, vertex="", hs_class=HS_STANDARD, hstype=NONE, simplex=None,
+    def update(self, vertex="", named="", hs_class=HS_STANDARD, hstype=NONE, simplex=None,
                R="", t=-1, C=None, B=None, other=None, N="N",
                psi="", psi_inv="", phi="", phi_inv="", partOf=None, traffic=None, coloured=None):
 
         if vertex:
             self.vertex = vertex
+
+        if named:
+            self.named = named
 
         if hs_class != self._hs_class:
             self._hs_class = hs_class
@@ -407,7 +421,7 @@ class Hypersimplex:
                                     traffic=traffic, coloured=coloured)
             # self._hypernetwork.hypernetwork.pop(self.vertex, None)
 
-            self.hstype = ALPHA
+            self.hstype = BETA
             self.simplex = [self.vertex + "@1", self.vertex + "@2"]
             if self.vertex in self.partOf:
                 self.partOf.remove(self.vertex)
@@ -494,6 +508,8 @@ class Hypersimplex:
                 if v in self._hypernetwork.hypernetwork and \
                         self._hypernetwork.hypernetwork[v].hstype in [PROPERTY, ANTI_PROPERTY]:
                     new_simplex.append("~" + v)
+                elif self._hypernetwork.hypernetwork[v].named:
+                    new_simplex.append(self.named + "$" + v)
                 else:
                     new_simplex.append(v)
 

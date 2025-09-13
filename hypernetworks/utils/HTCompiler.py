@@ -16,7 +16,7 @@ def load_parser():
     return parser
 
 
-def compile_hn(Hn, parser, hs_string, boundary_percolation=False):
+def compile_hn(Hn, parser, hs_string, boundary_percolation=True):
     @lark.v_args(inline=True)
     class HnTransformer(lark.Transformer):
         def start(self, *tokens):
@@ -151,8 +151,11 @@ def compile_hn(Hn, parser, hs_string, boundary_percolation=False):
                 else:
                     if len(tokens) == 1:
                         res = str(tk)  # TODO need to add functionality for typed
-                    elif len(tokens) == 2:
-                        res = [{"VERTEX": [{"V": tokens[0][0]}, {"N": tokens[1]["N"]}]}]
+                    elif len(tokens) > 1:
+                        # TODO need to make sure N works
+                        res = [{"VERTEX": [{"V": tokens[1]["TYPE"]}, {"NAME": tokens[0].value}]}]
+
+                    # TODO: add N as a second or third parameter
 
                     break
 
